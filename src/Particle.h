@@ -114,6 +114,8 @@ public:
    vector<int>     *isPassMedium = 0;
    vector<int>     *isPassTight = 0;
    vector<int>     *isPassHEEPId = 0;
+   vector<int>     *isMVAwp1 = 0;
+   vector<int>     *isMVAwp2 = 0;
    vector<double>  *isoChargedHadrons = 0;
    vector<double>  *isoNeutralHadrons = 0;
    vector<double>  *isoPhotons = 0;
