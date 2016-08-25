@@ -584,7 +584,9 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
       if(stats.bmap.at("DoDiscrByMediumID") && (partE.isPassMedium->at(i) == 0)) continue;
       if(stats.bmap.at("DoDiscrByTightID") && (partE.isPassTight->at(i) == 0)) continue;
       if(stats.bmap.at("DoDiscrByHEEPID") && (partE.isPassHEEPId->at(i) == 0)) continue;
-
+      if(stats.bmap.at("DoDiscrByMVA1ID") && (partE.isMVAwp1->at(i) == 0)) continue;
+      if(stats.bmap.at("DoDiscrByMVA2ID") && (partE.isMVAwp2->at(i) == 0)) continue; 
+       
       if (stats.bmap.at("DoDiscrByIsolation")) {
 	double maxIsoval = std::max(0.0 , partE.isoNeutralHadrons->at(i) + partE.isoPhotons->at(i) - 0.5 * partE.isoPU->at(i) );
 	double isoSum = (partE.isoChargedHadrons->at(i) + maxIsoval) / lvec.Pt();
