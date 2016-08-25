@@ -93,6 +93,14 @@ Electron::Electron(TTree* BOOM, string filename) : Lepton(BOOM, "patElectron", f
     BOOM->SetBranchStatus("patElectron_isPassHEEPId", 1);
     BOOM->SetBranchAddress("patElectron_isPassHEEPId", &isPassHEEPId);
   }
+  if(pstats["Elec1"].bmap["DoDiscrByMVA1ID"] || pstats["Elec2"].bmap["DoDiscrByMVA1ID"]) {
+    BOOM->SetBranchStatus("patElectron_passMV1wp1Id", 1);
+    BOOM->SetBranchAddress("patElectron_passMV1wp1Id", &isMVAwp1);
+  }
+  if(pstats["Elec1"].bmap["DoDiscrByMVA2ID"] || pstats["Elec2"].bmap["DoDiscrByMVA2ID"]) {
+    BOOM->SetBranchStatus("patElectron_passMV2wp1Id", 1);
+    BOOM->SetBranchAddress("patElectron_passMV2wp1Id", &isMVAwp2);
+  }
 }
 
 
