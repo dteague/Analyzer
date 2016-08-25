@@ -34,7 +34,8 @@ DoDiscrByLooseID 0
 DoDiscrByMediumID 0
 DoDiscrByTightID 0
 DoDiscrByHEEPID 0
-
+DoDiscrByMVA2ID 0
+DoDiscrByMVA2ID 0
 ///---MET TOPOLOGY CUTS---///
 
 DiscrIfIsZdecay 0
@@ -62,7 +63,8 @@ DoDiscrByLooseID 0
 DoDiscrByMediumID 0
 DoDiscrByTightID 0
 DoDiscrByHEEPID 0
-
+DoDiscrByMVA2ID 0
+DoDiscrByMVA2ID 0
 ///---MET TOPOLOGY CUTS---///
 
 DiscrIfIsZdecay 0
