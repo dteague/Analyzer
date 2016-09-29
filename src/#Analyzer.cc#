@@ -34,7 +34,7 @@ Analyzer::Analyzer(string infile, string outfile) : hPUmc(new TH1F("hPUmc", "hPU
   isData = distats["Run"].bmap.at("isData");
   CalculatePUSystematics = distats["Run"].bmap.at("CalculatePUSystematics");
   histo = Histogramer(1, FILESPACE+"Hist_entries.in", FILESPACE+"Cuts.in", outfile, isData);
-  setCutNeeds();
+
 
   initializePileupInfo(distats["Run"].smap.at("MCHistos"), distats["Run"].smap.at("DataHistos"));
 

@@ -41,6 +41,8 @@
 //#define const
 using namespace std;
 
+static const int nTrigReq = 2;
+
 class Analyzer {
 
  public:
@@ -50,15 +52,12 @@ class Analyzer {
   void preprocess(int);
   void fillCuts();
   void printCuts();
-  void writeout();
   int nentries;
   void fill_histogram();
 
  private:
   void fill_Folder(string, int);
 
-  void getInputs();
-  void setupJob(string);
   void initializePileupInfo(string, string);  
   void read_info(string);
   void setupGeneral(TTree*, string);
@@ -66,29 +65,17 @@ class Analyzer {
   void smearLepton(Lepton&, CUTS, const PartStats&);
   void smearJet(const PartStats&);
 
-  bool JetMatchesLepton(const Lepton&, const TLorentzVector&, double, CUTS);
-  TLorentzVector matchLeptonToGen(const TLorentzVector&, const PartStats&, CUTS);
-  TLorentzVector matchTauToGen(const TLorentzVector&, double);
+  void TriggerCuts(vector<int>&, const vector<string>&, CUTS);
 
-  void getGoodTauNu();  
-  void getGoodGen(int, int, CUTS, const PartStats&);
-  void getGoodRecoLeptons(const Lepton&, const CUTS, const CUTS, const PartStats&);
-  void getGoodRecoJets(CUTS, const PartStats&);
+  ////object that holds all of the good Particles.  If a particle passes, push its
+  ///index into the correct bin.  Use this to make a graph of the good particle's
+  ///details
+  std::array<std::vector<int>, static_cast<int>(CUTS::enumSize)> goodParts;
+  ////object that holds the details of the diparticle combos.  Check this by looking
+  ///at setupGeneral for what qualifies as a distats particle
+  unordered_map<string, PartStats> distats;
 
-  void getGoodMetTopologyLepton(const Lepton&, CUTS,CUTS, const PartStats&);
-  void getGoodLeptonCombos(Lepton&, Lepton&, CUTS,CUTS,CUTS, const PartStats&);
-  void getGoodDiJets(const PartStats&);
 
-  void VBFTopologyCut();
-  bool passTriggerCuts(string);
-  int find_trigger(vector<string>&, string);
-
-  void SVFit(const Lepton&, const Lepton&, CUTS, svFitStandalone::kDecayType, svFitStandalone::kDecayType, string, int, double);
-  pair<svFitStandalone::kDecayType, svFitStandalone::kDecayType> getTypePair(CUTS ePos);
-
-  double calculateLeptonMetMt(const TLorentzVector&);
-  double diParticleMass(const TLorentzVector&, const TLorentzVector&, string);
-  bool passDiParticleApprox(const TLorentzVector&, const TLorentzVector&, string);
   bool isZdecay(const TLorentzVector&, const Lepton&);
 
   bool isOverlaping(const TLorentzVector&, Lepton&, CUTS, double);
@@ -116,11 +103,14 @@ class Analyzer {
   Jet* _Jet;
   Histogramer histo;
 
-  unordered_map<string, PartStats> distats;
-  unordered_map<string, pair<int,int> > prevTrig;
+
+
+  vector<int>* trigPlace[nTrigReq];
+  vector<string>* trigName[nTrigReq];
+
   PartStats genStat;
   unordered_map<string, double> genMap;
-  std::array<std::vector<int>, static_cast<int>(CUTS::enumSize)> goodParts;
+
   
   vector<int> cuts_per, cuts_cumul;
 
@@ -134,14 +124,16 @@ class Analyzer {
   vector<string>* Trigger_names = 0;
   float nTruePU = 0;
   int bestVertices = 0;
+  double gen_weight = 0;
   double Met_px = 0;
   double Met_py = 0;
   double Met_pz = 0;
   TMatrixD MetCov;
 
   double pu_weight, wgt;
+  unordered_map<CUTS, bool, EnumHash> need_cut;
 
-  unordered_map<string, CUTS> fill_num = { {"FillVertices", CUTS::eRVertex}, {"FillTauJet1", CUTS::eRTau1}, {"FillTauJet2", CUTS::eRTau2}, {"FillMuon1", CUTS::eRMuon1}, {"FillMuon2", CUTS::eRMuon2}, {"FillJet1", CUTS::eRJet1}, {"FillJet2", CUTS::eRJet2}, {"FillBJet", CUTS::eRBJet}, {"FillCentralJet", CUTS::eRCenJet}, {"FillSusyCuts", CUTS::eSusyCom}, {"FillDiMuon", CUTS::eDiMuon}, {"FillDiTau", CUTS::eDiTau}, {"FillMuon1Tau1", CUTS::eMuon1Tau1}, {"FillMuon1Tau2", CUTS::eMuon1Tau2}, {"FillMuon2Tau1", CUTS::eMuon2Tau1}, {"FillMuon2Tau2", CUTS::eMuon2Tau2} };
+  unordered_map<string, CUTS> fill_num = { {"FillVertices", CUTS::eRVertex}, {"FillTauJet1", CUTS::eRTau1}, {"FillTauJet2", CUTS::eRTau2}, {"FillElectron1", CUTS::eRElec1}, {"FillElectron2", CUTS::eRElec2}, {"FillMuon1", CUTS::eRMuon1}, {"FillMuon2", CUTS::eRMuon2}, {"FillJet1", CUTS::eRJet1}, {"FillJet2", CUTS::eRJet2}, {"FillBJet", CUTS::eRBJet}, {"FillCentralJet", CUTS::eRCenJet}, {"FillSusyCuts", CUTS::eSusyCom}, {"FillDiMuon", CUTS::eDiMuon}, {"FillDiTau", CUTS::eDiTau}, {"FillMuon1Tau1", CUTS::eMuon1Tau1}, {"FillMuon1Tau2", CUTS::eMuon1Tau2}, {"FillMuon2Tau1", CUTS::eMuon2Tau1}, {"FillMuon2Tau2", CUTS::eMuon2Tau2}, {"FillElectron1Tau1", CUTS::eElec1Tau1}, {"FillElectron1Tau2", CUTS::eElec1Tau2}, {"FillElectron2Tau1", CUTS::eElec2Tau1}, {"FillElectron2Tau2", CUTS::eElec2Tau2}, {"FillMuon1Electron1", CUTS::eMuon1Elec1}, {"FillMuon1Electron2", CUTS::eMuon1Elec2}, {"FillMuon2Electron1", CUTS::eMuon2Elec1}, {"FillMuon2Electron2", CUTS::eMuon2Elec2} };
   
   std::unordered_map<string, CUTS> cut_num = { {"NGenTau", CUTS::eGTau}, {"NGenTop", CUTS::eGTop}, {"NGenElectron", CUTS::eGElec}, \
     {"NGenMuon", CUTS::eGMuon}, {"NGenZ", CUTS::eGZ}, {"NGenW", CUTS::eGW}, {"NGenHiggs", CUTS::eGHiggs}, \
@@ -158,9 +150,12 @@ class Analyzer {
     {"NMuon2Tau1Combinations", CUTS::eMuon2Tau1}, {"NMuon2Tau2Combinations", CUTS::eMuon2Tau2},
     {"NElectron1Tau1Combinations", CUTS::eElec1Tau1}, {"NElectron1Tau2Combinations", CUTS::eElec1Tau2},
     {"NElectron2Tau1Combinations", CUTS::eElec2Tau1}, {"NElectron2Tau2Combinations", CUTS::eElec2Tau2},
+    {"NMuon1Electron1Combinations", CUTS::eMuon1Elec1}, {"NMuon1Electron2Combinations", CUTS::eMuon1Elec2},
+    {"NMuon2Electron1Combinations", CUTS::eMuon2Elec1}, {"NMuon2Electron2Combinations", CUTS::eMuon2Elec2},
     {"NSusyCombinations", CUTS::eSusyCom}, {"METCut", CUTS::eMET} };
 
 
 };
+
 
 #endif

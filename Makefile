@@ -22,7 +22,6 @@ SOFLAGS = -shared
 LIBS =
 
 SRCDIR = src
-SVFITDIR = $(SRCDIR)/svfit
 OBJDIR = obj
 EXE = Analyzer
 
@@ -30,8 +29,6 @@ EXE = Analyzer
 SOURCES = $(wildcard src/*.cc)
 OBJECTS = $(SOURCES:$(SRCDIR)/%.cc=$(OBJDIR)/%.o)
 
-SVFITSRC = $(wildcard $(SVFITDIR)/*.cc)
-SVFITOBJ = $(SVFITSRC:$(SVFITDIR)/%.cc=$(OBJDIR)/%.o)
 #------------------------------------------------------------------------------
 
 all: $(OBJECTS) $(SVFITOBJ)
