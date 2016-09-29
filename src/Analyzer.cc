@@ -13,7 +13,7 @@ const string PUSPACE = "Pileup/";
 //////////PUBLIC FUNCTIONS////////////////////
 
 ///Constructor
-Analyzer::Analyzer(string infile, string outfile) : hPUmc(new TH1F("hPUmc", "hPUmc", 100, 0, 100)), hPUdata(new TH1F("hPUdata", "hPUdata", 100, 0, 100)), MetCov(2,2) {
+Analyzer::Analyzer(string infile, string outfile) : hPUmc(new TH1F("hPUmc", "hPUmc", 100, 0, 100)), hPUdata(new TH1F("hPUdata", "hPUdata", 100, 0, 100)) {
   cout << "setup start" << endl;
   f = TFile::Open(infile.c_str());
   f->cd("TNT");
@@ -297,10 +297,6 @@ void Analyzer::setupGeneral(TTree* BOOM, string infile) {
   BOOM->SetBranchStatus("Met_type1PF_px", 1);
   BOOM->SetBranchStatus("Met_type1PF_py", 1);
   BOOM->SetBranchStatus("Met_type1PF_pz", 1);
-  BOOM->SetBranchStatus("Met_type1PF_cov00", 1);
-  BOOM->SetBranchStatus("Met_type1PF_cov01", 1);
-  BOOM->SetBranchStatus("Met_type1PF_cov10", 1);
-  BOOM->SetBranchStatus("Met_type1PF_cov11", 1);
 
   BOOM->SetBranchAddress("Trigger_decision", &Trigger_decision);
   BOOM->SetBranchAddress("Trigger_names", &Trigger_names);
@@ -310,10 +306,6 @@ void Analyzer::setupGeneral(TTree* BOOM, string infile) {
   BOOM->SetBranchAddress("Met_type1PF_px", &Met_px);
   BOOM->SetBranchAddress("Met_type1PF_py", &Met_py);
   BOOM->SetBranchAddress("Met_type1PF_pz", &Met_pz);
-  BOOM->SetBranchAddress("Met_type1PF_cov00", &MetCov[0][0]);
-  BOOM->SetBranchAddress("Met_type1PF_cov01", &MetCov[0][1]);
-  BOOM->SetBranchAddress("Met_type1PF_cov10", &MetCov[1][0]);
-  BOOM->SetBranchAddress("Met_type1PF_cov11", &MetCov[1][1]);
 
   read_info(FILESPACE + "ElectronTau_info.in");
   read_info(FILESPACE + "MuonTau_info.in");

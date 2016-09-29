@@ -34,7 +34,6 @@
 #include <TEnv.h>
 #include "Particle.h"
 #include "Histo.h"
-#include "./svfit/SVfitStandaloneAlgorithm.h"
 
 //#include <ctime>
 
@@ -128,7 +127,6 @@ class Analyzer {
   double Met_px = 0;
   double Met_py = 0;
   double Met_pz = 0;
-  TMatrixD MetCov;
 
   double pu_weight, wgt;
   unordered_map<CUTS, bool, EnumHash> need_cut;
