@@ -1,8 +1,8 @@
 #include "DataBinner.h"
 
-using namespace std;
+//using namespace std;
 
-Piece1D::Piece1D(string _name, int _bins, double _begin, double _end, int _Nfold) :
+Piece1D::Piece1D(std::string _name, int _bins, double _begin, double _end, int _Nfold) :
 DataPiece(_name, _Nfold), begin(_begin), end(_end), bins(_bins) {
   for(int i = 0; i < _Nfold; i++) {
     TH1D tmp(name.c_str(), name.c_str(), bins, begin, end);
@@ -15,7 +15,7 @@ void Piece1D::bin(int folder, double y, double weight) {
   histograms.at(folder).Fill(y,weight);
 }
 
-void Piece1D::write_histogram(vector<string>& folders, TFile* outfile, string subfolder) {
+void Piece1D::write_histogram(std::vector<std::string>& folders, TFile* outfile, std::string subfolder) {
   for(int i =0; i < (int)folders.size(); i++) {
     if(subfolder==""){
       outfile->cd(folders.at(i).c_str());
@@ -28,7 +28,7 @@ void Piece1D::write_histogram(vector<string>& folders, TFile* outfile, string su
 
 /*------------------------------------------------------------------------------------------*/
 
-Piece2D::Piece2D(string _name, int _binx, double _beginx, double _endx, int _biny, double _beginy, double _endy, int _Nfold) :
+Piece2D::Piece2D(std::string _name, int _binx, double _beginx, double _endx, int _biny, double _beginy, double _endy, int _Nfold) :
 DataPiece(_name, _Nfold), beginx(_beginx), endx(_endx), beginy(_beginy), endy(_endy), binx(_binx), biny(_biny) {
 
   is1D = false;
@@ -46,7 +46,7 @@ void Piece2D::bin(int folder, double x, double y, double weight) {
 
 }
 
-void Piece2D::write_histogram(vector<string>& folders, TFile* outfile, string subfolder) {
+void Piece2D::write_histogram(std::vector<std::string>& folders, TFile* outfile, std::string subfolder) {
   for(size_t i =0; i < folders.size(); i++) {
     if(subfolder=="")
       outfile->cd(folders.at(i).c_str());
@@ -56,7 +56,7 @@ void Piece2D::write_histogram(vector<string>& folders, TFile* outfile, string su
   }
 }
 
-Piece1DEff::Piece1DEff(string _name, int _bins, double _begin, double _end, int _Nfold) :
+Piece1DEff::Piece1DEff(std::string _name, int _bins, double _begin, double _end, int _Nfold) :
 DataPiece(_name, _Nfold), begin(_begin), end(_end), bins(_bins) {
   for(int i = 0; i < _Nfold; i++) {
     TEfficiency tmp(name.c_str(), name.c_str(), bins, begin, end);
@@ -68,7 +68,7 @@ void Piece1DEff::bin(int folder, double y, bool passFail) {
   histograms.at(folder).Fill(y,passFail);
 }
 
-void Piece1DEff::write_histogram(vector<string>& folders, TFile* outfile) {
+void Piece1DEff::write_histogram(std::vector<std::string>& folders, TFile* outfile) {
   //if(wroteOutput)
     //return;
   outfile->cd();
@@ -83,7 +83,7 @@ void Piece1DEff::write_histogram(vector<string>& folders, TFile* outfile) {
 DataBinner::DataBinner(){}
 
 DataBinner::DataBinner(const DataBinner& rhs) : fillSingle(rhs.fillSingle) {
-  cout << "copied" << endl;
+  std::cout << "copied" << std::endl;
   order = rhs.order;
 
   for(auto it: rhs.datamap) {
@@ -97,7 +97,7 @@ DataBinner::DataBinner(const DataBinner& rhs) : fillSingle(rhs.fillSingle) {
 }
 
 DataBinner::DataBinner(DataBinner&& rhs) : fillSingle(rhs.fillSingle) {
-  cout << "moved" << endl;
+  std::cout << "moved" << std::endl;
   for(auto it: datamap) {
     if(it.second != nullptr) {
       delete it.second;
@@ -121,23 +121,23 @@ DataBinner::~DataBinner() {
   }
 }
 
-void DataBinner::Add_Hist(string shortname, string fullname, int bin, double left, double right, int Nfolder) {
+void DataBinner::Add_Hist(std::string shortname, std::string fullname, int bin, double left, double right, int Nfolder) {
   datamap[shortname] = new Piece1D(fullname, bin, left, right, Nfolder);
   order.push_back(shortname);
 }
 
-void DataBinner::Add_Hist(string shortname, string fullname, int binx, double leftx, double rightx, int biny, double lefty, double righty, int Nfolder) {
+void DataBinner::Add_Hist(std::string shortname, std::string fullname, int binx, double leftx, double rightx, int biny, double lefty, double righty, int Nfolder) {
   datamap[shortname] = new Piece2D(fullname, binx, leftx, rightx, biny, lefty, righty, Nfolder);
   order.push_back(shortname);
 }
 
-void DataBinner::Add_Hist(string shortname, int bin, double left, double right, int Nfolder) {
+void DataBinner::Add_Hist(std::string shortname, int bin, double left, double right, int Nfolder) {
   datamap[shortname] = new Piece1DEff(shortname, bin, left, right, Nfolder);
   order.push_back(shortname);
 }
 
 
-void DataBinner::AddPoint(string name, int maxfolder, double value, double weight) {
+void DataBinner::AddPoint(std::string name, int maxfolder, double value, double weight) {
   if(datamap.count(name) == 0)  return;
 
   if(fillSingle) {
@@ -151,7 +151,7 @@ void DataBinner::AddPoint(string name, int maxfolder, double value, double weigh
   }
 }
 
-void DataBinner::AddPoint(string name, int maxfolder, double valuex, double valuey, double weight) {
+void DataBinner::AddPoint(std::string name, int maxfolder, double valuex, double valuey, double weight) {
   if(datamap.count(name) == 0) return;
 
   if(fillSingle) {
@@ -164,12 +164,12 @@ void DataBinner::AddPoint(string name, int maxfolder, double valuex, double valu
   }
 }
 
-void DataBinner::AddEff(string name, int maxfolder, double valuex, bool passFail) {
+void DataBinner::AddEff(std::string name, int maxfolder, double valuex, bool passFail) {
   datamap.at(name)->bin(maxfolder, valuex, passFail);
 }
 
-void DataBinner::write_histogram(TFile* outfile, vector<string>& folders, string subfolder) {
-  for(vector<string>::iterator it = order.begin(); it != order.end(); it++) {
+void DataBinner::write_histogram(TFile* outfile, std::vector<std::string>& folders, std::string subfolder) {
+  for(std::vector<std::string>::iterator it = order.begin(); it != order.end(); it++) {
     datamap.at(*it)->write_histogram(folders, outfile, subfolder);
   }
 }

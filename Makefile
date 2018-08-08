@@ -3,7 +3,7 @@ ROOTLIBS = $(shell root-config --libs)
 
 
 # Paths for CMSSW libraries:
-ifndef CMSSW_RELEASE_BASE
+#ifndef CMSSW_RELEASE_BASE
 # If you're using a patched CMSSW release, some of the libs are still in the base release, so you also have to look there.
 CMSSW_RELEASE_BASE_NOPATCH := $(shell echo $(CMSSW_RELEASE_BASE) | sed -e 's/-patch//' -e 's/_patch.//')
 CMSSW_BOOST_BASE := $(shell cat $(CMSSW_RELEASE_BASE)/config/toolbox/$(SCRAM_ARCH)/tools/selected/boost.xml | grep 'name="BOOST_BASE"' | sed -e 's/.*default="//' | sed -e 's/"\/>//')
@@ -17,7 +17,7 @@ CMSSW_LIB_PATHS += -L$(CMSSW_BOOST_BASE)/lib
 CMSSW_INC_PATHS := -isystem$(CMSSW_BASE)/src
 CMSSW_INC_PATHS += -isystem$(CMSSW_RELEASE_BASE)/src
 CMSSW_INC_PATHS += -isystem$(CMSSW_BOOST_BASE)/include
-endif
+#endif
 
 ifndef MYANA
 MYANA:=SpecialAna
@@ -35,10 +35,8 @@ LDSPEED = -O3
 EXTRA_CFLAGS:= -DMYANA=$(MYANA)/SpechialAnalysis.h
 EXTRA_LDFLAGS:=
 # Gather all additional flags
-ifndef CMSSW_RELEASE_BASE
 EXTRA_CFLAGS  += $(CMSSW_INC_PATHS)
 EXTRA_LDFLAGS += $(CMSSW_LIB_PATHS) $(CMSSW_LIBS)
-endif
 
 
 ifdef FAST
@@ -83,7 +81,7 @@ MYANAOBJ = $(MYANASRC:$(MYANA)/%.cc=$(OBJDIR)/%.o)
 
 #------------------------------------------------------------------------------
 
-all: $(EXE)
+all: 		$(EXE)
 
 
 $(EXE): $(OBJECTS) $(BTAGOBJ) $(MT2OBJ) $(MYANAOBJ)

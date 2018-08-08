@@ -3,7 +3,7 @@
 
 Systematics::Systematics(){}
 
-Systematics::Systematics(std::unordered_map<string, PartStats> const &distats){
+Systematics::Systematics(std::unordered_map<std::string, PartStats> const &distats){
 
 }
 Systematics::~Systematics(){}
@@ -30,7 +30,7 @@ void Systematics::shiftLepton(Lepton& lepton, TLorentzVector recoLep, TLorentzVe
     return;
   }
   double ratio = ((genLep.Pt()*scale) + (recoLep.Pt() - genLep.Pt())*resolution)/recoLep.Pt();
-  //cout<<"ratio  "<<ratio<<"  "<<scale<<"  "<<resolution    <<endl;
+  //cout<<"ratio  "<<ratio<<"  "<<scale<<"  "<<resolution    <<std::endl;
    //add the shifted part up
    dPx+=recoLep.Px()*(ratio-1);
    dPy+=recoLep.Py()*(ratio-1);
@@ -41,7 +41,7 @@ void Systematics::shiftLepton(Lepton& lepton, TLorentzVector recoLep, TLorentzVe
 }
 
 
-void Systematics::loadScaleRes(const PartStats& smear, const PartStats& syst, string syst_name) {
+void Systematics::loadScaleRes(const PartStats& smear, const PartStats& syst, std::string syst_name) {
   scale = 1;
   resolution = 1;
   if(smear.bfind("SmearTheParticle")) {

@@ -1,7 +1,7 @@
 #include "DepGraph.h"
 
 //using namespace boost;
-using namespace std;
+//using namespace std;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS> mygraph;
 #define cutint(x) static_cast<int>(x)
 #define intcut(x) static_cast<CUTS>(x)
@@ -89,7 +89,7 @@ void DepGraph::dfs(int vertex) {
 }
 
 
-void DepGraph::loadCuts(vector<CUTS> cutVec) {
+void DepGraph::loadCuts(std::vector<CUTS> cutVec) {
   for(auto cut: cutVec) {
     int icut = cutint(cut);
     if(neededCuts.find(icut) != neededCuts.end()) continue;
@@ -109,6 +109,6 @@ bool DepGraph::isPresent(CUTS cut) {
   return (neededCuts.find(cutint(cut)) != neededCuts.end());
 }
 
-unordered_set<int> DepGraph::getCuts() {
+std::unordered_set<int> DepGraph::getCuts() {
   return neededCuts;
 }

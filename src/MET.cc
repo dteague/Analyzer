@@ -4,7 +4,7 @@
 #define SetBranch(name, variable) BOOM->SetBranchStatus(name, true);  BOOM->SetBranchAddress(name, &variable);
 
 //particle is a objet that stores multiple versions of the particle candidates
-Met::Met(TTree* _BOOM, string _GenName,  vector<string> _syst_names, double _MT2mass) : BOOM(_BOOM), GenName(_GenName), syst_names(_syst_names), MT2mass(_MT2mass)  {
+Met::Met(TTree* _BOOM, std::string _GenName,  std::vector<std::string> _syst_names, double _MT2mass) : BOOM(_BOOM), GenName(_GenName), syst_names(_syst_names), MT2mass(_MT2mass)  {
 
   SetBranch((GenName+"_px").c_str(), mMet[0]);
   SetBranch((GenName+"_py").c_str(), mMet[1]);
@@ -20,12 +20,12 @@ Met::Met(TTree* _BOOM, string _GenName,  vector<string> _syst_names, double _MT2
   for( auto name : syst_names) {
     if(name == "orig") 
       systVec.push_back(new TLorentzVector);
-    else if(name.find("Met")!=string::npos){
+    else if(name.find("Met")!=std::string::npos){
       systVec.push_back(new TLorentzVector);
     }
-    else if(name.find("weight")!=string::npos){
+    else if(name.find("weight")!=std::string::npos){
       systVec.push_back(nullptr);
-    }else if(name.find("Tau_qcd")!=string::npos){
+    }else if(name.find("Tau_qcd")!=std::string::npos){
       systVec.push_back(nullptr);
     }else
       systVec.push_back(new TLorentzVector);
