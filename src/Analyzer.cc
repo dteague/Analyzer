@@ -1392,6 +1392,9 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const PartStats& stats, const int syst
   int i=0;
 
   for(auto lvec: *_Jet) {
+    if(ePos == CUTS::eR1stJet || ePos == CUTS::eR2ndJet){
+      break;
+    }
     bool passCuts = true;
     if( ePos == CUTS::eRCenJet) passCuts = passCuts && (fabs(lvec.Eta()) < 2.5);
     else  passCuts = passCuts && passCutRange(fabs(lvec.Eta()), stats.pmap.at("EtaCut"));
@@ -1431,14 +1434,17 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const PartStats& stats, const int syst
   if(ePos == CUTS::eR1stJet || ePos == CUTS::eR2ndJet) {
 
     vector<pair<double, int> > ptIndexVector;
-    for(auto it : *active_part->at(ePos)) {
+    for(auto it : *active_part->at(CUTS::eRJet1)) {
       ptIndexVector.push_back(make_pair(_Jet->pt(it),it));
     }
     sort(ptIndexVector.begin(),ptIndexVector.end());
-    if(ePos == CUTS::eR1stJet && ptIndexVector.size()>0)
+    if(ePos == CUTS::eR1stJet && ptIndexVector.size()>0){
       active_part->at(ePos)->push_back(ptIndexVector.back().second);
-    if(ePos == CUTS::eR2ndJet && ptIndexVector.size()>1)
+    }
+    else if(ePos == CUTS::eR2ndJet && ptIndexVector.size()>1){
       active_part->at(ePos)->push_back(ptIndexVector.at(ptIndexVector.size()-2).second);
+    }
+    
   }
 
 }
