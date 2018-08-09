@@ -12,19 +12,19 @@
 
 
 //particle is a objet that stores multiple versions of the particle candidates
-Particle::Particle(TTree* _BOOM, string _GenName, string filename, vector<string> _syst_names) : BOOM(_BOOM), GenName(_GenName), syst_names(_syst_names) {
+Particle::Particle(TTree* _BOOM, std::string _GenName, std::string filename, std::vector<std::string> _syst_names) : BOOM(_BOOM), GenName(_GenName), syst_names(_syst_names) {
   type = PType::None;
   getPartStats(filename);
 
-  regex genName_regex(".*([A-Z][^[:space:]]+)");
-  regex syst_regex("([A-Za-z]+).+");
-  smatch mGen, mSyst;
+  std::regex genName_regex(".*([A-Z][^[:space:]]+)");
+  std::regex syst_regex("([A-Za-z]+).+");
+  std::smatch mGen, mSyst;
   
-  regex_match(GenName, mGen, genName_regex);
+  std::regex_match(GenName, mGen, genName_regex);
 
   for( auto item : syst_names) {
     if(item == "orig") {
-      systVec.push_back(new vector<TLorentzVector>());
+      systVec.push_back(new std::vector<TLorentzVector>());
       continue;
     }
     if(!regex_match(item, mSyst, syst_regex)){
@@ -32,8 +32,8 @@ Particle::Particle(TTree* _BOOM, string _GenName, string filename, vector<string
       continue;
     }
     if(mGen[1] == mSyst[1]) {
-      systVec.push_back(new vector<TLorentzVector>());
-      cout << GenName << ": " << item << endl;
+      systVec.push_back(new std::vector<TLorentzVector>());
+      std::cout << GenName << ": " << item << std::endl;
     } else {
       systVec.push_back(nullptr);
     }
@@ -53,10 +53,10 @@ double Particle::energy(uint index)const     {return cur_P->at(index).E();}
 double Particle::charge(uint index)const     {return 0;}
 
 uint Particle::size()const                   {return cur_P->size();}
-vector<TLorentzVector>::iterator Particle::begin(){ return cur_P->begin();}
-vector<TLorentzVector>::iterator Particle::end(){ return cur_P->end();}
-vector<TLorentzVector>::const_iterator Particle::begin()const { return cur_P->begin();}
-vector<TLorentzVector>::const_iterator Particle::end()const { return cur_P->end();}
+std::vector<TLorentzVector>::iterator Particle::begin(){ return cur_P->begin();}
+std::vector<TLorentzVector>::iterator Particle::end(){ return cur_P->end();}
+std::vector<TLorentzVector>::const_iterator Particle::begin()const { return cur_P->begin();}
+std::vector<TLorentzVector>::const_iterator Particle::end()const { return cur_P->end();}
 
 TLorentzVector Particle::p4(uint index)const {return (cur_P->at(index));}
 TLorentzVector& Particle::p4(uint index) {return cur_P->at(index);}
@@ -96,7 +96,7 @@ void Particle::init(){
 
 
 void Particle::setOrigReco() {
-  /////memory loss here if no smear and new vector. Only once, so ignore for now...
+  /////memory loss here if no smear and new std::vector. Only once, so ignore for now...
   systVec.at(0) = &Reco;
 }
 
@@ -123,9 +123,9 @@ void Particle::unBranch() {
 }
 
 
-void Particle::getPartStats(string filename) {
+void Particle::getPartStats(std::string filename) {
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-  ifstream info_file(filename);
+  std::ifstream info_file(filename);
   boost::char_separator<char> sep(", \t");
 
   if(!info_file) {
@@ -133,8 +133,8 @@ void Particle::getPartStats(string filename) {
     return;
   }
 
-  vector<string> stemp;
-  string group,line;
+  std::vector<std::string> stemp;
+  std::string group,line;
   while(getline(info_file, line)) {
     tokenizer tokens(line, sep);
     stemp.clear();
@@ -147,7 +147,7 @@ void Particle::getPartStats(string filename) {
       group = stemp[0];
       continue;
     } else if(group == "") {
-      cout << "error in " << filename << "; no groups specified for data" << endl;
+      std::cout << "error in " << filename << "; no groups specified for data" << std::endl;
       exit(1);
     } else if(stemp.size() == 2) {
 
@@ -159,9 +159,9 @@ void Particle::getPartStats(string filename) {
       }
       //      else if(stemp[1] == "0"  || stemp[1] == "false" ) pstats[group]bmap[stemp[0]]=false;
 
-      else if(stemp[1].find_first_not_of("0123456789+-.") == string::npos) pstats[group].dmap[stemp[0]]=stod(stemp[1]);
+      else if(stemp[1].find_first_not_of("0123456789+-.") == std::string::npos) pstats[group].dmap[stemp[0]]=stod(stemp[1]);
       else pstats[group].smap[stemp[0]] = stemp[1];
-    } else  pstats[group].pmap[stemp[0]] = make_pair(stod(stemp[1]), stod(stemp[2]));
+    } else  pstats[group].pmap[stemp[0]] = std::make_pair(stod(stemp[1]), stod(stemp[2]));
   }
   info_file.close();
 }
@@ -174,7 +174,7 @@ void Particle::getPartStats(string filename) {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-Photon::Photon(TTree* _BOOM, string filename, vector<string> syst_names) : Particle(_BOOM, "Photon", filename, syst_names) {
+Photon::Photon(TTree* _BOOM, std::string filename, std::vector<std::string> syst_names) : Particle(_BOOM, "Photon", filename, syst_names) {
   SetBranch("Photon_hoe", hoverE);
   SetBranch("Photon_r9", phoR);
   SetBranch("Photon_sieie", sigmaIEtaIEta);
@@ -191,7 +191,7 @@ Photon::Photon(TTree* _BOOM, string filename, vector<string> syst_names) : Parti
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-Generated::Generated(TTree* _BOOM, string filename, vector<string> syst_names) : Particle(_BOOM, "GenPart", filename, syst_names) {
+Generated::Generated(TTree* _BOOM, std::string filename, std::vector<std::string> syst_names) : Particle(_BOOM, "GenPart", filename, syst_names) {
 
   SetBranch("GenPart_pdgId", pdg_id);
   SetBranch("GenPart_genPartIdxMother", genPartIdxMother);
@@ -207,7 +207,7 @@ Generated::Generated(TTree* _BOOM, string filename, vector<string> syst_names) :
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-Jet::Jet(TTree* _BOOM, string filename, vector<string> syst_names) : Particle(_BOOM, "Jet", filename, syst_names) {
+Jet::Jet(TTree* _BOOM, std::string filename, std::vector<std::string> syst_names) : Particle(_BOOM, "Jet", filename, syst_names) {
   type = PType::Jet;
   
   SetBranch("Jet_jetId", jetId);
@@ -227,16 +227,16 @@ Jet::Jet(TTree* _BOOM, string filename, vector<string> syst_names) : Particle(_B
   
 }
 
-vector<CUTS> Jet::findExtraCuts() {
-  vector<CUTS> return_vec;
+std::vector<CUTS> Jet::findExtraCuts() {
+  std::vector<CUTS> return_vec;
   if(pstats["Smear"].bfind("SmearTheJet")) {
     return_vec.push_back(CUTS::eGen);
   }
   return return_vec;
 }
 
-vector<CUTS> Jet::overlapCuts(CUTS ePos) {
-  vector<CUTS> returnCuts;
+std::vector<CUTS> Jet::overlapCuts(CUTS ePos) {
+  std::vector<CUTS> returnCuts;
   auto& tmpset = pstats[jetNameMap.at(ePos)];
   if(tmpset.bfind("RemoveOverlapWithMuon1s")) returnCuts.push_back(CUTS::eRMuon1);
   if(tmpset.bfind("RemoveOverlapWithMuon2s")) returnCuts.push_back(CUTS::eRMuon2);
@@ -261,7 +261,7 @@ bool Jet::passedLooseJetID(int nobj) {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-FatJet::FatJet(TTree* _BOOM, string filename, vector<string> syst_names) : Particle(_BOOM, "FatJet", filename, syst_names) {
+FatJet::FatJet(TTree* _BOOM, std::string filename, std::vector<std::string> syst_names) : Particle(_BOOM, "FatJet", filename, syst_names) {
   type = PType::FatJet;
 
   SetBranch("FatJet_tau1", tau1);
@@ -272,16 +272,16 @@ FatJet::FatJet(TTree* _BOOM, string filename, vector<string> syst_names) : Parti
   SetBranch("FatJet_msoftdrop", SoftDropMass);
 }
 
-vector<CUTS> FatJet::findExtraCuts() {
-  vector<CUTS> return_vec;
+std::vector<CUTS> FatJet::findExtraCuts() {
+  std::vector<CUTS> return_vec;
   if(pstats["Smear"].bfind("SmearTheJet")) {
     return_vec.push_back(CUTS::eGen);
   }
   return return_vec;
 }
 
-vector<CUTS> FatJet::overlapCuts(CUTS ePos) {
-  vector<CUTS> returnCuts;
+std::vector<CUTS> FatJet::overlapCuts(CUTS ePos) {
+  std::vector<CUTS> returnCuts;
   auto& tmpset = pstats[jetNameMap.at(ePos)];
   if(tmpset.bfind("RemoveOverlapWithMuon1s")) returnCuts.push_back(CUTS::eRMuon1);
   if(tmpset.bfind("RemoveOverlapWithMuon2s")) returnCuts.push_back(CUTS::eRMuon2);
@@ -301,12 +301,12 @@ vector<CUTS> FatJet::overlapCuts(CUTS ePos) {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-Lepton::Lepton(TTree* _BOOM, string GenName, string EndName, vector<string> syst_names) : Particle(_BOOM, GenName, EndName, syst_names) {
+Lepton::Lepton(TTree* _BOOM, std::string GenName, std::string EndName, std::vector<std::string> syst_names) : Particle(_BOOM, GenName, EndName, syst_names) {
   SetBranch((GenName+"_charge").c_str(), _charge);
 }
 
-vector<CUTS> Lepton::findExtraCuts() {
-  vector<CUTS> return_vec;
+std::vector<CUTS> Lepton::findExtraCuts() {
+  std::vector<CUTS> return_vec;
   auto& tmpset = pstats["Smear"];
   if(tmpset.bfind("SmearTheParticle") || tmpset.bfind("MatchToGen")) {
     return_vec.push_back(cutMap.at(type));
@@ -326,12 +326,12 @@ double Lepton::charge(uint index)const     {return _charge[index];}
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-Electron::Electron(TTree* _BOOM, string filename, vector<string> syst_names) : Lepton(_BOOM, "Electron", filename, syst_names) {
+Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> syst_names) : Lepton(_BOOM, "Electron", filename, syst_names) {
   type = PType::Electron;
   auto& elec1 = pstats["Elec1"];
   auto& elec2 = pstats["Elec2"];
   
-  bitset<8> tmp(elec1.dmap.at("DiscrByCBID"));
+  std::bitset<8> tmp(elec1.dmap.at("DiscrByCBID"));
   cbIDele1=tmp;
   tmp=elec2.dmap.at("DiscrByCBID");
   cbIDele2=tmp;
@@ -377,7 +377,7 @@ bool Electron::get_Iso(int index, double min, double max) const {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-Muon::Muon(TTree* _BOOM, string filename, vector<string> syst_names) : Lepton(_BOOM, "Muon", filename, syst_names) {
+Muon::Muon(TTree* _BOOM, std::string filename, std::vector<std::string> syst_names) : Lepton(_BOOM, "Muon", filename, syst_names) {
   type = PType::Muon;
   auto& mu1 = pstats["Muon1"];
   auto& mu2 = pstats["Muon2"];
@@ -408,10 +408,10 @@ bool Muon::get_Iso(int index, double min, double max) const {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-Taus::Taus(TTree* _BOOM, string filename, vector<string> syst_names) : Lepton(_BOOM, "Tau", filename, syst_names) {
+Taus::Taus(TTree* _BOOM, std::string filename, std::vector<std::string> syst_names) : Lepton(_BOOM, "Tau", filename, syst_names) {
   type = PType::Tau;
   
-  bitset<8> tmp=pstats["Tau1"].dmap.at("DiscrByMinIsolation");
+  std::bitset<8> tmp=pstats["Tau1"].dmap.at("DiscrByMinIsolation");
   tau1minIso=tmp;
   tmp=pstats["Tau1"].dmap.at("DiscrByMaxIsolation");
   tau1maxIso=tmp;
@@ -436,7 +436,6 @@ Taus::Taus(TTree* _BOOM, string filename, vector<string> syst_names) : Lepton(_B
   SetBranch("Tau_idDecayMode",  DecayMode);
   SetBranch("Tau_idDecayModeNewDMs",  DecayModeNewDMs);
   SetBranch("Tau_idMVAoldDM",  MVAoldDM);
-  
   SetBranch("Tau_decayMode", decayMode);
   SetBranch("Tau_leadTkDeltaEta", leadTkDeltaEta);
   SetBranch("Tau_leadTkDeltaPhi", leadTkDeltaPhi);
@@ -449,8 +448,8 @@ Taus::Taus(TTree* _BOOM, string filename, vector<string> syst_names) : Lepton(_B
   
 }
 
-vector<CUTS> Taus::findExtraCuts() {
-  vector<CUTS> return_vec = Lepton::findExtraCuts();
+std::vector<CUTS> Taus::findExtraCuts() {
+  std::vector<CUTS> return_vec = Lepton::findExtraCuts();
 
   auto& tau1 = pstats["Tau1"];
   auto& tau2 = pstats["Tau2"];
@@ -478,7 +477,7 @@ bool Taus::get_Iso(int index, double onetwo, double flipisolation) const {
   }
   
   if(!flipisolation){
-    //cout<<tau_isomax_mask<<"  "<<tau_iso<<"   "<<(tau_isomax_mask& tau_iso)<<"   "<<  (tau_isomax_mask& tau_iso).count()<<endl; 
+    //cout<<tau_isomax_mask<<"  "<<tau_iso<<"   "<<(tau_isomax_mask& tau_iso)<<"   "<<  (tau_isomax_mask& tau_iso).count()<<std::endl; 
     return (tau_isomax_mask& tau_iso).count();
   }else{
     return(!((tau_isomax_mask&tau_iso).count()) and (tau_isomin_mask&tau_iso).count());
@@ -492,7 +491,7 @@ bool Taus::pass_against_Elec(CUTS ePos, int index) {
     std::bitset<8> tmp(tau2ele);
     tau_ele_mask=tmp;
   }
-  //cout<<tau_ele_mask<<"  "<<tau_ele<<"   "<<(tau_ele_mask&tau_ele)<<"   "<<  (tau_ele_mask&tau_ele).count()<<endl; 
+  //cout<<tau_ele_mask<<"  "<<tau_ele<<"   "<<(tau_ele_mask&tau_ele)<<"   "<<  (tau_ele_mask&tau_ele).count()<<std::endl; 
   return (tau_ele_mask&tau_ele).count();
 }
 
@@ -503,6 +502,6 @@ bool Taus::pass_against_Muon(CUTS ePos, int index) {
     std::bitset<8> tmp(tau2mu);
     tau_mu_mask=tmp;
   }
-  //cout<<tau_mu_mask<<"  "<<tau_mu<<"   "<<(tau_mu_mask&tau_mu)<<"   "<<  (tau_mu_mask&tau_mu).count()<<endl; 
+  //cout<<tau_mu_mask<<"  "<<tau_mu<<"   "<<(tau_mu_mask&tau_mu)<<"   "<<  (tau_mu_mask&tau_mu).count()<<std::endl; 
   return (tau_mu_mask&tau_mu).count();
 }

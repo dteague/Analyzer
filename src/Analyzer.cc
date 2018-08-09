@@ -16,7 +16,7 @@
 #define histAddVal(val, name) ihisto.addVal(val, group, max, name, wgt);
 #define SetBranch(name, variable) BOOM->SetBranchStatus(name, 1);  BOOM->SetBranchAddress(name, &variable);
 
-typedef vector<int>::iterator vec_iter;
+typedef std::vector<int>::iterator vec_iter;
 
 
 
@@ -25,27 +25,27 @@ typedef vector<int>::iterator vec_iter;
 //////////////////////////////////////////////////////////////////
 
 //Filespace that has all of the .in files
-const string PUSPACE = "Pileup/";
+const std::string PUSPACE = "Pileup/";
 
 
 //////////PUBLIC FUNCTIONS////////////////////
 
-const vector<CUTS> Analyzer::genCuts = {
+const std::vector<CUTS> Analyzer::genCuts = {
   CUTS::eGTau, CUTS::eNuTau, CUTS::eGTop,
   CUTS::eGElec, CUTS::eGMuon, CUTS::eGZ,
   CUTS::eGW, CUTS::eGHiggs, CUTS::eGJet
 };
 
-const vector<CUTS> Analyzer::jetCuts = {
+const std::vector<CUTS> Analyzer::jetCuts = {
   CUTS::eRJet1,  CUTS::eRJet2,   CUTS::eRCenJet,
   CUTS::eR1stJet, CUTS::eR2ndJet, CUTS::eRBJet
 };
 
-const vector<CUTS> Analyzer::nonParticleCuts = {
+const std::vector<CUTS> Analyzer::nonParticleCuts = {
   CUTS::eRVertex,CUTS::eRTrig1, CUTS::eRTrig2,
 };
 
-const unordered_map<string, CUTS> Analyzer::cut_num = {
+const std::unordered_map<std::string, CUTS> Analyzer::cut_num = {
   {"NGenTau", CUTS::eGTau},                             {"NGenTop", CUTS::eGTop},
   {"NGenElectron", CUTS::eGElec},                       {"NGenMuon", CUTS::eGMuon},
   {"NGenZ", CUTS::eGZ},                                 {"NGenW", CUTS::eGW},
@@ -78,13 +78,13 @@ const unordered_map<string, CUTS> Analyzer::cut_num = {
 //////////////////////////////////////////////////////
 
 ///Constructor
-Analyzer::Analyzer(vector<string> infiles, string outfile, bool setCR, string configFolder) : goodParts(getArray()), genName_regex(".*([A-Z][^[:space:]]+)"){
-  cout << "setup start" << endl;
+Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool setCR, std::string configFolder) : goodParts(getArray()), genName_regex(".*([A-Z][^[:space:]]+)"){
+  std::cout << "setup start" << std::endl;
 
   BOOM= new TChain("Events");
   infoFile=0;
 
-  for( string infile: infiles){
+  for( std::string infile: infiles){
     BOOM->AddFile(infile.c_str());
   }
 
@@ -108,7 +108,7 @@ Analyzer::Analyzer(vector<string> infiles, string outfile, bool setCR, string co
   CalculatePUSystematics = distats["Run"].bfind("CalculatePUSystematics");
   initializePileupInfo(distats["Run"].smap.at("MCHistos"), distats["Run"].smap.at("DataHistos"),distats["Run"].smap.at("DataPUHistName"),distats["Run"].smap.at("MCPUHistName"));
   syst_names.push_back("orig");
-  unordered_map<CUTS, vector<int>*, EnumHash> tmp;
+  std::unordered_map<CUTS, std::vector<int>*, EnumHash> tmp;
   syst_parts.push_back(tmp);
   if(!isData && distats["Systematics"].bfind("useSystematics")) {
     for(auto systname : distats["Systematics"].bset) {
@@ -131,11 +131,11 @@ Analyzer::Analyzer(vector<string> infiles, string outfile, bool setCR, string co
   _MET      = new Met(BOOM, "MET" , syst_names, distats["Run"].dmap.at("MT2Mass"));
 
   if(!isData) {
-    cout<<"This is MC if not, change the flag!"<<endl;
+    std::cout<<"This is MC if not, change the flag!"<<std::endl;
     _Gen = new Generated(BOOM, filespace + "Gen_info.in", syst_names);
     allParticles= {_Gen,_Electron,_Muon,_Tau,_Jet,_FatJet};
   } else {
-    cout<<"This is Data if not, change the flag!"<<endl;
+    std::cout<<"This is Data if not, change the flag!"<<std::endl;
     allParticles= {_Electron,_Muon,_Tau,_Jet,_FatJet};
   }
 
@@ -144,7 +144,7 @@ Analyzer::Analyzer(vector<string> infiles, string outfile, bool setCR, string co
   particleCutMap[CUTS::eGTau]=_Tau;
 
 
-  vector<string> cr_variables;
+  std::vector<std::string> cr_variables;
   if(setCR) {
     char buf[64];
     read_info(filespace + "Control_Regions.in");
@@ -156,10 +156,10 @@ Analyzer::Analyzer(vector<string> infiles, string outfile, bool setCR, string co
     }
     if(isData) {
       if(distats["Control_Region"].smap.find("SR") == distats["Control_Region"].smap.end()) {
-        cout << "Using Control Regions with data, but no signal region specified can lead to accidentially unblinding a study  before it should be.  Please specify a SR in the file PartDet/Control_Region.in" << endl;
+        std::cout << "Using Control Regions with data, but no signal region specified can lead to accidentially unblinding a study  before it should be.  Please specify a SR in the file PartDet/Control_Region.in" << std::endl;
         exit(1);
       } else if(distats["Control_Region"].smap.at("SR").length() != distats["Control_Region"].dmap.size()) {
-        cout << "Signal Region specified incorrectly: check signal region variable to make sure the number of variables matches the number of signs in SR" << endl;
+        std::cout << "Signal Region specified incorrectly: check signal region variable to make sure the number of variables matches the number of signs in SR" << std::endl;
         exit(1);
       }
       int factor = 1;
@@ -171,7 +171,7 @@ Analyzer::Analyzer(vector<string> infiles, string outfile, bool setCR, string co
       if(distats["Control_Region"].smap.find("Unblind") != distats["Control_Region"].smap.end()) {
 
         blinded = distats["Control_Region"].smap["Unblind"] == "false";
-        cout << "we have " << blinded << endl;
+        std::cout << "we have " << blinded << std::endl;
       }
     }
   }
@@ -227,7 +227,7 @@ Analyzer::Analyzer(vector<string> infiles, string outfile, bool setCR, string co
   // check if we need to make gen level cuts to cross clean the samples:
   for(auto iselect : gen_selection){
     if(iselect.second){
-      cout<<"Waning: The selection "<< iselect.first<< " is active!"<<endl;
+      std::cout<<"Waning: The selection "<< iselect.first<< " is active!"<<std::endl;
     }
   }
 
@@ -237,14 +237,14 @@ Analyzer::Analyzer(vector<string> infiles, string outfile, bool setCR, string co
   
   
 
-  std::cout << "setup complete" << std::endl << endl;
+  std::cout << "setup complete" << std::endl << std::endl;
   start = std::chrono::system_clock::now();
 }
 
-unordered_map<CUTS, vector<int>*, EnumHash> Analyzer::getArray() {
-  unordered_map<CUTS, vector<int>*, EnumHash> rmap;
+std::unordered_map<CUTS, std::vector<int>*, EnumHash> Analyzer::getArray() {
+  std::unordered_map<CUTS, std::vector<int>*, EnumHash> rmap;
   for(auto e: Enum<CUTS>()) {
-    rmap[e] = new vector<int>();
+    rmap[e] = new std::vector<int>();
   }
   return rmap;
 }
@@ -315,20 +315,20 @@ void Analyzer::create_fillInfo() {
 
 }
 
-void Analyzer::setupCR(string var, double val) {
-  smatch m;
-  regex part ("^(.+)_(.+)$");
-  if(regex_match(var, m, part)) {
-    string name = m[1];
-    string cut = "Fill" + name;
+void Analyzer::setupCR(std::string var, double val) {
+  std::smatch m;
+  std::regex part ("^(.+)_(.+)$");
+  if(std::regex_match(var, m, part)) {
+    std::string name = m[1];
+    std::string cut = "Fill" + name;
     if(fillInfo.find(cut) == fillInfo.end()) {
-      cout << cut << " not found, put into fillInfo" << endl;
+      std::cout << cut << " not found, put into fillInfo" << std::endl;
       exit(1);
     }
-    cout << cut << " " << m[2] << " " << val << " " << name << endl;
+    std::cout << cut << " " << m[2] << " " << val << " " << name << std::endl;
     testVec.push_back(new CRTester(fillInfo.at(cut), m[2], val, name));
   } else {
-    cout << "Could not process line: " << var << endl;
+    std::cout << "Could not process line: " << var << std::endl;
     exit(1);
   }
 
@@ -348,9 +348,9 @@ Analyzer::~Analyzer() {
   delete _Jet;
   if(!isData) delete _Gen;
 
-  for(auto pair: fillInfo) {
-    delete pair.second;
-    pair.second=nullptr;
+  for(auto fpair: fillInfo) {
+    delete fpair.second;
+    fpair.second=nullptr;
   }
 
   for(auto e: Enum<CUTS>()) {
@@ -389,7 +389,7 @@ void Analyzer::clear_values() {
     }
   }
   if(infoFile!=BOOM->GetFile()){
-    cout<<"New file!"<<endl;
+    std::cout<<"New file!"<<std::endl;
     infoFile=BOOM->GetFile();
   }
 
@@ -401,7 +401,7 @@ void Analyzer::clear_values() {
 void Analyzer::preprocess(int event) {
   int test= BOOM->GetEntry(event);
   if(test<0){
-    cout << "Could not read the event from the following file: "<<BOOM->GetFile()->GetNewUrl().Data() << endl;
+    std::cout << "Could not read the event from the following file: "<<BOOM->GetFile()->GetNewUrl().Data() << std::endl;
   }
   for(Particle* ipart: allParticles){
     ipart->init();
@@ -446,7 +446,7 @@ void Analyzer::preprocess(int event) {
   }
 
   for(size_t i=0; i < syst_names.size(); i++) {
-    string systname = syst_names.at(i);
+    std::string systname = syst_names.at(i);
     for( auto part: allParticles) part->setCurrentP(i);
     _MET->setCurrentP(i);
     getGoodParticles(i);
@@ -457,15 +457,15 @@ void Analyzer::preprocess(int event) {
     ( event < 1000 && event % 100 == 0 ) ||
     ( event < 10000 && event % 1000 == 0 ) ||
     ( event >= 10000 && event % 10000 == 0 ) ) {
-       cout << setprecision(2)<<event << " Events analyzed "<< static_cast<double>(event)/nentries*100. <<"% done"<<endl;
-       cout << fixed;
+       std::cout << std::setprecision(2)<<event << " Events analyzed "<< static_cast<double>(event)/nentries*100. <<"% done"<<std::endl;
+       std::cout << std::fixed;
   }
 }
 
 
 void Analyzer::getGoodParticles(int syst){
 
-  string systname=syst_names.at(syst);
+  std::string systname=syst_names.at(syst);
   if(syst == 0) active_part = &goodParts;
   else active_part=&syst_parts.at(syst);
     //    syst=syst_names[syst];
@@ -529,18 +529,18 @@ void Analyzer::getGoodParticles(int syst){
 
 void Analyzer::fill_efficiency() {
   //cut efficiency
-  const vector<CUTS> goodGenLep={CUTS::eGElec,CUTS::eGMuon,CUTS::eGTau};
+  const std::vector<CUTS> goodGenLep={CUTS::eGElec,CUTS::eGMuon,CUTS::eGTau};
   //just the lepton 1 for now
-  const vector<CUTS> goodRecoLep={CUTS::eRElec1,CUTS::eRMuon1,CUTS::eRTau1};
+  const std::vector<CUTS> goodRecoLep={CUTS::eRElec1,CUTS::eRMuon1,CUTS::eRTau1};
 
 
 
   for(size_t igen=0;igen<goodGenLep.size();igen++){
     Particle* part =particleCutMap.at(goodGenLep[igen]);
     CUTS cut=goodRecoLep[igen];
-    smatch mGen;
+    std::smatch mGen;
     std::string tmps=part->getName();
-    regex_match(tmps, mGen, genName_regex);
+    std::regex_match(tmps, mGen, genName_regex);
     //loop over all gen leptons
     for(int iigen : *active_part->at(goodGenLep[igen])){
 
@@ -551,14 +551,14 @@ void Analyzer::fill_efficiency() {
           foundReco=ireco;
         }
       }
-      histo.addEffiency("eff_Reco_"+string(mGen[1])+"Pt", _Gen->pt(iigen), foundReco>=0,0);
-      histo.addEffiency("eff_Reco_"+string(mGen[1])+"Eta",_Gen->eta(iigen),foundReco>=0,0);
-      histo.addEffiency("eff_Reco_"+string(mGen[1])+"Phi",_Gen->phi(iigen),foundReco>=0,0);
+      histo.addEffiency("eff_Reco_"+std::string(mGen[1])+"Pt", _Gen->pt(iigen), foundReco>=0,0);
+      histo.addEffiency("eff_Reco_"+std::string(mGen[1])+"Eta",_Gen->eta(iigen),foundReco>=0,0);
+      histo.addEffiency("eff_Reco_"+std::string(mGen[1])+"Phi",_Gen->phi(iigen),foundReco>=0,0);
       if(foundReco>=0){
         bool id_particle= (find(active_part->at(cut)->begin(),active_part->at(cut)->end(),foundReco)!=active_part->at(cut)->end());
-        histo.addEffiency("eff_"+string(mGen[1])+"Pt", _Gen->pt(iigen), id_particle,0);
-        histo.addEffiency("eff_"+string(mGen[1])+"Eta",_Gen->eta(iigen),id_particle,0);
-        histo.addEffiency("eff_"+string(mGen[1])+"Phi",_Gen->phi(iigen),id_particle,0);
+        histo.addEffiency("eff_"+std::string(mGen[1])+"Pt", _Gen->pt(iigen), id_particle,0);
+        histo.addEffiency("eff_"+std::string(mGen[1])+"Eta",_Gen->eta(iigen),id_particle,0);
+        histo.addEffiency("eff_"+std::string(mGen[1])+"Phi",_Gen->phi(iigen),id_particle,0);
       }
     }
   }
@@ -574,7 +574,7 @@ void Analyzer::fill_efficiency() {
     //std::string tmps=part->getName();
     //regex_match(tmps, mGen, genName_regex);
     ////no efficiency for gen particles
-    //if(part->getName().find("Gen") != string::npos)
+    //if(part->getName().find("Gen") != std::string::npos)
       //continue;
     ////we don't want to make met efficiency plots
     //if(particleCutMap.find(part) == particleCutMap.end())
@@ -587,9 +587,9 @@ void Analyzer::fill_efficiency() {
       ////check if the particle is part of the reco
       //for(CUTS cut:  particleCutMap.at(part).first){
         //bool id_particle= (find(active_part->at(cut)->begin(),active_part->at(cut)->end(),i)!=active_part->at(cut)->end());
-        //histo.addEffiency("eff_"+string(mGen[1])+"Pt",part->pt(i),id_particle,0);
-        //histo.addEffiency("eff_"+string(mGen[1])+"Eta",part->eta(i),id_particle,0);
-        //histo.addEffiency("eff_"+string(mGen[1])+"Phi",part->phi(i),id_particle,0);
+        //histo.addEffiency("eff_"+std::string(mGen[1])+"Pt",part->pt(i),id_particle,0);
+        //histo.addEffiency("eff_"+std::string(mGen[1])+"Eta",part->eta(i),id_particle,0);
+        //histo.addEffiency("eff_"+std::string(mGen[1])+"Phi",part->phi(i),id_particle,0);
       //}
     //}
   //}
@@ -598,27 +598,27 @@ void Analyzer::fill_efficiency() {
 
 ////Reads cuts from Cuts.in file and see if the event has enough particles
 bool Analyzer::fillCuts(bool fillCounter) {
-  const unordered_map<string,pair<int,int> >* cut_info = histo.get_cuts();
-  const vector<string>* cut_order = histo.get_cutorder();
+  const std::unordered_map<std::string,std::pair<int,int> >* cut_info = histo.get_cuts();
+  const std::vector<std::string>* cut_order = histo.get_cutorder();
 
   bool prevTrue = true;
 
   maxCut=0;
-  //  cout << active_part << endl;;
+  //  std::cout << active_part << std::endl;;
 
   for(size_t i = 0; i < cut_order->size(); i++) {
-    string cut = cut_order->at(i);
-    if(isData && cut.find("Gen") != string::npos){
+    std::string cut = cut_order->at(i);
+    if(isData && cut.find("Gen") != std::string::npos){
       maxCut += 1;
       continue;
     }
     int min= cut_info->at(cut).first;
     int max= cut_info->at(cut).second;
     int nparticles = active_part->at(cut_num.at(cut))->size();
-    //if(!fillCounter) cout << cut << ": " << nparticles << " (" << min << ", " << max << ")" <<endl;
+    //if(!fillCounter) std::cout << cut << ": " << nparticles << " (" << min << ", " << max << ")" <<std::endl;
     if( (nparticles >= min) && (nparticles <= max || max == -1)) {
       if((cut_num.at(cut) == CUTS::eR1stJet || cut_num.at(cut) == CUTS::eR2ndJet) && active_part->at(cut_num.at(cut))->at(0) == -1 ) {
-        //cout<<"here   "<<endl;
+        //cout<<"here   "<<std::endl;
         prevTrue = false;
         continue;  ////dirty dirty hack
       }
@@ -630,7 +630,7 @@ bool Analyzer::fillCuts(bool fillCounter) {
         maxCut += (prevTrue) ? 1 : 0;
       }
     }else {
-      //cout<<"here 2  "<<endl;
+      //cout<<"here 2  "<<std::endl;
       prevTrue = false;
     }
   }
@@ -662,7 +662,7 @@ bool Analyzer::fillCuts(bool fillCounter) {
 ///Prints the number of events that passed each cut per event and cumulatively
 //done at the end of the analysis
 void Analyzer::printCuts() {
-  vector<string> cut_order;
+  std::vector<std::string> cut_order;
   if(crbins > 1) cut_order = *(histo.get_folders());
   else cut_order = *(histo.get_cutorder());
   std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
@@ -670,30 +670,30 @@ void Analyzer::printCuts() {
   double run_time_real=elapsed_seconds.count();
 
 
-  cout.setf(ios::floatfield,ios::fixed);
-  cout<<setprecision(3);
-  cout << "\n";
-  cout << "Selection Efficiency " << "\n";
-  cout << "Total events: " << nentries << "\n";
-  cout << "\n";
-  cout << "Run Time (real): " <<run_time_real <<" s\n";
-  cout << "Time per 1k Events (real): " << run_time_real/(nentries/1000) <<" s\n";
-  cout << "Events/s: " << static_cast<double>(nentries)/(run_time_real) <<" 1/s (real) \n";
-  cout << "                        Name                  Indiv.";
-  if(crbins == 1) cout << "            Cumulative";
-  cout << endl << "---------------------------------------------------------------------------\n";
+  std::cout.setf(std::ios::floatfield,std::ios::fixed);
+  std::cout<<std::setprecision(3);
+  std::cout << "\n";
+  std::cout << "Selection Efficiency " << "\n";
+  std::cout << "Total events: " << nentries << "\n";
+  std::cout << "\n";
+  std::cout << "Run Time (real): " <<run_time_real <<" s\n";
+  std::cout << "Time per 1k Events (real): " << run_time_real/(nentries/1000) <<" s\n";
+  std::cout << "Events/s: " << static_cast<double>(nentries)/(run_time_real) <<" 1/s (real) \n";
+  std::cout << "                        Name                  Indiv.";
+  if(crbins == 1) std::cout << "            Cumulative";
+  std::cout << std::endl << "---------------------------------------------------------------------------\n";
   for(size_t i = 0; i < cut_order.size(); i++) {
-    cout << setw(28) << cut_order.at(i) << "    ";
-    if(isData && cut_order.at(i).find("Gen") != string::npos) cout << "Skipped" << endl;
-    else if(crbins != 1 && blinded && i == (size_t)SignalRegion) cout << "Blinded Signal Region" << endl;
+    std::cout << std::setw(28) << cut_order.at(i) << "    ";
+    if(isData && cut_order.at(i).find("Gen") != std::string::npos) std::cout << "Skipped" << std::endl;
+    else if(crbins != 1 && blinded && i == (size_t)SignalRegion) std::cout << "Blinded Signal Region" << std::endl;
     else {
-      cout << setw(10) << cuts_per.at(i) << "  ( " << setw(5) << ((float)cuts_per.at(i)) / nentries << ") ";
-      if(crbins == 1) cout << setw(12) << cuts_cumul.at(i) << "  ( " << setw(5) << ((float)cuts_cumul.at(i)) / nentries << ") ";
+      std::cout << std::setw(10) << cuts_per.at(i) << "  ( " << std::setw(5) << ((float)cuts_per.at(i)) / nentries << ") ";
+      if(crbins == 1) std::cout << std::setw(12) << cuts_cumul.at(i) << "  ( " << std::setw(5) << ((float)cuts_cumul.at(i)) / nentries << ") ";
 
-      cout << endl;
+      std::cout << std::endl;
     }
   }
-  cout << "---------------------------------------------------------------------------\n";
+  std::cout << "---------------------------------------------------------------------------\n";
 
   //write all the histograms
   //attention this is not the fill_histogram method from the Analyser
@@ -740,8 +740,8 @@ bool Analyzer::select_mc_background(){
       }
     }
   }
-  //cout<<"Something is rotten in the state of Denmark."<<endl;
-  //cout<<"could not find gen selection particle"<<endl;
+  //cout<<"Something is rotten in the state of Denmark."<<std::endl;
+  //cout<<"could not find gen selection particle"<<std::endl;
   return true;
 }
 
@@ -780,7 +780,7 @@ void Analyzer::updateMet(int syst) {
 ////////removed for teh time being/////////////
 ///////////////////////////////////////////////
 
-// void Analyzer::treatMuons_Met(string syst) {
+// void Analyzer::treatMuons_Met(std::string syst) {
 
 //   //syst not implemented for muon as tau or neutrino yet
 //   if( syst!="orig" or !( distats["Run"].bfind("TreatMuonsAsNeutrinos") || distats["Run"].bfind("TreatMuonsAsTaus")) ){
@@ -884,9 +884,9 @@ void Analyzer::setupGeneral() {
   
   
   for( int i=0; i<BOOM->GetListOfBranches()->GetSize(); i++){
-    string branch_name(BOOM->GetListOfBranches()->At(i)->GetName());
-    if (branch_name.find("HLT_")!=string::npos){
-      //cout<<branch_name<<endl;
+    std::string branch_name(BOOM->GetListOfBranches()->At(i)->GetName());
+    if (branch_name.find("HLT_")!=std::string::npos){
+      //cout<<branch_name<<std::endl;
     }
   }
   
@@ -901,9 +901,7 @@ void Analyzer::setupGeneral() {
   read_info(filespace + "Run_info.in");
   read_info(filespace + "Systematics_info.in");
   
-  
-  
-  for(string trigger : trigNames){
+  for(std::string trigger : trigNames){
     bool decison=false;
     SetBranch(trigger.c_str(),decison);
     trig_decision.push_back(decison);
@@ -911,17 +909,17 @@ void Analyzer::setupGeneral() {
 }
 
 
-void Analyzer::initializeMCSelection(vector<string> infiles) {
+void Analyzer::initializeMCSelection(std::vector<std::string> infiles) {
     // check if we need to make gen level cuts to cross clean the samples:
 
   isVSample = false;
-  if(infiles[0].find("DY") != string::npos){
+  if(infiles[0].find("DY") != std::string::npos){
     isVSample = true;
-    if(infiles[0].find("DYJetsToLL_M-50_HT-") != string::npos){
+    if(infiles[0].find("DYJetsToLL_M-50_HT-") != std::string::npos){
       gen_selection["DY_noMass_gt_100"]=true;
       //gen_selection["DY_noMass_gt_200"]=true;
     //get the DY1Jet DY2Jet ...
-    }else if(infiles[0].find("JetsToLL_TuneCUETP8M1_13TeV") != string::npos){
+    }else if(infiles[0].find("JetsToLL_TuneCUETP8M1_13TeV") != std::string::npos){
       gen_selection["DY_noMass_gt_100"]=true;
     }else{
       //set it to false!!
@@ -929,7 +927,7 @@ void Analyzer::initializeMCSelection(vector<string> infiles) {
       gen_selection["DY_noMass_gt_200"]=false;
     }
 
-    if(infiles[0].find("DYJetsToLL_M-50_TuneCUETP8M1_13TeV") != string::npos){
+    if(infiles[0].find("DYJetsToLL_M-50_TuneCUETP8M1_13TeV") != std::string::npos){
       gen_selection["DY_noMass_gt_100"]=true;
     }else{
       //set it to false!!
@@ -942,17 +940,17 @@ void Analyzer::initializeMCSelection(vector<string> infiles) {
     gen_selection["DY_noMass_gt_100"]=false;
   }
 
-  if(infiles[0].find("WJets") != string::npos){
+  if(infiles[0].find("WJets") != std::string::npos){
     isVSample = true;
   }
 }
 
 
 ///parsing method that gets info on diparts and basic run info
-//put in map called "distats"
-void Analyzer::read_info(string filename) {
+//put in std::map called "distats"
+void Analyzer::read_info(std::string filename) {
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-  ifstream info_file(filename);
+  std::ifstream info_file(filename);
   boost::char_separator<char> sep(", \t");
 
   if(!info_file) {
@@ -961,10 +959,10 @@ void Analyzer::read_info(string filename) {
   }
 
 
-  string group, line;
+  std::string group, line;
   while(getline(info_file, line)) {
     tokenizer tokens(line, sep);
-    vector<string> stemp;
+    std::vector<std::string> stemp;
 
     for(tokenizer::iterator iter = tokens.begin();iter != tokens.end(); iter++) {
       if( ((*iter)[0] == '/' && (*iter)[0] == '/') || ((*iter)[0] == '#') ) break;
@@ -975,7 +973,7 @@ void Analyzer::read_info(string filename) {
       group = stemp[0];
       continue;
     } else if(group == "") {
-      cout << "error in " << filename << "; no groups specified for data" << endl;
+      std::cout << "error in " << filename << "; no groups specified for data" << std::endl;
       exit(1);
     } else if(stemp.size() == 2) {
       char* p;
@@ -993,12 +991,11 @@ void Analyzer::read_info(string filename) {
         if(*p) distats[group].smap[stemp[0]] = stemp[1];
         else  distats[group].dmap[stemp[0]]=stod(stemp[1]);
       }
-
-    } else if(stemp.size() == 3) distats[group].pmap[stemp[0]] = make_pair(stod(stemp[1]), stod(stemp[2]));
+    } else if(stemp.size() == 3) distats[group].pmap[stemp[0]] = std::make_pair(stod(stemp[1]), stod(stemp[2]));
     else{
-      if(stemp.at(0).find("Trigger") != string::npos) {
+      if(stemp.at(0).find("Trigger") != std::string::npos) {
         for(auto trigger : stemp){
-          if(trigger.find("Trigger")== string::npos and "="!=trigger ){
+          if(trigger.find("Trigger")== std::string::npos and "="!=trigger ){
             trigNames.push_back(trigger);
           }
         }
@@ -1010,7 +1007,7 @@ void Analyzer::read_info(string filename) {
   //for( std::pair<const std::basic_string<char>, PartStats> group : distats){
     //for( std::pair<const std::basic_string<char>, double> i : group.second.dmap){
       //if(group.first.find("Tau")!=string::npos){
-        //cout<<group.first<<" "<< i.first<< "  "<<i.second<<endl;
+        //cout<<group.first<<" "<< i.first<< "  "<<i.second<<std::endl;
       //}
     //}
   //}
@@ -1029,7 +1026,7 @@ void Analyzer::setCutNeeds() {
     try{
       neededCuts.loadCuts(cut_num.at(it));
     }catch(...){
-      cout<<"The following cut is strange: "<<it<<endl;
+      std::cout<<"The following cut is strange: "<<it<<std::endl;
       exit(2);
     }
   }
@@ -1057,54 +1054,54 @@ void Analyzer::setCutNeeds() {
     neededCuts.loadCuts(_FatJet->findExtraCuts());
     neededCuts.loadCuts(_FatJet->overlapCuts(CUTS::eRWjet));
   } else {
-    cout<<"WJets not needed. They will be deactivated!"<<endl;
+    std::cout<<"WJets not needed. They will be deactivated!"<<std::endl;
     _FatJet->unBranch();
   }
 
   if( neededCuts.isPresent(CUTS::eRTau1) || neededCuts.isPresent(CUTS::eRTau2) ) {
     neededCuts.loadCuts(_Tau->findExtraCuts());
   } else {
-    cout<<"Taus not needed. They will be deactivated!"<<endl;
+    std::cout<<"Taus not needed. They will be deactivated!"<<std::endl;
     _Tau->unBranch();
   }
 
   if( neededCuts.isPresent(CUTS::eRElec1) || neededCuts.isPresent(CUTS::eRElec2) ) {
     neededCuts.loadCuts(_Electron->findExtraCuts());
   } else {
-    cout<<"Electrons not needed. They will be deactivated!"<<endl;
+    std::cout<<"Electrons not needed. They will be deactivated!"<<std::endl;
     _Electron->unBranch();
   }
 
   if( neededCuts.isPresent(CUTS::eRMuon1) || neededCuts.isPresent(CUTS::eRMuon2) ) {
     neededCuts.loadCuts(_Muon->findExtraCuts());
   } else {
-    cout<<"Muons not needed. They will be deactivated!"<<endl;
+    std::cout<<"Muons not needed. They will be deactivated!"<<std::endl;
     _Muon->unBranch();
   }
 
   if( !neededCuts.isPresent(CUTS::eGen) and !isData) {
-    cout<<"Gen not needed. They will be deactivated!"<<endl;
+    std::cout<<"Gen not needed. They will be deactivated!"<<std::endl;
     _Gen->unBranch();
 
   }
 
-  cout << "Cuts being filled: " << endl;
+  std::cout << "Cuts being filled: " << std::endl;
   for(auto cut : neededCuts.getCuts()) {
-    cout << enumNames.at(static_cast<CUTS>(cut)) << "   ";
+    std::cout << enumNames.at(static_cast<CUTS>(cut)) << "   ";
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 
-///Smears lepton only if specified and not a data file.  Otherwise, just filles up lorentz vectors
-//of the data into the vector container smearP with is in each lepton object.
+///Smears lepton only if specified and not a data file.  Otherwise, just filles up lorentz std::vectors
+//of the data into the std::vector container smearP with is in each lepton object.
 void Analyzer::smearLepton(Lepton& lep, CUTS eGenPos, const PartStats& stats, const PartStats& syst_stats, int syst) {
   if( isData) {
     lep.setOrigReco();
     return;
   }
 
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
   if(!lep.needSyst(syst)) return;
 
   if(systname=="orig" && !stats.bfind("SmearTheParticle")){
@@ -1133,7 +1130,7 @@ void Analyzer::smearJet(Particle& jet, const CUTS eGenPos, const PartStats& stat
   //add energy scale uncertainty
 
 
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
 
   for(size_t i=0; i< jet.size(); i++) {
     TLorentzVector jetReco = jet.RecoP4(i);
@@ -1159,7 +1156,7 @@ void Analyzer::smearJet(Particle& jet, const CUTS eGenPos, const PartStats& stat
     }else if(systname=="Jet_Scale_Down"){
       sf = jetScaleRes.GetScale(jetReco, false, -1) ;
     }
-    //cout<<systname<<"  "<<sf<<"  "<<jetReco.Pt()<<"  "<<genJet.Pt()<<endl;
+    //cout<<systname<<"  "<<sf<<"  "<<jetReco.Pt()<<"  "<<genJet.Pt()<<std::endl;
     systematics.shiftParticle(jet, jetReco, sf, _MET->systdeltaMEx[syst], _MET->systdeltaMEy[syst], syst);
   }
 }
@@ -1287,7 +1284,7 @@ void Analyzer::getGoodTauNu() {
 void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS eGenPos, const PartStats& stats, const int syst) {
   if(! neededCuts.isPresent(ePos)) return;
 
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
   if(!lep.needSyst(syst)) {
     active_part->at(ePos) = goodParts[ePos];
     return;
@@ -1321,7 +1318,7 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
       ////electron cuts
       else if(lep.type == PType::Electron){
         if(cut == "DoDiscrByHLTID"){
-          bitset<8> idvariable(_Electron->cutBased_HLTPreSel[i]);
+          std::bitset<8> idvariable(_Electron->cutBased_HLTPreSel[i]);
           if(ival(ePos) - ival(CUTS::eRElec1)){
             passCuts = passCuts && (_Electron->cbHLTIDele1&idvariable).count();
           }else{
@@ -1329,7 +1326,7 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
           }
         }
         if(cut == "DoDiscrByCBID"){
-          bitset<8> idvariable(_Electron->cutBased[i]);
+          std::bitset<8> idvariable(_Electron->cutBased[i]);
           if(ival(ePos) - ival(CUTS::eRElec1)){
             passCuts = passCuts && (_Electron->cbIDele1&idvariable).count();
           }else{
@@ -1352,7 +1349,7 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
         else if (cut == "SelectTausThatAreMuons") passCuts = passCuts &&  !_Tau->pass_against_Muon(ePos, i);
 
         else if(cut == "DiscrByProngType") {
-          passCuts = passCuts && (stats.smap.at("ProngType").find("hps") == string::npos || _Tau->DecayModeNewDMs[i] != 0);
+          passCuts = passCuts && (stats.smap.at("ProngType").find("hps") == std::string::npos || _Tau->DecayModeNewDMs[i] != 0);
           passCuts = passCuts && passProng(stats.smap.at("ProngType"), _Tau->decayMode[i]);
         }
         else if(cut == "decayModeFindingNewDMs") passCuts = passCuts && _Tau->DecayModeNewDMs[i] != 0;
@@ -1363,7 +1360,7 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
         else if(cut == "RemoveOverlapWithElectron1s") passCuts = passCuts && !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats.dmap.at("Electron1MatchingDeltaR"));
         else if(cut == "RemoveOverlapWithElectron2s") passCuts = passCuts && !isOverlaping(lvec, *_Electron, CUTS::eRElec2, stats.dmap.at("Electron2MatchingDeltaR"));
       }
-      else cout << "cut: " << cut << " not listed" << endl;
+      else std::cout << "cut: " << cut << " not listed" << std::endl;
     }
     if(passCuts) active_part->at(ePos)->push_back(i);
     i++;
@@ -1378,7 +1375,7 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const PartStats& stats, const int syst
 
   if(! neededCuts.isPresent(ePos)) return;
 
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
   if(!_Jet->needSyst(syst)) {
     active_part->at(ePos)=goodParts[ePos];
     return;
@@ -1387,6 +1384,9 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const PartStats& stats, const int syst
   int i=0;
 
   for(auto lvec: *_Jet) {
+    if(ePos == CUTS::eR1stJet || ePos == CUTS::eR2ndJet){
+      break;
+    }
     bool passCuts = true;
     if( ePos == CUTS::eRCenJet) passCuts = passCuts && (fabs(lvec.Eta()) < 2.5);
     else  passCuts = passCuts && passCutRange(fabs(lvec.Eta()), stats.pmap.at("EtaCut"));
@@ -1425,15 +1425,18 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const PartStats& stats, const int syst
   //note the leading jet has to be selected fist!
   if(ePos == CUTS::eR1stJet || ePos == CUTS::eR2ndJet) {
 
-    vector<pair<double, int> > ptIndexVector;
-    for(auto it : *active_part->at(ePos)) {
-      ptIndexVector.push_back(make_pair(_Jet->pt(it),it));
+    std::vector<std::pair<double, int> > ptIndexVector;
+    for(auto it : *active_part->at(CUTS::eRJet1)) {
+      ptIndexVector.push_back(std::make_pair(_Jet->pt(it),it));
     }
     sort(ptIndexVector.begin(),ptIndexVector.end());
-    if(ePos == CUTS::eR1stJet && ptIndexVector.size()>0)
+    if(ePos == CUTS::eR1stJet && ptIndexVector.size()>0){
       active_part->at(ePos)->push_back(ptIndexVector.back().second);
-    if(ePos == CUTS::eR2ndJet && ptIndexVector.size()>1)
+    }
+    else if(ePos == CUTS::eR2ndJet && ptIndexVector.size()>1){
       active_part->at(ePos)->push_back(ptIndexVector.at(ptIndexVector.size()-2).second);
+    }
+    
   }
 
 }
@@ -1443,7 +1446,7 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const PartStats& stats, const int syst
 void Analyzer::getGoodRecoFatJets(CUTS ePos, const PartStats& stats, const int syst) {
   if(! neededCuts.isPresent(ePos)) return;
 
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
   if(!_FatJet->needSyst(syst)) {
     active_part->at(ePos)=goodParts[ePos];
     return;
@@ -1486,10 +1489,10 @@ bool Analyzer::isOverlaping(const TLorentzVector& lvec, Lepton& overlapper, CUTS
 }
 
 ///Tests if tau decays into the specified number of jet prongs.
-bool Analyzer::passProng(string prong, int value) {
-  return ( (prong.find("1") != string::npos &&  (value<5)) ||
-  (prong.find("2") != string::npos &&  (value>=5 && value<10)) ||
-  (prong.find("3") != string::npos && (value>=10 && value<12)) );
+bool Analyzer::passProng(std::string prong, int value) {
+  return ( (prong.find("1") != std::string::npos &&  (value<5)) ||
+  (prong.find("2") != std::string::npos &&  (value>=5 && value<10)) ||
+  (prong.find("3") != std::string::npos && (value>=10 && value<12)) );
 }
 
 
@@ -1518,13 +1521,13 @@ void Analyzer::TriggerCuts(CUTS ePos) {
 ////VBF specific cuts dealing with the leading jets.
 void Analyzer::VBFTopologyCut(const PartStats& stats, const int syst) {
   if(! neededCuts.isPresent(CUTS::eSusyCom)) return;
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
 
 
   if(systname!="orig"){
     //only jet stuff is affected
     //save time to not rerun stuff
-    if( systname.find("Jet")==string::npos){
+    if( systname.find("Jet")==std::string::npos){
       active_part->at(CUTS::eSusyCom)=goodParts[CUTS::eSusyCom];
       return;
     }
@@ -1555,14 +1558,14 @@ void Analyzer::VBFTopologyCut(const PartStats& stats, const int syst) {
     else if(cut == "DiscrByDphi1") passCuts = passCuts && passCutRange(abs(dphi1), stats.pmap.at("Dphi1Cut"));
     else if(cut == "DiscrByDphi2") passCuts = passCuts && passCutRange(abs(dphi2), stats.pmap.at("Dphi2Cut"));
 
-    else cout << "cut: " << cut << " not listed" << endl;
+    else std::cout << "cut: " << cut << " not listed" << std::endl;
   }
 
   if(passCuts)  active_part->at(CUTS::eSusyCom)->push_back(0);
   return;
 }
 
-bool Analyzer::passCutRange(double value, const pair<double, double>& cuts) {
+bool Analyzer::passCutRange(double value, const std::pair<double, double>& cuts) {
   return (value > cuts.first && value < cuts.second);
 }
 
@@ -1580,7 +1583,7 @@ double Analyzer::calculateLeptonMetMt(const TLorentzVector& Tobj) {
 ///can use Collinear Approximation, which can fail (number failed available in a histogram)
 ///can use VectorSumOfVisProductAndMet which is sum of particles and met
 ///Other which is adding without met
-double Analyzer::diParticleMass(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, string howCalc) {
+double Analyzer::diParticleMass(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, std::string howCalc) {
   bool ratioNotInRange = false;
   TLorentzVector The_LorentzVect;
 
@@ -1609,7 +1612,7 @@ double Analyzer::diParticleMass(const TLorentzVector& Tobj1, const TLorentzVecto
 }
 
 ////Tests if the CollinearApproximation works for finding the mass of teh particles
-bool Analyzer::passDiParticleApprox(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, string howCalc) {
+bool Analyzer::passDiParticleApprox(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, std::string howCalc) {
   if(howCalc == "CollinearApprox") {
     double x1_numerator = (Tobj1.Px() * Tobj2.Py()) - (Tobj2.Px() * Tobj1.Py());
     double x1_denominator = (Tobj2.Py() * (Tobj1.Px() + _MET->px())) - (Tobj2.Px() * (Tobj1.Py() + _MET->py()));
@@ -1628,7 +1631,7 @@ bool Analyzer::passDiParticleApprox(const TLorentzVector& Tobj1, const TLorentzV
 ///Find the number of lepton combos that pass the dilepton cuts
 void Analyzer::getGoodLeptonCombos(Lepton& lep1, Lepton& lep2, CUTS ePos1, CUTS ePos2, CUTS ePosFin, const PartStats& stats, const int syst) {
   if(! neededCuts.isPresent(ePosFin)) return;
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
 
   if(!lep1.needSyst(syst) && !lep2.needSyst(syst)) {
     active_part->at(ePosFin)=goodParts[ePosFin];
@@ -1668,10 +1671,10 @@ void Analyzer::getGoodLeptonCombos(Lepton& lep1, Lepton& lep2, CUTS ePos1, CUTS 
         }
 
 
-        else cout << "cut: " << cut << " not listed" << endl;
+        else std::cout << "cut: " << cut << " not listed" << std::endl;
       }
       if (stats.bfind("DiscrByOSLSType")){
-        //   if it is 1 or 0 it will end up in the bool map!!
+        //   if it is 1 or 0 it will end up in the bool std::map!!
         if(stats.bfind("DiscrByOSLSType") && (lep1.charge(i1) * lep2.charge(i2) <= 0)) continue;
       }else if (stats.dmap.find("DiscrByOSLSType") != stats.dmap.end() ){
         if(lep1.charge(i1) * lep2.charge(i2) > 0) continue;
@@ -1693,7 +1696,7 @@ void Analyzer::getGoodLeptonCombos(Lepton& lep1, Lepton& lep2, CUTS ePos1, CUTS 
 ///Find the number of lepton combos that pass the dilepton cuts
 void Analyzer::getGoodLeptonJetCombos(Lepton& lep1, Jet& jet1, CUTS ePos1, CUTS ePos2, CUTS ePosFin, const PartStats& stats, const int syst) {
   if(! neededCuts.isPresent(ePosFin)) return;
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
   if(!lep1.needSyst(syst) && !jet1.needSyst(syst)) {
     active_part->at(ePosFin)=goodParts[ePosFin];
     return;
@@ -1715,7 +1718,7 @@ void Analyzer::getGoodLeptonJetCombos(Lepton& lep1, Jet& jet1, CUTS ePos1, CUTS 
         else if(cut == "DiscrByOSEta") passCuts = (ljet1.Eta() * llep1.Eta() < 0);
         else if(cut == "DiscrByMassReco") passCuts = passCutRange((ljet1+llep1).M(), stats.pmap.at("MassCut"));
         else if(cut == "DiscrByCosDphi") passCuts = passCutRange(cos(absnormPhi(ljet1.Phi() - llep1.Phi())), stats.pmap.at("CosDphiCut"));
-        else cout << "cut: " << cut << " not listed" << endl;
+        else std::cout << "cut: " << cut << " not listed" << std::endl;
       }
       ///Particlesp that lead to good combo are totjet * part1 + part2
       /// final / totjet = part1 (make sure is integer)
@@ -1732,10 +1735,10 @@ void Analyzer::getGoodLeptonJetCombos(Lepton& lep1, Jet& jet1, CUTS ePos1, CUTS 
 /////Same as gooddilepton, just jet specific
 void Analyzer::getGoodDiJets(const PartStats& stats, const int syst) {
   if(! neededCuts.isPresent(CUTS::eDiJet)) return;
-  string systname = syst_names.at(syst);
+  std::string systname = syst_names.at(syst);
   if(systname!="orig"){
     //save time to not rerun stuff
-    if( systname.find("Jet")==string::npos){
+    if( systname.find("Jet")==std::string::npos){
       active_part->at(CUTS::eDiJet)=goodParts[CUTS::eDiJet];
       return;
     }
@@ -1749,9 +1752,9 @@ void Analyzer::getGoodDiJets(const PartStats& stats, const int syst) {
       jet1 = _Jet->p4(ij1);
 
       bool passCuts = true;
-      //cout<<"---------------------"<<endl;
+      //cout<<"---------------------"<<std::endl;
       for(auto cut : stats.bset) {
-        //cout<<cut<<"    "<<passCuts<<endl;;
+        //cout<<cut<<"    "<<passCuts<<std::endl;;
         if(!passCuts) break;
         else if(cut == "DiscrByDeltaR") passCuts = passCuts && (jet1.DeltaR(jet2) >= stats.dmap.at("DeltaRCut"));
         else if(cut == "DiscrByDeltaEta") passCuts = passCuts && passCutRange(abs(jet1.Eta() - jet2.Eta()), stats.pmap.at("DeltaEtaCut"));
@@ -1759,7 +1762,7 @@ void Analyzer::getGoodDiJets(const PartStats& stats, const int syst) {
         else if(cut == "DiscrByOSEta") passCuts = passCuts && (jet1.Eta() * jet2.Eta() < 0);
         else if(cut == "DiscrByMassReco") passCuts = passCuts && passCutRange((jet1+jet2).M(), stats.pmap.at("MassCut"));
         else if(cut == "DiscrByCosDphi") passCuts = passCuts && passCutRange(cos(absnormPhi(jet1.Phi() - jet2.Phi())), stats.pmap.at("CosDphiCut"));
-        else cout << "cut: " << cut << " not listed" << endl;
+        else std::cout << "cut: " << cut << " not listed" << std::endl;
       }
       ///Particlesp that lead to good combo are totjet * part1 + part2
       /// final / totjet = part1 (make sure is integer)
@@ -1778,7 +1781,7 @@ bool Analyzer::isZdecay(const TLorentzVector& theObject, const Lepton& lep) {
   float zmmPtAsymmetry = -10.;
 
   // if mass is within 3 sigmas of z or pt asymmetry is small set to true.
-  for(vector<TLorentzVector>::const_iterator lepit= lep.begin(); lepit != lep.end(); lepit++) {
+  for(std::vector<TLorentzVector>::const_iterator lepit= lep.begin(); lepit != lep.end(); lepit++) {
     if(theObject.DeltaR(*lepit) < 0.3) continue;
     if(theObject == (*lepit)) continue;
 
@@ -1796,7 +1799,7 @@ bool Analyzer::isZdecay(const TLorentzVector& theObject, const Lepton& lep) {
 
 
 ///Calculates the Pzeta value
-pair<double, double> Analyzer::getPZeta(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2) {
+std::pair<double, double> Analyzer::getPZeta(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2) {
   double zetaX = cos(Tobj1.Phi()) + cos(Tobj2.Phi());
   double zetaY = sin(Tobj1.Phi()) + sin(Tobj2.Phi());
   double zetaR = TMath::Sqrt(zetaX*zetaX + zetaY*zetaY);
@@ -1805,13 +1808,13 @@ pair<double, double> Analyzer::getPZeta(const TLorentzVector& Tobj1, const TLore
   double visPy = Tobj1.Py() + Tobj2.Py();
   double px = visPx + _MET->px();
   double py = visPy + _MET->py();
-  return make_pair(px*zetaX + py*zetaY, visPx*zetaX + visPy*zetaY);
+  return std::make_pair(px*zetaX + py*zetaY, visPx*zetaX + visPy*zetaY);
 }
 
 double Analyzer::getZBoostWeight(){
   double boostweigth=1.;
   if((active_part->at(CUTS::eGElec)->size() + active_part->at(CUTS::eGTau)->size() + active_part->at(CUTS::eGMuon)->size()) >=1 && (active_part->at(CUTS::eGZ)->size() ==1 || active_part->at(CUTS::eGW)->size() ==1)){
-    //cout<<" Z or W " <<endl;
+    //cout<<" Z or W " <<std::endl;
     double boostz = 0;
     if(active_part->at(CUTS::eGZ)->size() ==1){
       boostz = _Gen->pt(active_part->at(CUTS::eGZ)->at(0));
@@ -1864,7 +1867,7 @@ void Analyzer::fill_histogram() {
 
   if(isData && blinded && maxCut == SignalRegion) return;
 
-  const vector<string>* groups = histo.get_groups();
+  const std::vector<std::string>* groups = histo.get_groups();
   if(!isData){
     wgt = 1.;
     if(distats["Run"].bfind("UsePileUpWeight")) wgt*= pu_weight;
@@ -1898,7 +1901,7 @@ void Analyzer::fill_histogram() {
       }
     }else{
       wgt=backup_wgt;
-      if(syst_names[i].find("weight")!=string::npos){
+      if(syst_names[i].find("weight")!=std::string::npos){
         if(syst_names[i]=="Tau_weight_Up"){
           if(distats["Run"].bfind("ApplyTauIDSF")) {
             wgt/=getTauDataMCScaleFactor(0);
@@ -1939,7 +1942,7 @@ void Analyzer::fill_histogram() {
 }
 
 ///Function that fills up the histograms
-void Analyzer::fill_Folder(string group, const int max, Histogramer &ihisto, bool issyst) {
+void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto, bool issyst) {
   /*be aware in this function
    * the following definition is used:
    * histAddVal(val, name) histo.addVal(val, group, max, name, wgt)
@@ -2022,10 +2025,10 @@ void Analyzer::fill_Folder(string group, const int max, Histogramer &ihisto, boo
         if(lep1!=TLorentzVector(0,0,0,0)){
           lep2= _Gen->p4(igen);
           mass=(lep1+lep2).M();
-          //cout<<"mass  leptons "<<mass<<endl;
+          //cout<<"mass  leptons "<<mass<<std::endl;
           break;
         }else{
-          //cout<<_Gen->size()<<"   "<<igen<<endl;
+          //cout<<_Gen->size()<<"   "<<igen<<std::endl;
           //if(_Gen->size()>_Gen->cur_P.size()){
            //_Gen->init();
           //}
@@ -2078,9 +2081,9 @@ void Analyzer::fill_Folder(string group, const int max, Histogramer &ihisto, boo
     }
 
     if((part->type != PType::Jet ) && active_part->at(ePos)->size() > 0) {
-      vector<pair<double, int> > ptIndexVector;
+      std::vector<std::pair<double, int> > ptIndexVector;
       for(auto it : *active_part->at(ePos)) {
-        ptIndexVector.push_back(make_pair(part->pt(it),it));
+        ptIndexVector.push_back(std::make_pair(part->pt(it),it));
       }
       sort(ptIndexVector.begin(),ptIndexVector.end());
       if(ptIndexVector.size()>0){
@@ -2210,7 +2213,7 @@ void Analyzer::fill_Folder(string group, const int max, Histogramer &ihisto, boo
     Jet* jet = static_cast<Jet*>(fillInfo[group]->part);
     Lepton* lep = static_cast<Lepton*>(fillInfo[group]->part2);
     CUTS ePos = fillInfo[group]->ePos;
-    string digroup = group;
+    std::string digroup = group;
     digroup.erase(0,4);
 
     TLorentzVector part1;
@@ -2226,7 +2229,7 @@ void Analyzer::fill_Folder(string group, const int max, Histogramer &ihisto, boo
 
       histAddVal2(part1.Pt(),part2.Pt(), "Part1PtVsPart2Pt");
       histAddVal(part1.DeltaR(part2), "DeltaR");
-      if(group.find("Di") != string::npos) {
+      if(group.find("Di") != std::string::npos) {
         histAddVal((part1.Pt() - part2.Pt()) / (part1.Pt() + part2.Pt()), "DeltaPtDivSumPt");
         histAddVal(part1.Pt() - part2.Pt(), "DeltaPt");
       } else {
@@ -2266,7 +2269,7 @@ void Analyzer::fill_Folder(string group, const int max, Histogramer &ihisto, boo
     Lepton* lep1 = static_cast<Lepton*>(fillInfo[group]->part);
     Lepton* lep2 = static_cast<Lepton*>(fillInfo[group]->part2);
     CUTS ePos = fillInfo[group]->ePos;
-    string digroup = group;
+    std::string digroup = group;
     digroup.erase(0,4);
 
     TLorentzVector part1;
@@ -2282,7 +2285,7 @@ void Analyzer::fill_Folder(string group, const int max, Histogramer &ihisto, boo
 
       histAddVal2(part1.Pt(),part2.Pt(), "Part1PtVsPart2Pt");
       histAddVal(part1.DeltaR(part2), "DeltaR");
-      if(group.find("Di") != string::npos) {
+      if(group.find("Di") != std::string::npos) {
         histAddVal((part1.Pt() - part2.Pt()) / (part1.Pt() + part2.Pt()), "DeltaPtDivSumPt");
         histAddVal(part1.Pt() - part2.Pt(), "DeltaPt");
       } else {
@@ -2389,7 +2392,7 @@ void Analyzer::fill_Folder(string group, const int max, Histogramer &ihisto, boo
           histAddVal(part2.Pt(), "DiEleEleUnMatchPt");
           histAddVal2( part2.Pt(),   part2.Eta(), "DiEleUnMatchPt_vs_eta");
           if(!isData){
-            histAddVal(part2.Pt(), "DiEleEleUnMatchPt_gen_"+to_string(abs(matchToGenPdg(part2,0.3))));
+            histAddVal(part2.Pt(), "DiEleEleUnMatchPt_gen_"+std::to_string(abs(matchToGenPdg(part2,0.3))));
           }
           int found=-1;
           for(size_t i=0; i< _Jet->size(); i++) {
@@ -2462,7 +2465,7 @@ void Analyzer::fill_Tree(){
   }
 }
 
-void Analyzer::initializePileupInfo(string MCHisto, string DataHisto, string DataHistoName, string MCHistoName) {
+void Analyzer::initializePileupInfo(std::string MCHisto, std::string DataHisto, std::string DataHistoName, std::string MCHistoName) {
 
   TFile *file1 = new TFile((PUSPACE+MCHisto).c_str());
   TH1D* histmc = (TH1D*)file1->FindObjectAny(MCHistoName.c_str());
@@ -2514,8 +2517,8 @@ void Analyzer::initializePileupInfo(string MCHisto, string DataHisto, string Dat
 
 }
 
-void Analyzer::initializeWkfactor(vector<string> infiles) {
-  if(infiles[0].find("WJets") != string::npos){
+void Analyzer::initializeWkfactor(std::vector<std::string> infiles) {
+  if(infiles[0].find("WJets") != std::string::npos){
     isWSample = true;
   }else{
     isWSample=false;

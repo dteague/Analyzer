@@ -20,17 +20,17 @@
 #include "tokenizer.hpp"
 #include "Cut_enum.h"
 
-using namespace std;
+//using namespace std;
 typedef unsigned int uint;
 
 struct PartStats {
-  unordered_map<string,double> dmap;
-  unordered_map<string,string> smap;
-  unordered_map<string,pair<double,double> > pmap;
-  //  unordered_map<string,bool> bmap;
-  vector<string> bset;
+  std::unordered_map<std::string,double> dmap;
+  std::unordered_map<std::string,std::string> smap;
+  std::unordered_map<std::string,std::pair<double,double> > pmap;
+  //  std::unordered_map<std::string,bool> bmap;
+  std::vector<std::string> bset;
 
-  bool bfind(string cut) const {
+  bool bfind(std::string cut) const {
     return find(bset.begin(), bset.end(), cut) != bset.end();
   }
   
@@ -45,10 +45,10 @@ class Particle {
 
 public:
   Particle();
-  Particle(TTree*, string, string, vector<string>);
+  Particle(TTree*, std::string, std::string, std::vector<std::string>);
   virtual ~Particle() {}
 
-  virtual vector<CUTS> findExtraCuts() {return vector<CUTS>();}
+  virtual std::vector<CUTS> findExtraCuts() {return std::vector<CUTS>();}
   void init();
   void unBranch();
   double pt(uint) const;
@@ -62,10 +62,10 @@ public:
   TLorentzVector& RecoP4(uint);
 
   uint size() const;
-  vector<TLorentzVector>::iterator begin();
-  vector<TLorentzVector>::iterator end();
-  vector<TLorentzVector>::const_iterator begin() const;
-  vector<TLorentzVector>::const_iterator end() const;
+  std::vector<TLorentzVector>::iterator begin();
+  std::vector<TLorentzVector>::iterator end();
+  std::vector<TLorentzVector>::const_iterator begin() const;
+  std::vector<TLorentzVector>::const_iterator end() const;
 
   bool needSyst(int) const;
 
@@ -73,21 +73,21 @@ public:
   void addP4Syst(TLorentzVector, int);
   void setOrigReco();
   void setCurrentP(int);
-  string getName() const {return GenName;};
+  std::string getName() const {return GenName;};
 
-  bool findCut(const vector<string>&, string);
+  bool findCut(const std::vector<std::string>&, std::string);
   
   PType type;
-  unordered_map<string, PartStats> pstats;
-  const map<PType,CUTS> cutMap = {{PType::Electron, CUTS::eGElec}, {PType::Muon, CUTS::eGMuon},
+  std::unordered_map<std::string, PartStats> pstats;
+  const std::map<PType,CUTS> cutMap = {{PType::Electron, CUTS::eGElec}, {PType::Muon, CUTS::eGMuon},
 				  {PType::Tau, CUTS::eGTau}};
 
 
 protected:
-  void getPartStats(string);
+  void getPartStats(std::string);
   TTree* BOOM;
-  string GenName;
-  unordered_map<CUTS, string, EnumHash> jetNameMap = {
+  std::string GenName;
+  std::unordered_map<CUTS, std::string, EnumHash> jetNameMap = {
     {CUTS::eRJet1, "Jet1"},               {CUTS::eRJet2, "Jet2"},
     {CUTS::eRCenJet, "CentralJet"},      {CUTS::eRBJet, "BJet"},
     {CUTS::eR1stJet, "FirstLeadingJet"},  {CUTS::eR2ndJet, "SecondLeadingJet"},
@@ -105,19 +105,18 @@ protected:
   float m_eta[MAXINDEX];
   float m_mass[MAXINDEX];
   
+  std::vector<TLorentzVector> Reco;
+  std::vector<TLorentzVector> *cur_P;
+  std::vector<std::string> syst_names;
+  std::vector<std::vector<TLorentzVector>* > systVec;
 
-  vector<TLorentzVector> Reco;
-  vector<TLorentzVector> *cur_P;
-  vector<string> syst_names;
-  vector<vector<TLorentzVector>* > systVec;
-
-  string activeSystematic;
+  std::string activeSystematic;
 };
 
 class Photon : public Particle {
 public:
   Photon();
-  Photon(TTree*, string, vector<string>);
+  Photon(TTree*, std::string, std::vector<std::string>);
 
   float hoverE[MAXINDEX];
   float phoR[MAXINDEX];
@@ -134,8 +133,7 @@ class Generated : public Particle {
 
 public:
   Generated();
-  Generated(TTree*, string, vector<string>);
-  
+  Generated(TTree*, std::string, std::vector<std::string>);
   
   int  genPartIdxMother[MAXINDEX];
   int  pdg_id[MAXINDEX];
@@ -148,10 +146,10 @@ public:
 class Jet : public Particle {
 
 public:
-  Jet(TTree*, string, vector<string>);
+  Jet(TTree*, std::string, std::vector<std::string>);
 
-  vector<CUTS> findExtraCuts();
-  vector<CUTS> overlapCuts(CUTS);
+  std::vector<CUTS> findExtraCuts();
+  std::vector<CUTS> overlapCuts(CUTS);
   bool passedLooseJetID(int);
    
   float area[MAXINDEX];
@@ -173,10 +171,10 @@ public:
 class FatJet : public Particle {
 
 public:
-  FatJet(TTree*, string, vector<string>);
+  FatJet(TTree*, std::string, std::vector<std::string>);
 
-  vector<CUTS> findExtraCuts();
-  vector<CUTS> overlapCuts(CUTS);
+  std::vector<CUTS> findExtraCuts();
+  std::vector<CUTS> overlapCuts(CUTS);
   
   float tau1[MAXINDEX];
   float tau2[MAXINDEX];
@@ -190,13 +188,12 @@ public:
 class Lepton : public Particle {
 
 public:
-  Lepton(TTree*, string, string, vector<string>);
+  Lepton(TTree*, std::string, std::string, std::vector<std::string>);
 
-  vector<CUTS> findExtraCuts();
+  std::vector<CUTS> findExtraCuts();
 
   double charge(uint)const;
   int _charge[MAXINDEX];
-
 
   virtual bool get_Iso(int, double, double) const {return false;}
 };
@@ -204,14 +201,14 @@ public:
 class Electron : public Lepton {
 
 public:
-  Electron(TTree*, string, vector<string>);
+  Electron(TTree*, std::string, std::vector<std::string>);
 
   bool get_Iso(int, double, double) const;
   
-  bitset<8> cbIDele1;
-  bitset<8> cbIDele2;
-  bitset<8> cbHLTIDele1;
-  bitset<8> cbHLTIDele2;
+  std::bitset<8> cbIDele1;
+  std::bitset<8> cbIDele2;
+  std::bitset<8> cbHLTIDele1;
+  std::bitset<8> cbHLTIDele2;
   
   float miniPFRelIso_all[MAXINDEX];
   float miniPFRelIso_chg[MAXINDEX];
@@ -236,7 +233,7 @@ public:
 class Muon : public Lepton {
 
 public:
-  Muon(TTree*, string, vector<string>);
+  Muon(TTree*, std::string, std::vector<std::string>);
 
   bool get_Iso(int, double, double) const;
 
@@ -252,25 +249,25 @@ public:
 class Taus : public Lepton {
 
 public:
-  Taus(TTree*, string, vector<string>);
+  Taus(TTree*, std::string, std::vector<std::string>);
 
   //  void findExtraCuts();
-  vector<CUTS> findExtraCuts();
+  std::vector<CUTS> findExtraCuts();
   bool get_Iso(int, double, double) const;
   bool pass_against_Elec(CUTS, int);
   bool pass_against_Muon(CUTS, int);
   
-  bitset<8> tau1minIso;
-  bitset<8> tau1maxIso;
+  std::bitset<8> tau1minIso;
+  std::bitset<8> tau1maxIso;
   
-  bitset<8> tau2minIso;
-  bitset<8> tau2maxIso;
+  std::bitset<8> tau2minIso;
+  std::bitset<8> tau2maxIso;
   
-  bitset<8> tau1ele;
-  bitset<8> tau1mu;
+  std::bitset<8> tau1ele;
+  std::bitset<8> tau1mu;
   
-  bitset<8> tau2ele;
-  bitset<8> tau2mu;
+  std::bitset<8> tau2ele;
+  std::bitset<8> tau2mu;
   
   
   UChar_t againstElectron[MAXINDEX];
