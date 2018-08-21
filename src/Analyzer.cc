@@ -458,7 +458,7 @@ void Analyzer::preprocess(int event) {
     ( event < 10000 && event % 1000 == 0 ) ||
     ( event >= 10000 && event % 10000 == 0 ) ) {
        std::cout << std::setprecision(2)<<event << " Events analyzed "<< static_cast<double>(event)/nentries*100. <<"% done"<<std::endl;
-       std::cout << std::fixed;
+       std::cout << std::cout.precision(5);
   }
 }
 
@@ -693,6 +693,7 @@ void Analyzer::printCuts() {
       std::cout << std::endl;
     }
   }
+  std::cout <<std::cout.precision(5);
   std::cout << "---------------------------------------------------------------------------\n";
 
   //write all the histograms
@@ -1966,6 +1967,7 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
         ihisto.addVal(2, group,ihisto.get_maxfolder(), "Events", (gen_weight > 0) ? 1.0 : -1.0);
       }
       ihisto.addVal(wgt, group, ihisto.get_maxfolder(), "Weight", 1);
+      ihisto.addVal(nTruePU, group, ihisto.get_maxfolder(), "PUWeight", 1);
     }
     histAddVal(true, "Events");
     histAddVal(bestVertices, "NVertices");
