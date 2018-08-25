@@ -340,8 +340,14 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
   cbHLTIDele1=tmp;
   tmp=elec2.dmap.at("DiscrByHLTID");
   cbHLTIDele2=tmp;
-  
-  if(elec1.bfind("DoDiscrByIsolation") || elec2.bfind("DoDiscrByIsolation")) {
+
+  if(_BOOM->FindBranch("Electron_mvaSpring16GP")!=0){
+    std::cout<<"Electron MVA ID: Electron_mvaSpring16"<<std::endl;
+  } else{
+    std::cout<<"Electron MVA ID: Electron_mvaFall17"<<std::endl;
+  }
+ 
+  if((elec1.bfind("DoDiscrByIsolation") || elec2.bfind("DoDiscrByIsolation")) && _BOOM->FindBranch("Electron_mvaFall17Iso")!=0 ) {
    SetBranch("Electron_miniPFRelIso_all", miniPFRelIso_all);
    SetBranch("Electron_miniPFRelIso_chg", miniPFRelIso_chg);
    SetBranch("Electron_mvaFall17Iso", mvaFall17Iso);
@@ -349,11 +355,22 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
    SetBranch("Electron_pfRelIso03_all", pfRelIso03_all);
    SetBranch("Electron_pfRelIso03_chg", pfRelIso03_chg);
   }
+
+  if((elec1.bfind("DoDiscrByIsolation") || elec2.bfind("DoDiscrByIsolation")) && _BOOM->FindBranch("Electron_mvaSpring16GP")!=0 ) {
+   SetBranch("Electron_miniPFRelIso_all", miniPFRelIso_all);
+   SetBranch("Electron_miniPFRelIso_chg", miniPFRelIso_chg);
+   SetBranch("Electron_mvaSpring16GP", mvaSpring16GP);
+   SetBranch("Electron_mvaSpring16HZZ", mvaSpring16HZZ);
+   SetBranch("Electron_pfRelIso03_all", pfRelIso03_all);
+   SetBranch("Electron_pfRelIso03_chg", pfRelIso03_chg);
+  }
+
   if(elec1.bfind("DoDiscrBycutBasedID") || elec2.bfind("DoDiscrByLooseID")) {
     SetBranch("Electron_cutBased", cutBased);
     SetBranch("Electron_cutBased_HLTPreSel", cutBased_HLTPreSel);
   }
-  if(elec1.bfind("DoDiscrBymvaID") || elec2.bfind("DoDiscrByLooseID")) {
+  
+  if((elec1.bfind("DoDiscrBymvaID") || elec2.bfind("DoDiscrByLooseID")) && _BOOM->FindBranch("Electron_mvaFall17Iso")!=0){
     SetBranch("Electron_mvaFall17Iso_WP90", mvaIso_90);
     SetBranch("Electron_mvaFall17noIso_WP90", mvanoIso_WP90);
     SetBranch("Electron_mvaFall17Iso_WP80", mvaIso_80);
@@ -361,6 +378,14 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
     SetBranch("Electron_mvaFall17Iso_WPL", mvaIso_WPL);
     SetBranch("Electron_mvaFall17noIso_WPL", mvanoIso_WPL);
   }
+
+  if((elec1.bfind("DoDiscrBymvaID") || elec2.bfind("DoDiscrByLooseID")) && _BOOM->FindBranch("Electron_mvaSpring16GP_WP90")!=0){
+    SetBranch("Electron_mvaSpring16GP_WP90", mvaGP_90);
+    SetBranch("Electron_mvaSpring16GP_WP80", mvaGP_80);
+    SetBranch("Electron_mvaSpring16HZZ_WPL", mvaHZZ_WPL);
+    SetBranch("Electron_mvaTTH", mvaTTH); 
+  }
+
   if(elec1.bfind("DoDiscrByHEEPID") || elec2.bfind("DoDiscrByHEEPID")) {
     SetBranch("Electron_cutBased_HEEP", isPassHEEPId);
   }

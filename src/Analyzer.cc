@@ -92,24 +92,33 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
   nentries = (int) BOOM->GetEntries();
   BOOM->SetBranchStatus("*", 0);
   std::cout << "TOTAL EVENTS: " << nentries << std::endl;
+  //std::cout <<"----------------------------------------------"<<std::endl;
 
+  //std::cout<<"srand(0)"<< std::endl;
   srand(0);
-
-  filespace=configFolder;
-  filespace+="/";
   
+  //std::cout<<"filespace=configFolder"<<std::endl;
+  filespace=configFolder;
+  //std::cout<<"filespace+=/"<< std::endl;
+  filespace+="/";
+  //std::cout<<"setupGeneral();"<< std::endl;
   setupGeneral();
   //isData = distats["Run"].bfind("isData");
-
+  //std::cout<<"reader.load(calib, BTagEntry::FLAV_B, comb);"<<std::endl;
   reader.load(calib, BTagEntry::FLAV_B, "comb");
 
   
-
+  //std::cout<<"CalculatePUSystematics..."<<std::endl;
   CalculatePUSystematics = distats["Run"].bfind("CalculatePUSystematics");
+  //std::cout<<"initializePileupInfo..."<<std::endl;
   initializePileupInfo(distats["Run"].smap.at("MCHistos"), distats["Run"].smap.at("DataHistos"),distats["Run"].smap.at("DataPUHistName"),distats["Run"].smap.at("MCPUHistName"));
+  //std::cout<<"syst_names.push_back(orig)"<<std::endl;
   syst_names.push_back("orig");
+  //std::cout<<"unordered_map<CUTS tmp;"<<std::endl;
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> tmp;
+  //std::cout<<"syst_parts.push_back(tmp)"<<std::endl;
   syst_parts.push_back(tmp);
+  //std::cout<<"if isData Systematics useSystematics..."<<std::endl;
   if(!isData && distats["Systematics"].bfind("useSystematics")) {
     for(auto systname : distats["Systematics"].bset) {
       if( systname == "useSystematics")
@@ -122,13 +131,16 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
   }else {
     doSystematics=false;
   }
-
+  //std::cout<<"end of that if.. now start with _Electron = new..."<<std::endl;
   _Electron = new Electron(BOOM, filespace + "Electron_info.in", syst_names);
+  //std::cout<<"_Muon = new Muon(..."<<std::endl;
   _Muon     = new Muon(BOOM, filespace + "Muon_info.in", syst_names);
   _Tau      = new Taus(BOOM, filespace + "Tau_info.in", syst_names);
   _Jet      = new Jet(BOOM, filespace + "Jet_info.in", syst_names);
   _FatJet   = new FatJet(BOOM, filespace + "FatJet_info.in", syst_names);
   _MET      = new Met(BOOM, "MET" , syst_names, distats["Run"].dmap.at("MT2Mass"));
+
+  //std::cout<<"---------------------------------------------------"<<std::endl;
 
   if(!isData) {
     std::cout<<"This is MC if not, change the flag!"<<std::endl;
@@ -859,6 +871,13 @@ void Analyzer::updateMet(int syst) {
 //   }
 // }
 
+/////Check if a given branch is not found in the file
+
+void Analyzer::branchException(std::string branch){
+  if(BOOM->FindBranch(branch.c_str()) == 0 ){
+     throw "Branch not found in the current sample. Check the config files associated to this branch.";
+  }
+}
 
 /////sets up other values needed for analysis that aren't particle specific
 void Analyzer::setupGeneral() {
@@ -882,13 +901,20 @@ void Analyzer::setupGeneral() {
     nTruePU=0;
     gen_weight=0;
   }
-  
+
+  //if(BOOM->FindBranch("Electron_mvaFall17Iso")!=0){
+  //  std::cout<<"This file needs the new version of the analyzer"<<std::endl;
+  //} 
   
   for( int i=0; i<BOOM->GetListOfBranches()->GetSize(); i++){
     std::string branch_name(BOOM->GetListOfBranches()->At(i)->GetName());
-    if (branch_name.find("HLT_")!=std::string::npos){
-      //cout<<branch_name<<std::endl;
-    }
+    //if (branch_name.find("Electron_mva")!=std::string::npos){
+      //std::cout<< branch_name << std::endl;
+    //}
+    //std::cout<<"--------------------------------------------------"<<std::endl;
+    //if (branch_name.find("HLT_Double")!=std::string::npos){
+      //std::cout<< branch_name << std::endl;
+    //}
   }
   
   SetBranch("PV_npvs", bestVertices);
@@ -903,9 +929,29 @@ void Analyzer::setupGeneral() {
   read_info(filespace + "Systematics_info.in");
   
   for(std::string trigger : trigNames){
-    bool decison=false;
-    SetBranch(trigger.c_str(),decison);
+    bool decison=false; 
+/*
+    if(BOOM->FindBranch(trigger.c_str()) == 0){
+      std::cout<<"ERROR! Trigger "<< trigger << ": Branch not found in this sample. Check the config files associated to this branch." << std::endl;
+      std::exit(1);
+      //std::cout<<"FindBranch("<< trigger << ") = "<< BOOM->FindBranch(trigger.c_str()) << std::endl;
+      //  throw "Please check the name of the trigger you are applying.";
+    }
+    SetBranch(trigger.c_str(),decison);       
     trig_decision.push_back(decison);
+*/
+    
+    try{
+       branchException(trigger.c_str());
+    }
+    catch (const char* msg){
+      std::cout << "ERROR! Trigger " << trigger << ": "  << msg << std::endl;
+      std::exit(1);
+    }
+
+    SetBranch(trigger.c_str(),decison);       
+    trig_decision.push_back(decison);
+    
   }
 }
 
@@ -998,6 +1044,7 @@ void Analyzer::read_info(std::string filename) {
         for(auto trigger : stemp){
           if(trigger.find("Trigger")== std::string::npos and "="!=trigger ){
             trigNames.push_back(trigger);
+            //std::cout<<"-------------- Hello, it's me! Number 2, here I'm reading from the Run_info.in file"<<std::endl;
           }
         }
         continue;

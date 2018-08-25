@@ -12,7 +12,7 @@ void SpechialAnalysis::init() {
   
 
   //this is just to store the histograms if they are to much to hold in memory
-  // string safeFileName = "SpecialHistos.root";
+  // std::string safeFileName = "SpecialHistos.root";
   // file1               = new TFile(safeFileName.c_str(), "RECREATE");
 
   // number of events, saved in a histogram

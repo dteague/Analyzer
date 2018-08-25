@@ -209,7 +209,8 @@ public:
   std::bitset<8> cbIDele2;
   std::bitset<8> cbHLTIDele1;
   std::bitset<8> cbHLTIDele2;
-  
+ 
+  // Electron MVA ID fall 2017 
   float miniPFRelIso_all[MAXINDEX];
   float miniPFRelIso_chg[MAXINDEX];
   float mvaFall17Iso[MAXINDEX];
@@ -225,6 +226,14 @@ public:
   bool mvaIso_WPL[MAXINDEX];
   bool mvanoIso_WPL[MAXINDEX];
   bool isPassHEEPId[MAXINDEX];
+
+  // Electron MVA ID spring 2016
+  float mvaSpring16GP[MAXINDEX];
+  float mvaSpring16HZZ[MAXINDEX];
+  bool mvaGP_90[MAXINDEX];
+  bool mvaGP_80[MAXINDEX];
+  bool mvaHZZ_WPL[MAXINDEX];
+  bool mvaTTH[MAXINDEX];
 
 };
 

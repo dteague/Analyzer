@@ -86,6 +86,7 @@ public:
 
   void read_info(std::string);
   void setupGeneral();
+  void branchException(std::string);
   void initializeTrigger();
   void setCutNeeds();
 
