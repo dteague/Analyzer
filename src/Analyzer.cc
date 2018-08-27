@@ -1038,13 +1038,20 @@ void Analyzer::read_info(std::string filename) {
         if(*p) distats[group].smap[stemp[0]] = stemp[1];
         else  distats[group].dmap[stemp[0]]=stod(stemp[1]);
       }
+      if(stemp.at(0).find("Trigger") != std::string::npos) {
+        for(auto trigger : stemp){
+          if(trigger.find("Trigger")== std::string::npos and "="!=trigger ){
+            trigNames.push_back(trigger);
+          }
+        }
+        continue;
+      }
     } else if(stemp.size() == 3) distats[group].pmap[stemp[0]] = std::make_pair(stod(stemp[1]), stod(stemp[2]));
     else{
       if(stemp.at(0).find("Trigger") != std::string::npos) {
         for(auto trigger : stemp){
           if(trigger.find("Trigger")== std::string::npos and "="!=trigger ){
             trigNames.push_back(trigger);
-            //std::cout<<"-------------- Hello, it's me! Number 2, here I'm reading from the Run_info.in file"<<std::endl;
           }
         }
         continue;
