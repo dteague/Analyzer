@@ -50,6 +50,7 @@ class Analyzer {
 public:
   Analyzer(std::vector<std::string>, std::string, bool setCR = false, std::string configFolder="PartDet");
   ~Analyzer();
+  void add_metadata(std::vector<std::string> infiles);
   void clear_values();
   void preprocess(int);
   bool fillCuts(bool);
@@ -150,11 +151,15 @@ public:
   TChain* BOOM;
   TTree* BAAM;
   TFile* infoFile;
+  TFile* routfile;
   std::string filespace = "";
   double hPU[200];
   double hPU_up[200];
   double hPU_down[200];
   int version=0;
+  std::map<std::string,TTree* > otherTrees;
+  //std::map<std::string,*TObject> otherObjects;
+  
 
   Generated* _Gen;
   Electron* _Electron;

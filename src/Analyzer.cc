@@ -1,4 +1,5 @@
 #include "Analyzer.h"
+#include "Compression.h"
 #include <regex>
 
 
@@ -80,6 +81,9 @@ const std::unordered_map<std::string, CUTS> Analyzer::cut_num = {
 ///Constructor
 Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool setCR, std::string configFolder) : goodParts(getArray()), genName_regex(".*([A-Z][^[:space:]]+)"){
   std::cout << "setup start" << std::endl;
+  
+  routfile = new TFile(outfile.c_str(), "RECREATE", outfile.c_str(), ROOT::CompressionSettings(ROOT::kLZMA, 9));
+  add_metadata(infiles);
 
   BOOM= new TChain("Events");
   infoFile=0;
@@ -251,6 +255,53 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
 
   std::cout << "setup complete" << std::endl << std::endl;
   start = std::chrono::system_clock::now();
+}
+
+void Analyzer::add_metadata(std::vector<std::string> infiles){
+  
+  std::cout<<"Start copying the essentials."<<std::endl;
+  for( std::string infile: infiles){
+    std::cout<<infile<<std::endl;
+    //TFile rfile(infile.c_str());
+    TFile* rfile = TFile::Open(infile.c_str());
+    routfile->cd();
+    for(const auto&& k: *rfile->GetListOfKeys()){
+      std::string kn(k->GetName());
+      std::cout<<kn<<std::endl;
+      if (kn == "Events"){
+        TTree* t= ((TTree*) rfile->Get(kn.c_str()));
+        t->SetBranchStatus("*",0);
+        t->SetBranchStatus("run",1);
+        otherTrees[kn] = t->CopyTree("1","",1);
+      }else if(kn == "MetaData" or kn== "ParameterSets"){
+        otherTrees[kn] = ((TTree*) rfile->Get(kn.c_str()))->CopyTree("1");
+      }else if(kn == "LuminosityBlocks" or kn == "Runs"){
+        otherTrees[kn] = ((TTree*) rfile->Get(kn.c_str()))->CopyTree("1");
+        //else:
+            //_isRun = (kn=="Runs")
+            //_it = inputFile.Get(kn)
+            //_ot = _it.CloneTree(0)
+            //for ev in _it:
+                //if (jsonFilter.filterRunOnly(ev.run) if _isRun else jsonFilter.filterRunLumi(ev.run,ev.luminosityBlock)): _ot.Fill()
+            //self._otherTrees[kn] = _ot
+      }else if( std::string(k->ClassName()) == "TTree"){
+        std::cout<<"Not copying unknown tree kn"<<std::endl;
+      }else{
+        //otherObjects[kn] = rfile.Get(kn)
+      }
+    }
+    routfile->cd();
+    for(auto t : otherTrees){
+      t.second->Write();
+    }
+    rfile->Close();
+    delete rfile;
+  }
+  
+  std::cout<<"Finished copying the essentials."<<std::endl;
+  //for on,ov in self._otherObjects.iteritems():
+    //self._file.WriteTObject(ov,on)
+
 }
 
 std::unordered_map<CUTS, std::vector<int>*, EnumHash> Analyzer::getArray() {
@@ -710,9 +761,9 @@ void Analyzer::printCuts() {
 
   //write all the histograms
   //attention this is not the fill_histogram method from the Analyser
-  histo.fill_histogram();
+  histo.fill_histogram(routfile);
   if(doSystematics)
-    syst_histo.fill_histogram();
+    syst_histo.fill_histogram(routfile);
 
 }
 
