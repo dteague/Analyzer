@@ -1087,14 +1087,14 @@ void Analyzer::read_info(std::string filename) {
         if(stemp[1] == "1" || stemp[1] == "true"){
           distats[group].bset.push_back(stemp[0]);
           if(stemp[1] == "1" ){
-            distats[group].dmap[stemp[0]]=stod(stemp[1]);
+            distats[group].dmap[stemp[0]]=std::stod(stemp[1]);
           }
         }
         else if(*p) distats[group].smap[stemp[0]] = stemp[1];
-        else  distats[group].dmap[stemp[0]]=stod(stemp[1]);
+        else  distats[group].dmap[stemp[0]]=std::stod(stemp[1]);
       }else{
         if(*p) distats[group].smap[stemp[0]] = stemp[1];
-        else  distats[group].dmap[stemp[0]]=stod(stemp[1]);
+        else  distats[group].dmap[stemp[0]]=std::stod(stemp[1]);
       }
       if(stemp.at(0).find("Trigger") != std::string::npos) {
         for(auto trigger : stemp){
@@ -1104,8 +1104,9 @@ void Analyzer::read_info(std::string filename) {
         }
         continue;
       }
-    } else if(stemp.size() == 3) distats[group].pmap[stemp[0]] = std::make_pair(stod(stemp[1]), stod(stemp[2]));
-    else{
+    } else if(stemp.size() == 3 and stemp.at(0).find("Trigger") == std::string::npos){
+      distats[group].pmap[stemp[0]] = std::make_pair(std::stod(stemp[1]), std::stod(stemp[2]));
+    } else{
       if(stemp.at(0).find("Trigger") != std::string::npos) {
         for(auto trigger : stemp){
           if(trigger.find("Trigger")== std::string::npos and "="!=trigger ){
