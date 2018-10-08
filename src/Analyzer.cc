@@ -192,7 +192,7 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
     }
   }
   //we update the root file if it exist so now we have to delete it:
-  std::remove(outfile.c_str()); // delete file
+  //std::remove(outfile.c_str()); // delete file
   histo = Histogramer(1, filespace+"Hist_entries.in", filespace+"Cuts.in", outfile, isData, cr_variables);
   if(doSystematics)
     syst_histo=Histogramer(1, filespace+"Hist_syst_entries.in", filespace+"Cuts.in", outfile, isData, cr_variables,syst_names);
