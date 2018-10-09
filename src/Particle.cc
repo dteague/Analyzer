@@ -38,6 +38,7 @@ Particle::Particle(TTree* _BOOM, std::string _GenName, std::string filename, std
       systVec.push_back(nullptr);
     }
   }
+  m_n=0;
 
   SetBranch(("n"+GenName).c_str(), m_n);
   SetBranch((GenName+"_pt").c_str(), m_pt);

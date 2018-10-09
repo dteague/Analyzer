@@ -137,7 +137,6 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
   }
   //std::cout<<"end of that if.. now start with _Electron = new..."<<std::endl;
   _Electron = new Electron(BOOM, filespace + "Electron_info.in", syst_names);
-  //std::cout<<"_Muon = new Muon(..."<<std::endl;
   _Muon     = new Muon(BOOM, filespace + "Muon_info.in", syst_names);
   _Tau      = new Taus(BOOM, filespace + "Tau_info.in", syst_names);
   _Jet      = new Jet(BOOM, filespace + "Jet_info.in", syst_names);
@@ -521,7 +520,7 @@ void Analyzer::preprocess(int event) {
     ( event < 10000 && event % 1000 == 0 ) ||
     ( event >= 10000 && event % 10000 == 0 ) ) {
        std::cout << std::setprecision(2)<<event << " Events analyzed "<< static_cast<double>(event)/nentries*100. <<"% done"<<std::endl;
-       std::cout << std::cout.precision(5);
+       std::cout << std::setprecision(5);
   }
 }
 
@@ -756,7 +755,7 @@ void Analyzer::printCuts() {
       std::cout << std::endl;
     }
   }
-  std::cout <<std::cout.precision(5);
+  std::cout <<std::setprecision(5);
   std::cout << "---------------------------------------------------------------------------\n";
 
   //write all the histograms
