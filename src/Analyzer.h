@@ -205,7 +205,7 @@ public:
   std::vector<int>* trigPlace[nTrigReq];
   bool setTrigger = false;
   std::vector<std::string> trigNames;
-  std::vector<bool> trig_decision;
+  std::vector<bool*> trig_decision;
   std::vector<int> cuts_per, cuts_cumul;
 
   std::unordered_map< std::string,float > zBoostTree;

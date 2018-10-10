@@ -75,8 +75,8 @@ void SpechialAnalysis::analyze() {
 
 void SpechialAnalysis::end_run() {
   
-  TFile* outfile = new TFile(a->histo.outname.c_str(), "UPDATE", a->histo.outname.c_str(), ROOT::CompressionSettings(ROOT::kLZMA, 9));
-  
+  //TFile* outfile = new TFile(a->histo.outname.c_str(), "UPDATE", a->histo.outname.c_str(), ROOT::CompressionSettings(ROOT::kLZMA, 9));
+  TFile* outfile = a->routfile;
   outfile->cd();
   outfile->mkdir("Spechial");
   outfile->cd("Spechial/");

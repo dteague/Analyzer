@@ -979,7 +979,16 @@ void Analyzer::setupGeneral() {
   read_info(filespace + "Systematics_info.in");
   
   for(std::string trigger : trigNames){
-    bool decison=false; 
+    bool decison=false;
+    std::cout<< "Trigger: "<< trigger<<std::endl;
+    
+   for( int i=0; i<BOOM->GetListOfBranches()->GetSize(); i++){
+	   std::string branch_name(BOOM->GetListOfBranches()->At(i)->GetName());
+	   if (branch_name.find("HLT_")!=std::string::npos){
+           	std::cout<< branch_name << std::endl;
+	   }
+   }
+
 /*
     if(BOOM->FindBranch(trigger.c_str()) == 0){
       std::cout<<"ERROR! Trigger "<< trigger << ": Branch not found in this sample. Check the config files associated to this branch." << std::endl;
@@ -994,6 +1003,7 @@ void Analyzer::setupGeneral() {
     try{
        branchException(trigger.c_str());
     }
+
     catch (const char* msg){
       std::cout << "ERROR! Trigger " << trigger << ": "  << msg << std::endl;
       std::cout<< "options are:" << std::endl;
@@ -1003,11 +1013,12 @@ void Analyzer::setupGeneral() {
           std::cout<< branch_name << std::endl;
         }
       }
+      continue;
       //std::exit(1);
     }
 
     SetBranch(trigger.c_str(),decison);       
-    trig_decision.push_back(decison);
+    trig_decision.push_back(&decison);
     
   }
 }
@@ -1622,8 +1633,9 @@ bool Analyzer::isInTheCracks(float etaValue){
 ///sees if the event passed one of the two cuts provided
 void Analyzer::TriggerCuts(CUTS ePos) {
   if(! neededCuts.isPresent(ePos)) return;
-  for(bool trigger : trig_decision){
-    if(trigger){
+  for(bool* trigger : trig_decision){
+    std::cout<< "trig_decision: "<< *trigger << std::endl;
+    if(*trigger){
       active_part->at(ePos)->push_back(0);
       return;
     }
