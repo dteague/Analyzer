@@ -980,7 +980,7 @@ void Analyzer::setupGeneral() {
   
   for(std::string trigger : trigNames){
     bool decison=false;
-    std::cout<< "Trigger: "<< trigger<<std::endl;
+    //std::cout<< "Trigger: "<< trigger<<std::endl;
     
    for( int i=0; i<BOOM->GetListOfBranches()->GetSize(); i++){
 	   std::string branch_name(BOOM->GetListOfBranches()->At(i)->GetName());
@@ -1634,7 +1634,7 @@ bool Analyzer::isInTheCracks(float etaValue){
 void Analyzer::TriggerCuts(CUTS ePos) {
   if(! neededCuts.isPresent(ePos)) return;
   for(bool* trigger : trig_decision){
-    std::cout<< "trig_decision: "<< *trigger << std::endl;
+   //#std::cout<< "trig_decision: "<< *trigger << std::endl;
     if(*trigger){
       active_part->at(ePos)->push_back(0);
       return;
