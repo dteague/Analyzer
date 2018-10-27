@@ -24,7 +24,7 @@ MYANA:=SpecialAna
 endif
 
 CXX = g++
-CXXFLAGS += -Wall $(ROOTCFLAGS) -I./ -I./src/json/include
+CXXFLAGS += -Wall $(ROOTCFLAGS) -I./ -isystem ./src/json/include
 CXXSPEED = -O3
 
 LD = g++

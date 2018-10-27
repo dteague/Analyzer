@@ -176,7 +176,7 @@ public:
   JetScaleResolution jetScaleRes;
   json genStat;
 
-  std::unordered_map<std::string, json> distats;
+  json distats;
   std::unordered_map<std::string, FillVals*> fillInfo;
   std::unordered_map<std::string, double> genMap;
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> goodParts;
@@ -220,8 +220,8 @@ public:
   int bestVertices = 0;
   float gen_weight = 0;
 
-  BTagCalibration calib = BTagCalibration("csvv1", "Pileup/btagging.csv");
-  BTagCalibrationReader reader = BTagCalibrationReader(BTagEntry::OP_TIGHT, "central");
+  BTagCalibration btagCalib = BTagCalibration("csvv1", "Pileup/btagging.csv");
+  BTagCalibrationReader btagReader = BTagCalibrationReader(BTagEntry::OP_TIGHT, "central");
 
   double rho =20.;
 

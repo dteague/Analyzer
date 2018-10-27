@@ -142,7 +142,7 @@ void Particle::getPartStats(std::string filename) {
     }
     ss << line;
   }
-  pstats << ss;
+  ss >>pstats;
 
   info_file.close();
 }

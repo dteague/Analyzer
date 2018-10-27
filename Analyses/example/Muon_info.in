@@ -1,22 +1,21 @@
-/////////////////////////////////
-            Smear
-/////////////////////////////////
+{   "Smear":
 
-SmearTheParticle 0
-PtScaleOffset 1.
-PtResolutionOffset 1.
-EtaScaleOffset 1.
-EtaSigmaOffset 1.
-PhiScaleOffset 1.
-PhiSigmaOffset 1.
-EnergyScaleOffset 1.
-EnergySigmaOffset 1.
 
-MatchToGen 0
-GenMatchingDeltaR 0.3
-UseMotherID 0
-MotherID 23.0
-doEfficiencyPlots true
+"SmearTheParticle": 0
+"PtScaleOffset": 1.
+"PtResolutionOffset": 1.
+"EtaScaleOffset": 1.
+"EtaSigmaOffset": 1.
+"PhiScaleOffset": 1.
+"PhiSigmaOffset": 1.
+"EnergyScaleOffset": 1.
+"EnergySigmaOffset": 1.
+
+"MatchToGen": 0
+"GenMatchingDeltaR": 0.3
+"UseMotherID": 0
+"MotherID": 23.0
+"doEfficiencyPlots": true
 
 ////////////////////////////////
              Muon1
@@ -24,26 +23,26 @@ doEfficiencyPlots true
 
 //----RECO CUTS----//
 
-EtaCut 2.5
-PtCut 10.0 9999.9
+"EtaCut": 2.5
+"PtCut": 10.0 9999.9
 
-DoDiscrByTightID 1
-DoDiscrBySoftID 0
+"DoDiscrByTightID": 1
+"DoDiscrBySoftID": 0
 
-DoDiscrByIsolation 1
-IsoSumPtCutValue 0.0 0.15
+"DoDiscrByIsolation": 1
+"IsoSumPtCutValue": 0.0 0.15
 
 //----MET TOPOLOGY CUTS----//
 
-BadCut false
+"BadCut": false
 
-DiscrIfIsZdecay 0
+"DiscrIfIsZdecay": 0
 
-DiscrByMetDphi 0
-MetDphiCut 1.0 3.15
+"DiscrByMetDphi": 0
+"MetDphiCut": 1.0 3.15
 
-DiscrByMetMt 0
-MetMtCut 0. 100.
+"DiscrByMetMt": 0
+"MetMtCut": 0. 100.
 
 ////////////////////////////////
              Muon2
@@ -51,21 +50,21 @@ MetMtCut 0. 100.
 
 //----RECO CUTS----//
 
-EtaCut 2.1
-PtCut 20.0 9999.9
+"EtaCut": 2.1
+"PtCut": 20.0 9999.9
 
-DoDiscrByTightID 1
-DoDiscrBySoftID 0
+"DoDiscrByTightID": 1
+"DoDiscrBySoftID": 0
 
-DoDiscrByIsolation 1
-IsoSumPtCutValue 0.0 0.15
+"DoDiscrByIsolation": 1
+"IsoSumPtCutValue": 0.0 0.15
 
 //----MET TOPOLOGY CUTS----//
 
-DiscrIfIsZdecay 0
+"DiscrIfIsZdecay": 0
 
-DiscrByMetDphi 0
-MetDphiCut 1.30 3.15
+"DiscrByMetDphi": 0
+"MetDphiCut": 1.30 3.15
 
-DiscrByMetMt 0
-MetMtCut 10. 100.
+"DiscrByMetMt": 0
+"MetMtCut": 10. 100.

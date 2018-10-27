@@ -1,0 +1,37 @@
+{
+  "Wjet": {
+    "JetTau2Tau1Ratio": [
+      0,
+      0.45
+    ],
+    "JetWmassCut": [
+      50,
+      100000000
+    ],
+    "ApplyJetWTagging": true,
+    "Tau2MatchingDeltaR": 0.3,
+    "Tau1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithTau2s": false,
+    "RemoveOverlapWithTau1s": false,
+    "Electron2MatchingDeltaR": 0.3,
+    "Electron1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithElectron2s": false,
+    "RemoveOverlapWithElectron1s": false,
+    "Muon2MatchingDeltaR": 0.3,
+    "Muon1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithMuon2s": false,
+    "RemoveOverlapWithMuon1s": false,
+    "PtCut": 150.0,
+    "EtaCut": [
+      0.0,
+      3.5
+    ]
+  },
+  "Smear": {
+    "TauMatchingDeltaR": 0.3,
+    "ElectronMatchingDeltaR": 0.3,
+    "MuonMatchingDeltaR": 0.3,
+    "JetEnergyScaleOffset": 0.3,
+    "SmearTheJet": false
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "Run": {
+    "JetEtaForMhtAndHt": 5.0,
+    "JetPtForMhtAndHt": 30.0,
+    "ApplyJetLooseIDforMhtAndHt": false,
+    "HtCut": 30.0,
+    "DiscrByHT": false,
+    "MhtCut": 30.0,
+    "DiscrByMHT": false,
+    "MetCut": [
+      30.0,
+      10000.0
+    ],
+    "DiscrByMet": false,
+    "MT2Mass": 0,
+    "TreatMuonsAsTaus": false,
+    "TreatMuonsAsNeutrinos": false,
+    "Triggers": [
+      "HLT_DoubleLooseChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg"
+    ],
+    "ApplyWKfactor": true,
+    "ApplyZBoostSF": true,
+    "ApplyTauIDSF": false,
+    "ApplyGenWeight": true,
+    "isData": false,
+    "MCPUHistName": "pileup",
+    "DataPUHistName": "pileup",
+    "MCHistos": "MC_75bins.root",
+    "DataHistos": "data_75bins_69200.root",
+    "UsePileUpWeight": true,
+    "CalculatePUSystematics": true
+  }
+}
