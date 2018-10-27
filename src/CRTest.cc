@@ -57,7 +57,7 @@ bool CRTester::test(Analyzer* analyzer) {
       if(variable == "DeltaR") pass = pass && part1.DeltaR(part2) > cutVal;
       else if(variable == "DeltaPtDivSumPt") pass = pass && ((part1.Pt() - part2.Pt()) / (part1.Pt() + part2.Pt()) > cutVal);
       else if(variable == "DeltaPt") pass = pass && ((part1.Pt() - part2.Pt()) > cutVal);
-      else if(variable == "Zeta") pass = pass && (analyzer->getZeta(part1, part2, partName) > cutVal);
+      //      else if(variable == "Zeta") pass = pass && (analyzer->getZeta(part1, part2, partName) > cutVal);
       else if(variable == "CosDphi") pass = pass && absnormPhi( part1.Phi() - part2.Phi()) > cutVal;
       else if(variable == "Mass") pass = pass && analyzer->getMass(part1, part2, partName) > cutVal;
       else if(variable == "DeltaEta") pass = pass && (abs(part1.Eta() - part2.Eta()) > cutVal);

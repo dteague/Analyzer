@@ -19,9 +19,12 @@
 
 #include "tokenizer.hpp"
 #include "Cut_enum.h"
+#include "json/include/nlohmann/json.hpp"
+
 
 //using namespace std;
 typedef unsigned int uint;
+using json = nlohmann::json;
 
 struct PartStats {
   std::unordered_map<std::string,double> dmap;
@@ -78,7 +81,9 @@ public:
   bool findCut(const std::vector<std::string>&, std::string);
   
   PType type;
-  std::unordered_map<std::string, PartStats> pstats;
+  //std::unordered_map<std::string, PartStats> pstats;
+  json pstats;
+  
   const std::map<PType,CUTS> cutMap = {{PType::Electron, CUTS::eGElec}, {PType::Muon, CUTS::eGMuon},
 				  {PType::Tau, CUTS::eGTau}};
 

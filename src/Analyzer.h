@@ -27,12 +27,14 @@ struct CRTester;
 #include "MET.h"
 #include "Histo.h"
 
+#include "json/include/nlohmann/json.hpp"
+
 /////fix
 #include "./btagging/BTagCalibrationStandalone.h"
 
 #include "Cut_enum.h"
 #include "FillInfo.h"
-#include "CRTest.h"
+//#include "CRTest.h"
 #include "Systematics.h"
 #include "JetScaleResolution.h"
 #include "DepGraph.h"
@@ -46,7 +48,7 @@ double absnormPhi(double phi);
 static const int nTrigReq = 2;
 
 class Analyzer {
-  friend class CRTester;
+  //  friend class CRTester;
 public:
   Analyzer(std::vector<std::string>, std::string, bool setCR = false, std::string configFolder="PartDet");
   ~Analyzer();
@@ -67,14 +69,11 @@ public:
   double getHT() {return _MET->HT();}
   double getMHT() {return _MET->MHT();}
   double getMass(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, std::string partName) {
-    return diParticleMass(Tobj1, Tobj2, distats[partName].smap.at("HowCalculateMassReco"));
+    return diParticleMass(Tobj1, Tobj2, distats[partName]["HowCalculateMassReco"]);
   }
-  double getZeta(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, std::string partName) {
-    return distats[partName].dmap.at("PZetaCutCoefficient") * getPZeta(Tobj1, Tobj2).first;
 
-  }
 // private:
-  void CRfillCuts();
+//  void CRfillCuts();
   ///// Functions /////
   //void fill_Folder(std::string, const int, std::string syst="");
   void fill_Folder(std::string, const int, Histogramer& ihisto, bool issyst);
@@ -91,29 +90,29 @@ public:
   void initializeTrigger();
   void setCutNeeds();
 
-  void smearLepton(Lepton&, CUTS, const PartStats&, const PartStats&, int syst=0);
-  void smearJet(Particle&, CUTS, const PartStats&, int syst=0);
+  void smearLepton(Lepton&, CUTS, const json&, const json&, int syst=0);
+  void smearJet(Particle&, CUTS, const json&, int syst=0);
 
   bool JetMatchesLepton(const Lepton&, const TLorentzVector&, double, CUTS);
-  TLorentzVector matchLeptonToGen(const TLorentzVector&, const PartStats&, CUTS);
+  TLorentzVector matchLeptonToGen(const TLorentzVector&, const json&, CUTS);
   TLorentzVector matchTauToGen(const TLorentzVector&, double);
-  TLorentzVector matchJetToGen(const TLorentzVector&, const PartStats&, CUTS);
+  TLorentzVector matchJetToGen(const TLorentzVector&, const json&, CUTS);
 
   int matchToGenPdg(const TLorentzVector& lvec, double minDR);
 
 
   void getGoodParticles(int);
   void getGoodTauNu();
-  void getGoodGen(const PartStats&);
-  void getGoodRecoLeptons(const Lepton&, const CUTS, const CUTS, const PartStats&, const int);
-  void getGoodRecoJets(CUTS, const PartStats&, const int);
-  void getGoodRecoFatJets(CUTS, const PartStats&, const int);
+  void getGoodGen(const json&);
+  void getGoodRecoLeptons(const Lepton&, const CUTS, const CUTS, const json&, const int);
+  void getGoodRecoJets(CUTS, const json&, const int);
+  void getGoodRecoFatJets(CUTS, const json&, const int);
 
-  void getGoodLeptonCombos(Lepton&, Lepton&, CUTS, CUTS, CUTS, const PartStats&, const int);
-  void getGoodLeptonJetCombos(Lepton&, Jet&, CUTS, CUTS, CUTS, const PartStats&, const int);
-  void getGoodDiJets(const PartStats&, const int);
+  void getGoodLeptonCombos(Lepton&, Lepton&, CUTS, CUTS, CUTS, const json&, const int);
+  void getGoodLeptonJetCombos(Lepton&, Jet&, CUTS, CUTS, CUTS, const json&, const int);
+  void getGoodDiJets(const json&, const int);
 
-  void VBFTopologyCut(const PartStats&, const int);
+  void VBFTopologyCut(const json&, const int);
   void TriggerCuts(CUTS);
 
 
@@ -134,8 +133,8 @@ public:
   std::pair<double, double> getPZeta(const TLorentzVector&, const TLorentzVector&);
   void create_fillInfo();
 
-  inline bool passCutRange(std::string, double, const PartStats&);
-  bool passCutRange(double, const std::pair<double, double>&);
+  inline bool passCutRange(double, const json&);
+  //  bool passCutRange(double, const std::pair<double, double>&);
   bool findCut(const std::vector<std::string>&, std::string);
 
   void updateMet(int syst=0);
@@ -143,8 +142,8 @@ public:
   double getPileupWeight(float);
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> getArray();
 
-  double getCRVal(std::string);
-  void setupCR(std::string, double);
+  /* double getCRVal(std::string); */
+  /* void setupCR(std::string, double); */
 
   ///// values /////
 
@@ -158,7 +157,7 @@ public:
   double hPU_down[200];
   int version=0;
   std::map<std::string,TTree* > otherTrees;
-  //std::map<std::string,*TObject> otherObjects;
+
   
 
   Generated* _Gen;
@@ -175,9 +174,9 @@ public:
 
   Systematics systematics;
   JetScaleResolution jetScaleRes;
-  PartStats genStat;
+  json genStat;
 
-  std::unordered_map<std::string, PartStats> distats;
+  std::unordered_map<std::string, json> distats;
   std::unordered_map<std::string, FillVals*> fillInfo;
   std::unordered_map<std::string, double> genMap;
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> goodParts;
@@ -210,6 +209,9 @@ public:
 
   std::unordered_map< std::string,float > zBoostTree;
 
+  std::vector<std::string> bset(const json& j);
+
+  
   double maxIso, minIso;
   int leadIndex, maxCut, crbins=1;
   bool isData, CalculatePUSystematics, doSystematics;
@@ -229,7 +231,7 @@ public:
   double pu_weight, wgt, backup_wgt;
   std::unordered_map<int, GenFill*> genMaper;
 
-  std::vector<CRTester*> testVec;
+  /* std::vector<CRTester*> testVec; */
   int SignalRegion = -1;
   bool blinded = true;
   clock_t start_time;
