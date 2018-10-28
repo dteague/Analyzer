@@ -1,0 +1,74 @@
+//in 94x there is no loose jet ID anymore
+{
+  "BJet": {
+    "RemoveBJetsFromJets": false,
+    "UseBtagSF": false,
+    "MatchBToGen": false,
+    "JetBTaggingCut": 0.8484,
+    "ApplyJetBTagging": true,
+    "Tau2MatchingDeltaR": 0.3,
+    "Tau1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithTau2s": true,
+    "RemoveOverlapWithTau1s": true,
+    "Electron2MatchingDeltaR": 0.3,
+    "Electron1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithElectron2s": true,
+    "RemoveOverlapWithElectron1s": true,
+    "Muon2MatchingDeltaR": 0.3,
+    "Muon1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithMuon2s": true,
+    "RemoveOverlapWithMuon1s": true,
+    "PtCut": 30.0,
+    "EtaCut": [
+      0.0,
+      2.4
+    ]
+  },
+  "Jet2": {
+    "Tau2MatchingDeltaR": 0.3,
+    "Tau1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithTau2s": true,
+    "RemoveOverlapWithTau1s": true,
+    "Electron2MatchingDeltaR": 0.3,
+    "Electron1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithElectron2s": true,
+    "RemoveOverlapWithElectron1s": true,
+    "Muon2MatchingDeltaR": 0.3,
+    "Muon1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithMuon2s": true,
+    "RemoveOverlapWithMuon1s": true,
+    "ApplyLooseID": false,
+    "PtCut": 30.0,
+    "EtaCut": [
+      0,
+      2.4
+    ]
+  },
+  "Jet1": {
+    "Tau2MatchingDeltaR": 0.3,
+    "Tau1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithTau2s": false,
+    "RemoveOverlapWithTau1s": true,
+    "Electron2MatchingDeltaR": 0.3,
+    "Electron1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithElectron2s": true,
+    "RemoveOverlapWithElectron1s": true,
+    "Muon2MatchingDeltaR": 0.3,
+    "Muon1MatchingDeltaR": 0.3,
+    "RemoveOverlapWithMuon2s": false,
+    "RemoveOverlapWithMuon1s": true,
+    "ApplyLooseID": false,
+    "PtCut": 30.0,
+    "EtaCut": [
+      0,
+      2.4
+    ]
+  },
+  "Smear": {
+    "TauMatchingDeltaR": 0.3,
+    "ElectronMatchingDeltaR": 0.3,
+    "MuonMatchingDeltaR": 0.3,
+    "JetEnergyScaleOffset": 0.3,
+    "SmearTheJet": false
+  }
+}

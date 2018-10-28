@@ -94,16 +94,10 @@ protected:
   std::string GenName;
   std::unordered_map<CUTS, std::string, EnumHash> jetNameMap = {
     {CUTS::eRJet1, "Jet1"},               {CUTS::eRJet2, "Jet2"},
-    {CUTS::eRCenJet, "CentralJet"},      {CUTS::eRBJet, "BJet"},
-    {CUTS::eR1stJet, "FirstLeadingJet"},  {CUTS::eR2ndJet, "SecondLeadingJet"},
-    {CUTS::eRWjet, "WJet"}
+    {CUTS::eRBJet, "BJet"},               {CUTS::eRWjet, "WJet"}
   };
 
  private:
-  //vector<double>* mpt = 0;
-  //vector<double>* meta = 0;
-  //vector<double>* mphi = 0;
-  //vector<double>* menergy = 0;
   uint  m_n;
   float m_pt[MAXINDEX];
   float m_phi[MAXINDEX];

@@ -186,3 +186,48 @@ double Analyzer::getWkfactor(){
   }
   return kfactor;
 }
+
+////VBF specific cuts dealing with the leading jets.
+void Analyzer::VBFTopologyCut(const json& stats, const int syst) {
+  if(! neededCuts.isPresent(CUTS::eSusyCom)) return;
+  std::string systname = syst_names.at(syst);
+
+
+  if(systname!="orig"){
+    //only jet stuff is affected
+    //save time to not rerun stuff
+    if( systname.find("Jet")==std::string::npos){
+      active_part->at(CUTS::eSusyCom)=goodParts[CUTS::eSusyCom];
+      return;
+    }
+  }
+
+  TLorentzVector ljet1 = _Jet->p4(active_part->at(CUTS::eR1stJet)->at(0));
+  TLorentzVector ljet2 = _Jet->p4(active_part->at(CUTS::eR2ndJet)->at(0));
+  TLorentzVector dijet = ljet1 + ljet2;
+  double dphi1 = normPhi(ljet1.Phi() - _MET->phi());
+  double dphi2 = normPhi(ljet2.Phi() - _MET->phi());
+
+  bool passCuts = true;
+  for(auto cut: bset(stats)) {
+    if(!passCuts) break;
+    else if(cut == "DiscrByMass") passCuts = passCuts && passCutRange(dijet.M(), stats["MassCut"]);
+    else if(cut == "DiscrByPt") passCuts = passCuts && passCutRange(dijet.Pt(), stats["PtCut"]);
+    else if(cut == "DiscrByDeltaEta") passCuts = passCuts && passCutRange(abs(ljet1.Eta() - ljet2.Eta()), stats["DeltaEtaCut"]);
+    else if(cut == "DiscrByDeltaPhi") passCuts = passCuts && passCutRange(absnormPhi(ljet1.Phi() - ljet2.Phi()), stats["DeltaPhiCut"]);
+    else if(cut == "DiscrByOSEta") passCuts = passCuts && (ljet1.Eta() * ljet2.Eta() < 0);
+    else if(cut == "DiscrByR1") passCuts = passCuts && passCutRange(sqrt( pow(dphi1,2.0) + pow((TMath::Pi() - dphi2),2.0)), stats["R1Cut"]);
+    else if(cut == "DiscrByR2") passCuts = passCuts && passCutRange(sqrt( pow(dphi2,2.0) + pow((TMath::Pi() - dphi1),2.0)), stats["R2Cut"]);
+    else if(cut == "DiscrByAlpha") {
+      double alpha = (dijet.M() > 0) ? ljet2.Pt() / dijet.M() : -1;
+      passCuts = passCuts && passCutRange(alpha, stats["AlphaCut"]);
+    }
+    else if(cut == "DiscrByDphi1") passCuts = passCuts && passCutRange(abs(dphi1), stats["Dphi1Cut"]);
+    else if(cut == "DiscrByDphi2") passCuts = passCuts && passCutRange(abs(dphi2), stats["Dphi2Cut"]);
+
+    else std::cout << "cut: " << cut << " not listed" << std::endl;
+  }
+
+  if(passCuts)  active_part->at(CUTS::eSusyCom)->push_back(0);
+  return;
+}

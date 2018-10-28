@@ -1,7 +1,5 @@
-//"(0:fail:, 1:veto:, 2:loose:, 3:medium:, 4:tight:)":1
-
 {
-  "Elec2": {
+  "Muon2": {
     "MetMtCut": [
       10,
       100
@@ -13,55 +11,50 @@
     ],
     "DiscrByMetDphi": false,
     "DiscrIfIsZdecay": false,
-    "DoDiscrByHEEPID": false,
-    "DiscrByHLTID": 4,
-    "DoDiscrByHLTID": false,
-    "DiscrByCBID": 4,
-    "DoDiscrByCBID": true,
     "IsoSumPtCutValue": [
       0.0,
-      0.4
+      0.15
     ],
     "DoDiscrByIsolation": true,
+    "DoDiscrBySoftID": false,
+    "DoDiscrByTightID": true,
     "PtCut": [
-      10.0,
+      20.0,
       9999.9
     ],
     "EtaCut": 2.1
   },
-  "Elec1": {
+  "Muon1": {
     "MetMtCut": [
       0,
-      40
+      100
     ],
     "DiscrByMetMt": false,
     "MetDphiCut": [
-      1.7,
+      1.0,
       3.15
     ],
     "DiscrByMetDphi": false,
     "DiscrIfIsZdecay": false,
-    "DoDiscrByHEEPID": false,
-    "DiscrByHLTID": 4,
-    "DoDiscrByHLTID": false,
-    "DiscrByCBID": 4,
-    "DoDiscrByCBID": true,
+    "BadCut": false,
     "IsoSumPtCutValue": [
       0.0,
-      0.4
+      0.15
     ],
     "DoDiscrByIsolation": true,
+    "DoDiscrBySoftID": false,
+    "DoDiscrByTightID": true,
     "PtCut": [
       10.0,
       9999.9
     ],
-    "EtaCut": 2.1
+    "EtaCut": 2.5
   },
   "Smear": {
     "doEfficiencyPlots": true,
-    "MotherID": 23,
-    "UseMotherID": true,
-    "GenMatchingDeltaR": 0.1,
+    "MotherID": 23.0,
+    "UseMotherID": false,
+    "GenMatchingDeltaR": 0.3,
     "MatchToGen": false,
     "EnergySigmaOffset": 1,
     "EnergyScaleOffset": 1,

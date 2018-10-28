@@ -346,27 +346,30 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
    SetBranch("Electron_pfRelIso03_chg", pfRelIso03_chg);
   }
 
-  if(elec1["DoDiscrBycutBasedID"]|| elec2["DoDiscrByLooseID"]) {
-    SetBranch("Electron_cutBased", cutBased);
-    SetBranch("Electron_cutBased_HLTPreSel", cutBased_HLTPreSel);
-  }
-  
-  if((elec1["DoDiscrBymvaID"]|| elec2["DoDiscrByLooseID"]) && _BOOM->FindBranch("Electron_mvaFall17Iso")!=0){
-    SetBranch("Electron_mvaFall17Iso_WP90", mvaIso_90);
-    SetBranch("Electron_mvaFall17noIso_WP90", mvanoIso_WP90);
-    SetBranch("Electron_mvaFall17Iso_WP80", mvaIso_80);
-    SetBranch("Electron_mvaFall17noIso_WP80", mvanoIso_WP80);
-    SetBranch("Electron_mvaFall17Iso_WPL", mvaIso_WPL);
-    SetBranch("Electron_mvaFall17noIso_WPL", mvanoIso_WPL);
-  }
+  // if(elec1["DoDiscrBycutBasedID"]|| elec2["DoDiscrByLooseID"]) {
+  //   SetBranch("Electron_cutBased", cutBased);
+  //   SetBranch("Electron_cutBased_HLTPreSel", cutBased_HLTPreSel);
+  // }
 
-  if((elec1["DoDiscrBymvaID"]|| elec2["DoDiscrByLooseID"]) && _BOOM->FindBranch("Electron_mvaSpring16GP_WP90")!=0){
-    SetBranch("Electron_mvaSpring16GP_WP90", mvaGP_90);
-    SetBranch("Electron_mvaSpring16GP_WP80", mvaGP_80);
-    SetBranch("Electron_mvaSpring16HZZ_WPL", mvaHZZ_WPL);
-    SetBranch("Electron_mvaTTH", mvaTTH); 
-  }
+  // std::cout << "  if((elec1[DoDiscrBymvaID]|| elec2[DoDiscrByLooseID)" << std::endl;
+  // if((elec1["DoDiscrBymvaID"]|| elec2["DoDiscrByLooseID"]) && _BOOM->FindBranch("Electron_mvaFall17Iso")!=0){
+  //   SetBranch("Electron_mvaFall17Iso_WP90", mvaIso_90);
+  //   SetBranch("Electron_mvaFall17noIso_WP90", mvanoIso_WP90);
+  //   SetBranch("Electron_mvaFall17Iso_WP80", mvaIso_80);
+  //   SetBranch("Electron_mvaFall17noIso_WP80", mvanoIso_WP80);
+  //   SetBranch("Electron_mvaFall17Iso_WPL", mvaIso_WPL);
+  //   SetBranch("Electron_mvaFall17noIso_WPL", mvanoIso_WPL);
+  // }
 
+  // std::cout <<  " if((elec1[DoDiscrBymvaID"  << std::endl;
+  // if((elec1["DoDiscrBymvaID"]|| elec2["DoDiscrByLooseID"]) && _BOOM->FindBranch("Electron_mvaSpring16GP_WP90")!=0){
+  //   SetBranch("Electron_mvaSpring16GP_WP90", mvaGP_90);
+  //   SetBranch("Electron_mvaSpring16GP_WP80", mvaGP_80);
+  //   SetBranch("Electron_mvaSpring16HZZ_WPL", mvaHZZ_WPL);
+  //   SetBranch("Electron_mvaTTH", mvaTTH); 
+  // }
+
+  std::cout <<   "if(elec1[DoDiscrByHEEPID]||" << std::endl;
   if(elec1["DoDiscrByHEEPID"]|| elec2["DoDiscrByHEEPID"]) {
     SetBranch("Electron_cutBased_HEEP", isPassHEEPId);
   }

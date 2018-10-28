@@ -38,8 +38,7 @@ const std::vector<CUTS> Analyzer::genCuts = {
 };
 
 const std::vector<CUTS> Analyzer::jetCuts = {
-  CUTS::eRJet1,  CUTS::eRJet2,   CUTS::eRCenJet,
-  CUTS::eR1stJet, CUTS::eR2ndJet, CUTS::eRBJet
+  CUTS::eRJet1,  CUTS::eRJet2,  CUTS::eRBJet
 };
 
 const std::vector<CUTS> Analyzer::nonParticleCuts = {
@@ -55,9 +54,8 @@ const std::unordered_map<std::string, CUTS> Analyzer::cut_num = {
   {"NRecoElectron1", CUTS::eRElec1},                    {"NRecoElectron2",CUTS::eRElec2},
   {"NRecoTau1", CUTS::eRTau1},                          {"NRecoTau2", CUTS::eRTau2},
   {"NRecoJet1", CUTS::eRJet1},                          {"NRecoJet2", CUTS::eRJet2},
-  {"NRecoCentralJet", CUTS::eRCenJet},                  {"NRecoBJet", CUTS::eRBJet},
+  {"NRecoBJet", CUTS::eRBJet},
   {"NRecoTriggers1", CUTS::eRTrig1},                    {"NRecoTriggers2", CUTS::eRTrig2},
-  {"NRecoFirstLeadingJet", CUTS::eR1stJet},             {"NRecoSecondLeadingJet", CUTS::eR2ndJet},
   {"NDiMuonCombinations", CUTS::eDiMuon},               {"NDiElectronCombinations", CUTS::eDiElec},
   {"NDiTauCombinations", CUTS::eDiTau},                 {"NDiJetCombinations", CUTS::eDiJet},
   {"NMuon1Tau1Combinations", CUTS::eMuon1Tau1},         {"NMuon1Tau2Combinations", CUTS::eMuon1Tau2},
@@ -148,26 +146,28 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
 
   if(!isData) {
     std::cout<<"This is MC if not, change the flag!"<<std::endl;
-    _Gen = new Generated(BOOM, filespace + "Gen_info.in", syst_names);
+    _Gen = new Generated(BOOM, filespace + "Gen_info.json", syst_names);
     allParticles= {_Gen,_Electron,_Muon,_Tau,_Jet,_FatJet};
   } else {
     std::cout<<"This is Data if not, change the flag!"<<std::endl;
     allParticles= {_Electron,_Muon,_Tau,_Jet,_FatJet};
   }
-
+  std::cout << "particleCutMap set here" << std::endl;
   particleCutMap[CUTS::eGElec]=_Electron;
   particleCutMap[CUTS::eGMuon]=_Muon;
   particleCutMap[CUTS::eGTau]=_Tau;
 
   std::vector<std::string> cr_variables;
+  std::cout << "Histogramer" << std::endl;
   histo = Histogramer(1, filespace+"Hist_entries.in", filespace+"Cuts.in", outfile, isData, cr_variables);
+  std::cout << "systematics" << std::endl;
   if(doSystematics)
     syst_histo=Histogramer(1, filespace+"Hist_syst_entries.in", filespace+"Cuts.in", outfile, isData, cr_variables,syst_names);
   //  systematics = Systematics(distats);
   jetScaleRes = JetScaleResolution("Pileup/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt", "",  "Pileup/Spring16_25nsV6_MC_PtResolution_AK4PFchs.txt", "Pileup/Spring16_25nsV6_MC_SF_AK4PFchs.txt");
+  
 
-
-
+  std::cout << "set up ttree" << std::endl;
   ///this can be done nicer
   //put the variables that you use here:
   zBoostTree["tau1_pt"] =0;
@@ -193,7 +193,7 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
 
   histo.createTree(&zBoostTree,"TauTauTree");
 
-
+  std::cout << "doing more cr stuff" << std::endl;
   if(setCR) {
     cuts_per.resize(histo.get_folders()->size());
     cuts_cumul.resize(histo.get_folders()->size());
@@ -201,21 +201,25 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
     cuts_per.resize(histo.get_cuts()->size());
     cuts_cumul.resize(histo.get_cuts()->size());
   }
-
+  std::cout << "  create_fillInfo();" << std::endl;
   create_fillInfo();
   // for(auto maper: distats["Control_Region"].dmap) {
 
   //   setupCR(maper.first, maper.second);
   // }
   // check if we need to make gen level cuts to cross clean the samples:
+  std::cout <<   "for(auto iselect : gen_selection)" << std::endl;
   for(auto iselect : gen_selection){
     if(iselect.second){
       std::cout<<"Waning: The selection "<< iselect.first<< " is active!"<<std::endl;
     }
   }
 
+  std::cout << "  initializeMCSelection(infiles);" << std::endl;
   initializeMCSelection(infiles);
+  std::cout << "  initializeWkfactor(infiles);" << std::endl;
   initializeWkfactor(infiles);
+  std::cout << "  setCutNeeds();" << std::endl;
   setCutNeeds();
   
   
@@ -500,9 +504,9 @@ void Analyzer::getGoodParticles(int syst){
   getGoodRecoJets(CUTS::eRBJet, _Jet->pstats["BJet"],syst);
   getGoodRecoJets(CUTS::eRJet1, _Jet->pstats["Jet1"],syst);
   getGoodRecoJets(CUTS::eRJet2, _Jet->pstats["Jet2"],syst);
-  getGoodRecoJets(CUTS::eRCenJet, _Jet->pstats["CentralJet"],syst);
-  getGoodRecoJets(CUTS::eR1stJet, _Jet->pstats["FirstLeadingJet"],syst);
-  getGoodRecoJets(CUTS::eR2ndJet, _Jet->pstats["SecondLeadingJet"],syst);
+  // getGoodRecoJets(CUTS::eRCenJet, _Jet->pstats["CentralJet"],syst);
+  // getGoodRecoJets(CUTS::eR1stJet, _Jet->pstats["FirstLeadingJet"],syst);
+  // getGoodRecoJets(CUTS::eR2ndJet, _Jet->pstats["SecondLeadingJet"],syst);
 
   getGoodRecoFatJets(CUTS::eRWjet, _FatJet->pstats["Wjet"],syst);
   //  treatMuons_Met(systname);
@@ -602,11 +606,6 @@ bool Analyzer::fillCuts(bool fillCounter) {
     int nparticles = active_part->at(cut_num.at(cut))->size();
     //if(!fillCounter) std::cout << cut << ": " << nparticles << " (" << min << ", " << max << ")" <<std::endl;
     if( (nparticles >= min) && (nparticles <= max || max == -1)) {
-      if((cut_num.at(cut) == CUTS::eR1stJet || cut_num.at(cut) == CUTS::eR2ndJet) && active_part->at(cut_num.at(cut))->at(0) == -1 ) {
-        //cout<<"here   "<<std::endl;
-        prevTrue = false;
-        continue;  ////dirty dirty hack
-      }
       if(fillCounter && crbins == 1) {
         cuts_per[i]++;
         cuts_cumul[i] += (prevTrue) ? 1 : 0;
@@ -917,7 +916,6 @@ void Analyzer::setCutNeeds() {
   // for(auto it: testVec) {
   //   neededCuts.loadCuts(it->info->ePos);
   // }
-
   if(!isData and distats["Run"]["ApplyZBoostSF"] and isVSample){
     neededCuts.loadCuts(CUTS::eGen);
     neededCuts.loadCuts(CUTS::eGZ);
@@ -1284,12 +1282,8 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const json& stats, const int syst) {
   int i=0;
 
   for(auto lvec: *_Jet) {
-    if(ePos == CUTS::eR1stJet || ePos == CUTS::eR2ndJet){
-      break;
-    }
     bool passCuts = true;
-    if( ePos == CUTS::eRCenJet) passCuts = passCuts && (fabs(lvec.Eta()) < 2.5);
-    else  passCuts = passCuts && passCutRange(fabs(lvec.Eta()), stats["EtaCut"]);
+    passCuts = passCuts && passCutRange(fabs(lvec.Eta()), stats["EtaCut"]);
     passCuts = passCuts && (lvec.Pt() > stats["PtCut"]) ;
 
     for( auto cut: bset(stats)) {
@@ -1320,25 +1314,6 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const json& stats, const int syst) {
     i++;
 
   }
-
-  //clean up for first and second jet
-  //note the leading jet has to be selected fist!
-  if(ePos == CUTS::eR1stJet || ePos == CUTS::eR2ndJet) {
-
-    std::vector<std::pair<double, int> > ptIndexVector;
-    for(auto it : *active_part->at(CUTS::eRJet1)) {
-      ptIndexVector.push_back(std::make_pair(_Jet->pt(it),it));
-    }
-    sort(ptIndexVector.begin(),ptIndexVector.end());
-    if(ePos == CUTS::eR1stJet && ptIndexVector.size()>0){
-      active_part->at(ePos)->push_back(ptIndexVector.back().second);
-    }
-    else if(ePos == CUTS::eR2ndJet && ptIndexVector.size()>1){
-      active_part->at(ePos)->push_back(ptIndexVector.at(ptIndexVector.size()-2).second);
-    }
-    
-  }
-
 }
 
 
@@ -1418,53 +1393,6 @@ void Analyzer::TriggerCuts(CUTS ePos) {
   }
 }
 
-
-////VBF specific cuts dealing with the leading jets.
-void Analyzer::VBFTopologyCut(const json& stats, const int syst) {
-  if(! neededCuts.isPresent(CUTS::eSusyCom)) return;
-  std::string systname = syst_names.at(syst);
-
-
-  if(systname!="orig"){
-    //only jet stuff is affected
-    //save time to not rerun stuff
-    if( systname.find("Jet")==std::string::npos){
-      active_part->at(CUTS::eSusyCom)=goodParts[CUTS::eSusyCom];
-      return;
-    }
-  }
-
-  if(active_part->at(CUTS::eR1stJet)->size()==0 || active_part->at(CUTS::eR2ndJet)->size()==0) return;
-
-  TLorentzVector ljet1 = _Jet->p4(active_part->at(CUTS::eR1stJet)->at(0));
-  TLorentzVector ljet2 = _Jet->p4(active_part->at(CUTS::eR2ndJet)->at(0));
-  TLorentzVector dijet = ljet1 + ljet2;
-  double dphi1 = normPhi(ljet1.Phi() - _MET->phi());
-  double dphi2 = normPhi(ljet2.Phi() - _MET->phi());
-
-  bool passCuts = true;
-  for(auto cut: bset(stats)) {
-    if(!passCuts) break;
-    else if(cut == "DiscrByMass") passCuts = passCuts && passCutRange(dijet.M(), stats["MassCut"]);
-    else if(cut == "DiscrByPt") passCuts = passCuts && passCutRange(dijet.Pt(), stats["PtCut"]);
-    else if(cut == "DiscrByDeltaEta") passCuts = passCuts && passCutRange(abs(ljet1.Eta() - ljet2.Eta()), stats["DeltaEtaCut"]);
-    else if(cut == "DiscrByDeltaPhi") passCuts = passCuts && passCutRange(absnormPhi(ljet1.Phi() - ljet2.Phi()), stats["DeltaPhiCut"]);
-    else if(cut == "DiscrByOSEta") passCuts = passCuts && (ljet1.Eta() * ljet2.Eta() < 0);
-    else if(cut == "DiscrByR1") passCuts = passCuts && passCutRange(sqrt( pow(dphi1,2.0) + pow((TMath::Pi() - dphi2),2.0)), stats["R1Cut"]);
-    else if(cut == "DiscrByR2") passCuts = passCuts && passCutRange(sqrt( pow(dphi2,2.0) + pow((TMath::Pi() - dphi1),2.0)), stats["R2Cut"]);
-    else if(cut == "DiscrByAlpha") {
-      double alpha = (dijet.M() > 0) ? ljet2.Pt() / dijet.M() : -1;
-      passCuts = passCuts && passCutRange(alpha, stats["AlphaCut"]);
-    }
-    else if(cut == "DiscrByDphi1") passCuts = passCuts && passCutRange(abs(dphi1), stats["Dphi1Cut"]);
-    else if(cut == "DiscrByDphi2") passCuts = passCuts && passCutRange(abs(dphi2), stats["Dphi2Cut"]);
-
-    else std::cout << "cut: " << cut << " not listed" << std::endl;
-  }
-
-  if(passCuts)  active_part->at(CUTS::eSusyCom)->push_back(0);
-  return;
-}
 
 bool Analyzer::passCutRange(double value, const json& cuts) {
   return (value >= cuts.at(0) && value < cuts.at(1));
