@@ -1,8 +1,6 @@
 #ifndef Analyzer_h
 #define Analyzer_h
 
-struct CRTester;
-
 // system include files
 #include <memory>
 

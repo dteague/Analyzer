@@ -231,3 +231,173 @@ void Analyzer::VBFTopologyCut(const json& stats, const int syst) {
   if(passCuts)  active_part->at(CUTS::eSusyCom)->push_back(0);
   return;
 }
+
+/////Calculate the diparticle mass based on how to calculate it
+///can use Collinear Approximation, which can fail (number failed available in a histogram)
+///can use VectorSumOfVisProductAndMet which is sum of particles and met
+///Other which is adding without met
+double Analyzer::diParticleMass(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, std::string howCalc) {
+  bool ratioNotInRange = false;
+  TLorentzVector The_LorentzVect;
+
+  if(howCalc == "InvariantMass") {
+    return (Tobj1 + Tobj2).M();
+  }
+
+
+  //////check this equation/////
+  if(howCalc == "CollinearApprox") {
+    double denominator = (Tobj1.Px() * Tobj2.Py()) - (Tobj2.Px() * Tobj1.Py());
+    double x1 = (Tobj2.Py()*_MET->px() - Tobj2.Px()*_MET->py())/denominator;
+    double x2 = (Tobj1.Px()*_MET->py() - Tobj1.Py()*_MET->px())/denominator;
+    ratioNotInRange=!((x1 < 0.) && (x2 < 0.));
+    if (!ratioNotInRange) {
+      The_LorentzVect.SetPxPyPzE( (Tobj1.Px()*(1 + x1) + Tobj2.Px()*(1+x2)), (Tobj1.Py()*(1+x1) + Tobj2.Py()*(1+x2)), (Tobj1.Pz()*(1+x1) + Tobj2.Pz()*(1+x2)), (Tobj1.Energy()*(1+x1) + Tobj2.Energy()*(1+x2)) );
+      return The_LorentzVect.M();
+    }
+  }
+
+  if(howCalc == "VectorSumOfVisProductsAndMet" || ratioNotInRange) {
+    return (Tobj1 + Tobj2 + _MET->p4()).M();
+  }
+
+  return (Tobj1 + Tobj2).M();
+}
+
+////Tests if the CollinearApproximation works for finding the mass of teh particles
+bool Analyzer::passDiParticleApprox(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, std::string howCalc) {
+  if(howCalc == "CollinearApprox") {
+    double x1_numerator = (Tobj1.Px() * Tobj2.Py()) - (Tobj2.Px() * Tobj1.Py());
+    double x1_denominator = (Tobj2.Py() * (Tobj1.Px() + _MET->px())) - (Tobj2.Px() * (Tobj1.Py() + _MET->py()));
+    double x1 = ( x1_denominator != 0. ) ? x1_numerator/x1_denominator : -1.;
+    double x2_numerator = x1_numerator;
+    double x2_denominator = (Tobj1.Px() * (Tobj2.Py() + _MET->py())) - (Tobj1.Py() * (Tobj2.Px() + _MET->px()));
+    double x2 = ( x2_denominator != 0. ) ? x2_numerator/x2_denominator : -1.;
+    return (x1 > 0. && x1 < 1.) && (x2 > 0. && x2 < 1.);
+  } else {
+    return true;
+  }
+}
+
+
+
+///////Only tested for if is Zdecay, can include massptasymmpair later?
+/////Tests to see if a light lepton came form a zdecay
+bool Analyzer::isZdecay(const TLorentzVector& theObject, const Lepton& lep) {
+  bool eventIsZdecay = false;
+  const float zMass = 90.1876;
+  const float zWidth = 2.4952;
+  float zmmPtAsymmetry = -10.;
+
+  // if mass is within 3 sigmas of z or pt asymmetry is small set to true.
+  for(std::vector<TLorentzVector>::const_iterator lepit= lep.begin(); lepit != lep.end(); lepit++) {
+    if(theObject.DeltaR(*lepit) < 0.3) continue;
+    if(theObject == (*lepit)) continue;
+
+    TLorentzVector The_LorentzVect = theObject + (*lepit);
+    zmmPtAsymmetry = (theObject.Pt() - lepit->Pt()) / (theObject.Pt() + lepit->Pt());
+
+    if( (abs(The_LorentzVect.M() - zMass) < 3.*zWidth) || (fabs(zmmPtAsymmetry) < 0.20) ) {
+      eventIsZdecay = true;
+      break;
+    }
+  }
+
+  return eventIsZdecay;
+}
+void Analyzer::initializeWkfactor(std::vector<std::string> infiles) {
+  if(infiles[0].find("WJets") != std::string::npos){
+    isWSample = true;
+  }else{
+    isWSample=false;
+    return;
+  }
+  //W-jet k-factor Histograms:
+  TFile k_ele("Pileup/k_faktors_ele.root");
+  TFile k_mu("Pileup/k_faktors_mu.root");
+  TFile k_tau("Pileup/k_faktors_tau.root");
+
+  k_ele_h =dynamic_cast<TH1D*>(k_ele.FindObjectAny("k_fac_m"));
+  k_mu_h  =dynamic_cast<TH1D*>(k_mu.FindObjectAny("k_fac_m"));
+  k_tau_h =dynamic_cast<TH1D*>(k_tau.FindObjectAny("k_fac_m"));
+
+  k_ele.Close();
+  k_mu.Close();
+  k_tau.Close();
+
+}
+void Analyzer::fill_efficiency() {
+  //cut efficiency
+  const std::vector<CUTS> goodGenLep={CUTS::eGElec,CUTS::eGMuon,CUTS::eGTau};
+  //just the lepton 1 for now
+  const std::vector<CUTS> goodRecoLep={CUTS::eRElec1,CUTS::eRMuon1,CUTS::eRTau1};
+
+
+
+  for(size_t igen=0;igen<goodGenLep.size();igen++){
+    Particle* part =particleCutMap.at(goodGenLep[igen]);
+    CUTS cut=goodRecoLep[igen];
+    std::smatch mGen;
+    std::string tmps=part->getName();
+    std::regex_match(tmps, mGen, genName_regex);
+    //loop over all gen leptons
+    for(int iigen : *active_part->at(goodGenLep[igen])){
+
+
+      int foundReco=-1;
+      for(size_t ireco=0; ireco<part->size(); ireco++){
+        if(part->p4(ireco).DeltaR(_Gen->p4(iigen))<0.3){
+          foundReco=ireco;
+        }
+      }
+      histo.addEffiency("eff_Reco_"+std::string(mGen[1])+"Pt", _Gen->pt(iigen), foundReco>=0,0);
+      histo.addEffiency("eff_Reco_"+std::string(mGen[1])+"Eta",_Gen->eta(iigen),foundReco>=0,0);
+      histo.addEffiency("eff_Reco_"+std::string(mGen[1])+"Phi",_Gen->phi(iigen),foundReco>=0,0);
+      if(foundReco>=0){
+        bool id_particle= (find(active_part->at(cut)->begin(),active_part->at(cut)->end(),foundReco)!=active_part->at(cut)->end());
+        histo.addEffiency("eff_"+std::string(mGen[1])+"Pt", _Gen->pt(iigen), id_particle,0);
+        histo.addEffiency("eff_"+std::string(mGen[1])+"Eta",_Gen->eta(iigen),id_particle,0);
+        histo.addEffiency("eff_"+std::string(mGen[1])+"Phi",_Gen->phi(iigen),id_particle,0);
+      }
+    }
+  }
+}
+
+bool Analyzer::select_mc_background(){
+  //will return true if Z* mass is smaller than 200GeV
+  if(_Gen == nullptr){
+    return true;
+  }
+  if(gen_selection["DY_noMass_gt_200"]){
+    TLorentzVector lep1;
+    TLorentzVector lep2;
+    for(size_t i=0; i<_Gen->size(); i++){
+      if(abs(_Gen->pdg_id[i])==11 or abs(_Gen->pdg_id[i])==13 or abs(_Gen->pdg_id[i])==15){
+        if(lep1!=TLorentzVector(0,0,0,0)){
+          lep2= _Gen->p4(i);
+          return (lep1+lep2).M()<200;
+        }else{
+          lep1= _Gen->p4(i);
+        }
+      }
+    }
+  }
+  //will return true if Z* mass is smaller than 200GeV
+  if(gen_selection["DY_noMass_gt_100"]){
+    TLorentzVector lep1;
+    TLorentzVector lep2;
+    for(size_t i=0; i<_Gen->size(); i++){
+      if(abs(_Gen->pdg_id[i])==11 or abs(_Gen->pdg_id[i])==13 or abs(_Gen->pdg_id[i])==15){
+        if(lep1!=TLorentzVector(0,0,0,0)){
+          lep2= _Gen->p4(i);
+          return (lep1+lep2).M()<100;
+        }else{
+          lep1= _Gen->p4(i);
+        }
+      }
+    }
+  }
+  //cout<<"Something is rotten in the state of Denmark."<<std::endl;
+  //cout<<"could not find gen selection particle"<<std::endl;
+  return true;
+}

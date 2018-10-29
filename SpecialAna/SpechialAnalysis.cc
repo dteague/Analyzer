@@ -41,7 +41,7 @@ void SpechialAnalysis::analyze() {
   //just because it is convinient read in  the cuts:
   // const unordered_map<string,pair<int,int> >* cut_info = a->histo.get_cuts();
   // const vector<string>* cut_order = a->histo.get_cutorder();
-
+  std::cout << "special " << std::endl;
   if(a->active_part->at(a->cut_num.at("NRecoTriggers1"))->size()==0 )
     return;
 
@@ -59,11 +59,11 @@ void SpechialAnalysis::analyze() {
   for (auto it : *a->active_part->at(CUTS::eDiJet)) {
     int j1tmp = (it) / a->_Jet->size();
     int j2tmp = (it) % a->_Jet->size();
-    if (a->diParticleMass(a->_Jet->p4(j1tmp), a->_Jet->p4(j2tmp), "") > mass) {
-      j1   = j1tmp;
-      j2   = j2tmp;
-      mass = a->diParticleMass(a->_Jet->p4(j1tmp), a->_Jet->p4(j2tmp), "");
-    }
+    // if (a->diParticleMass(a->_Jet->p4(j1tmp), a->_Jet->p4(j2tmp), "") > mass) {
+    //   j1   = j1tmp;
+    //   j2   = j2tmp;
+    //   mass = a->diParticleMass(a->_Jet->p4(j1tmp), a->_Jet->p4(j2tmp), "");
+    // }
   }
   if (p1 < 0 or p2 < 0 or j1 < 0 or j2 < 0)
     return;
