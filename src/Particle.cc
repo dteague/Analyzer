@@ -75,9 +75,7 @@ void Particle::addPtEtaPhiESyst(double ipt,double ieta, double iphi, double iene
 
 
 void Particle::addP4Syst(TLorentzVector mp4, int syst){
-  std::cout << "addP4syst" << std::endl;
   systVec.at(syst)->push_back(mp4);
-  std::cout << "afteraddP4syst" << std::endl;
 }
 
 

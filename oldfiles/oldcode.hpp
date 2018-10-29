@@ -281,30 +281,6 @@ bool Analyzer::passDiParticleApprox(const TLorentzVector& Tobj1, const TLorentzV
 
 
 
-///////Only tested for if is Zdecay, can include massptasymmpair later?
-/////Tests to see if a light lepton came form a zdecay
-bool Analyzer::isZdecay(const TLorentzVector& theObject, const Lepton& lep) {
-  bool eventIsZdecay = false;
-  const float zMass = 90.1876;
-  const float zWidth = 2.4952;
-  float zmmPtAsymmetry = -10.;
-
-  // if mass is within 3 sigmas of z or pt asymmetry is small set to true.
-  for(std::vector<TLorentzVector>::const_iterator lepit= lep.begin(); lepit != lep.end(); lepit++) {
-    if(theObject.DeltaR(*lepit) < 0.3) continue;
-    if(theObject == (*lepit)) continue;
-
-    TLorentzVector The_LorentzVect = theObject + (*lepit);
-    zmmPtAsymmetry = (theObject.Pt() - lepit->Pt()) / (theObject.Pt() + lepit->Pt());
-
-    if( (abs(The_LorentzVect.M() - zMass) < 3.*zWidth) || (fabs(zmmPtAsymmetry) < 0.20) ) {
-      eventIsZdecay = true;
-      break;
-    }
-  }
-
-  return eventIsZdecay;
-}
 void Analyzer::initializeWkfactor(std::vector<std::string> infiles) {
   if(infiles[0].find("WJets") != std::string::npos){
     isWSample = true;
@@ -400,4 +376,53 @@ bool Analyzer::select_mc_background(){
   //cout<<"Something is rotten in the state of Denmark."<<std::endl;
   //cout<<"could not find gen selection particle"<<std::endl;
   return true;
+}
+double Analyzer::getTauDataMCScaleFactor(int updown){
+  double sf=1.;
+  //for(size_t i=0; i<_Tau->size();i++){
+  for(auto i : *active_part->at(CUTS::eRTau1)){
+    if(matchTauToGen(_Tau->p4(i),0.4)!=TLorentzVector()){
+
+      // if(updown==-1) sf*=  _Tau->pstats["Smear"]["TauSF"] * (1.-(0.35*_Tau->pt(i)/1000.0));
+      // else if(updown==0) sf*=  _Tau->pstats["Smear"]["TauSF"];
+      // else if(updown==1) sf*=  _Tau->pstats["Smear"]["TauSF"] * (1.+(0.05*_Tau->pt(i)/1000.0));
+    }
+  }
+  return sf;
+}
+
+void Analyzer::initializeMCSelection(std::vector<std::string> infiles) {
+    // check if we need to make gen level cuts to cross clean the samples:
+
+  isVSample = false;
+  if(infiles[0].find("DY") != std::string::npos){
+    isVSample = true;
+    if(infiles[0].find("DYJetsToLL_M-50_HT-") != std::string::npos){
+      gen_selection["DY_noMass_gt_100"]=true;
+      //gen_selection["DY_noMass_gt_200"]=true;
+    //get the DY1Jet DY2Jet ...
+    }else if(infiles[0].find("JetsToLL_TuneCUETP8M1_13TeV") != std::string::npos){
+      gen_selection["DY_noMass_gt_100"]=true;
+    }else{
+      //set it to false!!
+      gen_selection["DY_noMass_gt_100"]=false;
+      gen_selection["DY_noMass_gt_200"]=false;
+    }
+
+    if(infiles[0].find("DYJetsToLL_M-50_TuneCUETP8M1_13TeV") != std::string::npos){
+      gen_selection["DY_noMass_gt_100"]=true;
+    }else{
+      //set it to false!!
+      gen_selection["DY_noMass_gt_100"]=false;
+      gen_selection["DY_noMass_gt_200"]=false;
+    }
+  }else{
+    //set it to false!!
+    gen_selection["DY_noMass_gt_200"]=false;
+    gen_selection["DY_noMass_gt_100"]=false;
+  }
+
+  if(infiles[0].find("WJets") != std::string::npos){
+    isVSample = true;
+  }
 }

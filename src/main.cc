@@ -128,11 +128,12 @@ int main (int argc, char* argv[]) {
       spechialAna.begin_run();
     }
     testing.clear_values();
-    std::cout << "    testing.preprocess(i);" << std::endl;
-    testing.preprocess(i);
-    std::cout << "    testing.fill_histogram();" << std::endl;
+    //    std::cout << "    testing.preprocess(i);" << std::endl;
+    bool valid = testing.preprocess(i);
+    if( !valid) continue;
+    //    std::cout << "    testing.fill_histogram();" << std::endl;
     testing.fill_histogram();
-    std::cout << "    spechialAna.analyze();" << std::endl;
+    //    std::cout << "    spechialAna.analyze();" << std::endl;
     spechialAna.analyze();
     //this will be set if ctrl+c is pressed
     if(do_break){

@@ -51,7 +51,7 @@ LDFLAGS+=$(LDSPEED)
 
 ##This will make it very slow
 ifdef DEBUG
-CXXFLAGS = -Og -g -pg -Wall $(ROOTCFLAGS) -I./
+CXXFLAGS = -Og -g -pg -Wall $(ROOTCFLAGS) -I./ -isystem ./src/json/include
 LDFLAGS = -Og -g -Wall $(ROOTLIBS) -lGenVector
 endif
 

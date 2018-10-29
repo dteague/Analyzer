@@ -52,7 +52,7 @@ public:
   ~Analyzer();
   void add_metadata(std::vector<std::string> infiles);
   void clear_values();
-  void preprocess(int);
+  bool preprocess(int);
   bool fillCuts(bool);
   void printCuts();
   void writeout();

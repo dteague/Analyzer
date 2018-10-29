@@ -193,14 +193,9 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
 
   histo.createTree(&zBoostTree,"TauTauTree");
 
-  std::cout << "doing more cr stuff" << std::endl;
-  if(setCR) {
-    cuts_per.resize(histo.get_folders()->size());
-    cuts_cumul.resize(histo.get_folders()->size());
-  } else {
-    cuts_per.resize(histo.get_cuts()->size());
-    cuts_cumul.resize(histo.get_cuts()->size());
-  }
+  cuts_per.resize(histo.get_cuts()->size());
+  cuts_cumul.resize(histo.get_cuts()->size());
+
   std::cout << "  create_fillInfo();" << std::endl;
   create_fillInfo();
   // for(auto maper: distats["Control_Region"].dmap) {
@@ -215,8 +210,6 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
     }
   }
 
-  std::cout << "  initializeMCSelection(infiles);" << std::endl;
-  initializeMCSelection(infiles);
   std::cout << "  setCutNeeds();" << std::endl;
   setCutNeeds();
 
@@ -340,28 +333,6 @@ void Analyzer::create_fillInfo() {
 
 }
 
-// void Analyzer::setupCR(std::string var, double val) {
-//   std::smatch m;
-//   std::regex part ("^(.+)_(.+)$");
-//   if(std::regex_match(var, m, part)) {
-//     std::string name = m[1];
-//     std::string cut = "Fill" + name;
-//     if(fillInfo.find(cut) == fillInfo.end()) {
-//       std::cout << cut << " not found, put into fillInfo" << std::endl;
-//       exit(1);
-//     }
-//     std::cout << cut << " " << m[2] << " " << val << " " << name << std::endl;
-//     testVec.push_back(new CRTester(fillInfo.at(cut), m[2], val, name));
-//   } else {
-//     std::cout << "Could not process line: " << var << std::endl;
-//     exit(1);
-//   }
-
-// }
-
-
-
-
 
 ////destructor
 Analyzer::~Analyzer() {
@@ -382,11 +353,6 @@ Analyzer::~Analyzer() {
     delete goodParts[e];
     goodParts[e]=nullptr;
   }
-
-  // for(auto it: testVec){
-  //   delete it;
-  //   it=nullptr;
-  // }
 
 }
 
@@ -414,7 +380,7 @@ void Analyzer::clear_values() {
 }
 
 ///Function that does most of the work.  Calculates the number of each particle
-void Analyzer::preprocess(int event) {
+bool Analyzer::preprocess(int event) {
   int test= BOOM->GetEntry(event);
   if(test<0){
     std::cout << "Could not read the event from the following file: "<<BOOM->GetFile()->GetNewUrl().Data() << std::endl;
@@ -426,6 +392,7 @@ void Analyzer::preprocess(int event) {
 
   active_part = &goodParts;
 
+  if(nTruePU > 199) return false;
   pu_weight = (!isData && CalculatePUSystematics) ? hPU[(int)(nTruePU+1)] : 1.0;
 
   
@@ -436,13 +403,11 @@ void Analyzer::preprocess(int event) {
     getGoodTauNu();
   }
 
-  std::cout << "1" << std::endl;
 
   //////Triggers and Vertices
   active_part->at(CUTS::eRVertex)->resize(bestVertices);
   //TriggerCuts(*(trigPlace[0]), *(trigName[0]), CUTS::eRTrig1);
   TriggerCuts( CUTS::eRTrig1);
-  std::cout << "2" << std::endl;
   ////check update met is ok
   for(size_t i=0; i < syst_names.size(); i++) {
      //////Smearing
@@ -455,8 +420,6 @@ void Analyzer::preprocess(int event) {
     updateMet(i);
 
   }
-  std::cout << "3" << std::endl;
-  
   for(size_t i=0; i < syst_names.size(); i++) {
     std::string systname = syst_names.at(i);
     for( auto part: allParticles) part->setCurrentP(i);
@@ -465,8 +428,6 @@ void Analyzer::preprocess(int event) {
   }
   active_part = &goodParts;
 
-  std::cout << "4" << std::endl;
-  
   if( event < 10 || ( event < 100 && event % 10 == 0 ) ||
     ( event < 1000 && event % 100 == 0 ) ||
     ( event < 10000 && event % 1000 == 0 ) ||
@@ -474,6 +435,8 @@ void Analyzer::preprocess(int event) {
        std::cout << std::setprecision(2)<<event << " Events analyzed "<< static_cast<double>(event)/nentries*100. <<"% done"<<std::endl;
        std::cout << std::setprecision(5);
   }
+
+  return true;
 }
 
 
@@ -488,25 +451,15 @@ void Analyzer::getGoodParticles(int syst){
 
   // // SET NUMBER OF RECO PARTICLES
   // // MUST BE IN ORDER: Muon/Electron, Tau, Jet
-  std::cout << "1" << std::endl;
   getGoodRecoLeptons(*_Electron, CUTS::eRElec1, CUTS::eGElec, _Electron->pstats["Elec1"],syst);
-  std::cout << "2" << std::endl;
   getGoodRecoLeptons(*_Electron, CUTS::eRElec2, CUTS::eGElec, _Electron->pstats["Elec2"],syst);
-  std::cout << "3" << std::endl;
   getGoodRecoLeptons(*_Muon, CUTS::eRMuon1, CUTS::eGMuon, _Muon->pstats["Muon1"],syst);
-  std::cout << "4" << std::endl;
   getGoodRecoLeptons(*_Muon, CUTS::eRMuon2, CUTS::eGMuon, _Muon->pstats["Muon2"],syst);
-  std::cout << "5" << std::endl;
   getGoodRecoLeptons(*_Tau, CUTS::eRTau1, CUTS::eGTau, _Tau->pstats["Tau1"],syst);
-  std::cout << "6" << std::endl;
   getGoodRecoLeptons(*_Tau, CUTS::eRTau2, CUTS::eGTau, _Tau->pstats["Tau2"],syst);
-  std::cout << "7" << std::endl;
   getGoodRecoJets(CUTS::eRBJet, _Jet->pstats["BJet"],syst);
-  std::cout << "8" << std::endl;
   getGoodRecoJets(CUTS::eRJet1, _Jet->pstats["Jet1"],syst);
-  std::cout << "9" << std::endl;
   getGoodRecoJets(CUTS::eRJet2, _Jet->pstats["Jet2"],syst);
-  std::cout << "10" << std::endl;
   getGoodRecoFatJets(CUTS::eRWjet, _FatJet->pstats["WJet"],syst);
 
 }
@@ -600,21 +553,6 @@ void Analyzer::printCuts() {
 /////////////PRIVATE FUNCTIONS////////////////
 
 
-
-double Analyzer::getTauDataMCScaleFactor(int updown){
-  double sf=1.;
-  //for(size_t i=0; i<_Tau->size();i++){
-  for(auto i : *active_part->at(CUTS::eRTau1)){
-    if(matchTauToGen(_Tau->p4(i),0.4)!=TLorentzVector()){
-
-      // if(updown==-1) sf*=  _Tau->pstats["Smear"]["TauSF"] * (1.-(0.35*_Tau->pt(i)/1000.0));
-      // else if(updown==0) sf*=  _Tau->pstats["Smear"]["TauSF"];
-      // else if(updown==1) sf*=  _Tau->pstats["Smear"]["TauSF"] * (1.+(0.05*_Tau->pt(i)/1000.0));
-    }
-  }
-  return sf;
-}
-
 ///Calculates met from values from each file plus smearing and treating muons as neutrinos
 void Analyzer::updateMet(int syst) {
   // _MET->update(distats["Run"], *_Jet,  syst);
@@ -700,42 +638,6 @@ void Analyzer::setupGeneral() {
   }
 }
 
-
-void Analyzer::initializeMCSelection(std::vector<std::string> infiles) {
-    // check if we need to make gen level cuts to cross clean the samples:
-
-  isVSample = false;
-  if(infiles[0].find("DY") != std::string::npos){
-    isVSample = true;
-    if(infiles[0].find("DYJetsToLL_M-50_HT-") != std::string::npos){
-      gen_selection["DY_noMass_gt_100"]=true;
-      //gen_selection["DY_noMass_gt_200"]=true;
-    //get the DY1Jet DY2Jet ...
-    }else if(infiles[0].find("JetsToLL_TuneCUETP8M1_13TeV") != std::string::npos){
-      gen_selection["DY_noMass_gt_100"]=true;
-    }else{
-      //set it to false!!
-      gen_selection["DY_noMass_gt_100"]=false;
-      gen_selection["DY_noMass_gt_200"]=false;
-    }
-
-    if(infiles[0].find("DYJetsToLL_M-50_TuneCUETP8M1_13TeV") != std::string::npos){
-      gen_selection["DY_noMass_gt_100"]=true;
-    }else{
-      //set it to false!!
-      gen_selection["DY_noMass_gt_100"]=false;
-      gen_selection["DY_noMass_gt_200"]=false;
-    }
-  }else{
-    //set it to false!!
-    gen_selection["DY_noMass_gt_200"]=false;
-    gen_selection["DY_noMass_gt_100"]=false;
-  }
-
-  if(infiles[0].find("WJets") != std::string::npos){
-    isVSample = true;
-  }
-}
 
 
 ///parsing method that gets info on diparts and basic run info
@@ -853,19 +755,19 @@ void Analyzer::smearLepton(Lepton& lep, CUTS eGenPos, const json& stats, const j
     lep.setOrigReco();
     return;
   }
-  std::cout << "here" << std::endl;
+
   std::string systname = syst_names.at(syst);
-  std::cout << "here2" << std::endl;
   if(!lep.needSyst(syst)) return;
 
   if(systname=="orig" && !stats["SmearTheParticle"]){
     lep.setOrigReco();
   } else {
-    //    systematics.loadScaleRes(stats, syst_stats, systname);
+    systematics.loadScaleRes(stats, syst_stats, systname);
     for(size_t i = 0; i < lep.size(); i++) {
       TLorentzVector lepReco = lep.RecoP4(i);
       TLorentzVector genVec =  matchLeptonToGen(lepReco, lep.pstats["Smear"],eGenPos);
-      systematics.shiftLepton(lep, lepReco, genVec, _MET->systdeltaMEx[syst], _MET->systdeltaMEy[syst], syst);
+      TLorentzVector newVec = systematics.shiftLepton(lepReco, genVec, _MET->systdeltaMEx[syst], _MET->systdeltaMEy[syst]);
+      lep.addP4Syst(newVec, syst);
     }
   }
 }
@@ -883,25 +785,18 @@ void Analyzer::smearJet(Particle& jet, const CUTS eGenPos, const json& stats, in
   }
   //add energy scale uncertainty
 
-  for(auto i : syst_names) std::cout << i << std::endl;
-  
-  std::cout << syst_names.size() << std::endl;
   std::string systname = syst_names.at(syst);
 
-
-  std::cout  << "before match" << std::endl;
   for(size_t i=0; i< jet.size(); i++) {
-    std::cout  << "before reco" << std::endl;    
     TLorentzVector jetReco = jet.RecoP4(i);
-    std::cout  << "bfo match" << std::endl;
     jet.addP4Syst(jetReco,syst);
+    continue;
     // if(JetMatchesLepton(*_Muon, jetReco, stats["MuonMatchingDeltaR"], CUTS::eGMuon) ||
     //    JetMatchesLepton(*_Tau, jetReco, stats["TauMatchingDeltaR"], CUTS::eGTau) ||
     //    JetMatchesLepton(*_Electron, jetReco,stats["ElectronMatchingDeltaR"], CUTS::eGElec)){
     //   jet.addP4Syst(jetReco,syst);
     //   continue;
     // }
-    std::cout  << "after match" << std::endl;
     double sf=1.;
     //only apply corrections for jets not for FatJets
 
@@ -917,7 +812,7 @@ void Analyzer::smearJet(Particle& jet, const CUTS eGenPos, const json& stats, in
     }else if(systname=="Jet_Scale_Down"){
       sf = jetScaleRes.GetScale(jetReco, false, -1) ;
     }
-    std::cout<<systname<<"  "<<sf<<"  "<<jetReco.Pt()<<"  "<<genJet.Pt()<<std::endl;
+    //    std::cout<<systname<<"  "<<sf<<"  "<<jetReco.Pt()<<"  "<<genJet.Pt()<<std::endl;
     systematics.shiftParticle(jet, jetReco, sf, _MET->systdeltaMEx[syst], _MET->systdeltaMEy[syst], syst);
   }
 }
@@ -1006,13 +901,8 @@ int Analyzer::matchToGenPdg(const TLorentzVector& lvec, double minDR) {
 void Analyzer::getGoodGen(const json& stats) {
   if(! neededCuts.isPresent(CUTS::eGen)) return;
   for(size_t j = 0; j < _Gen->size(); j++) {
-    //we are not interested in pythia info here!
-    //if(_Gen->status->at(j)>10){
-      //continue;
-    //}
     int id = abs(_Gen->pdg_id[j]);
     if(genMaper.find(id) != genMaper.end() && _Gen->status[j] == genMaper.at(id)->status) {
-      //      if((id == 15) && passCutRange(_Gen->pt(j), stats["TauPtCut"]) || abs(_Gen->eta(j)) > stats["TauEtaCut"]) continue;
       active_part->at(genMaper.at(id)->ePos)->push_back(j);
     }
     //something special for jet
@@ -1046,12 +936,41 @@ void Analyzer::getGoodTauNu() {
 ////////////DIRTY, YUCK YUCK YUCK
 std::vector<std::string> Analyzer::bset(const json& j) {
   std::vector<std::string> output;
-  // for(auto& val: j) {
+// for(auto& val: j) {
+  for (auto it = j.cbegin(); it != j.cend(); ++it) {
+    if(it.value().is_boolean()) {
+      output.push_back(it.key());
+    }
+  }
    
-  //   continue;
-  //   //    if(val.value().is_boolean()) output.push_back(val.key());
-  // }
   return output;
+}
+
+
+
+///////Only tested for if is Zdecay, can include massptasymmpair later?
+/////Tests to see if a light lepton came form a zdecay
+bool Analyzer::isZdecay(const TLorentzVector& theObject, const Lepton& lep) {
+  bool eventIsZdecay = false;
+  const float zMass = 90.1876;
+  const float zWidth = 2.4952;
+  float zmmPtAsymmetry = -10.;
+
+  // if mass is within 3 sigmas of z or pt asymmetry is small set to true.
+  for(std::vector<TLorentzVector>::const_iterator lepit= lep.begin(); lepit != lep.end(); lepit++) {
+    if(theObject.DeltaR(*lepit) < 0.3) continue;
+    if(theObject == (*lepit)) continue;
+
+    TLorentzVector The_LorentzVect = theObject + (*lepit);
+    zmmPtAsymmetry = (theObject.Pt() - lepit->Pt()) / (theObject.Pt() + lepit->Pt());
+
+    if( (abs(The_LorentzVect.M() - zMass) < 3.*zWidth) || (fabs(zmmPtAsymmetry) < 0.20) ) {
+      eventIsZdecay = true;
+      break;
+    }
+  }
+
+  return eventIsZdecay;
 }
 
 
@@ -1077,66 +996,65 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
     }
 
     for( auto cut: bset(stats)) {
-      std::cout << cut << std::endl;
       if(!passCuts) break;
       // else if(cut == "DoDiscrByIsolation") {
       //   double firstIso = (! stats["IsoSumPtCutValue"].empty()) ? stats.pmap.at("IsoSumPtCutValue").first : ival(ePos) - ival(CUTS::eRTau1) + 1;
       //   double secondIso = (stats.pmap.find("IsoSumPtCutValue") != stats.pmap.end()) ? stats.pmap.at("IsoSumPtCutValue").second : stats["FlipIsolationRequirement"];
       //   passCuts = passCuts && lep.get_Iso(i, firstIso, secondIso);
       // }
-      else if(cut == "DiscrIfIsZdecay" && lep.type != PType::Tau ) passCuts = passCuts && isZdecay(lvec, lep);
-      else if(cut == "DiscrByMetDphi") passCuts = passCuts && passCutRange(absnormPhi(lvec.Phi() - _MET->phi()), stats["MetDphiCut"]);
-      else if(cut == "DiscrByMetMt") passCuts = passCuts && passCutRange(calculateLeptonMetMt(lvec), stats["MetMtCut"]);
+      else if(cut == "DiscrIfIsZdecay" && lep.type != PType::Tau ) passCuts = isZdecay(lvec, lep);
+      else if(cut == "DiscrByMetDphi") passCuts = passCutRange(absnormPhi(lvec.Phi() - _MET->phi()), stats["MetDphiCut"]);
+      else if(cut == "DiscrByMetMt") passCuts = passCutRange(calculateLeptonMetMt(lvec), stats["MetMtCut"]);
       /////muon cuts
       else if(lep.type == PType::Muon){
-        if(cut == "DoDiscrByTightID") passCuts = passCuts && _Muon->tight[i];
-        else if(cut == "DoDiscrBySoftID") passCuts = passCuts && _Muon->soft[i];
+        if(cut == "DoDiscrByTightID") passCuts = _Muon->tight[i];
+        else if(cut == "DoDiscrBySoftID") passCuts = _Muon->soft[i];
       }
       ////electron cuts
       else if(lep.type == PType::Electron){
         if(cut == "DoDiscrByHLTID"){
           std::bitset<8> idvariable(_Electron->cutBased_HLTPreSel[i]);
           if(ival(ePos) - ival(CUTS::eRElec1)){
-            passCuts = passCuts && (_Electron->cbHLTIDele1&idvariable).count();
+            passCuts = (_Electron->cbHLTIDele1&idvariable).count();
           }else{
-            passCuts = passCuts && (_Electron->cbHLTIDele2&idvariable).count();
+            passCuts = (_Electron->cbHLTIDele2&idvariable).count();
           }
         }
         if(cut == "DoDiscrByCBID"){
           std::bitset<8> idvariable(_Electron->cutBased[i]);
           if(ival(ePos) - ival(CUTS::eRElec1)){
-            passCuts = passCuts && (_Electron->cbIDele1&idvariable).count();
+            passCuts = (_Electron->cbIDele1&idvariable).count();
           }else{
-            passCuts = passCuts && (_Electron->cbIDele2&idvariable).count();
+            passCuts = (_Electron->cbIDele2&idvariable).count();
           }
         }
         else if(cut == "DoDiscrByHEEPID")
-         passCuts = passCuts && _Electron->isPassHEEPId[i];
+         passCuts = _Electron->isPassHEEPId[i];
       }
       else if(lep.type == PType::Tau){
-        if(cut == "DoDiscrByCrackCut") passCuts = passCuts && !isInTheCracks(lvec.Eta());
+        if(cut == "DoDiscrByCrackCut") passCuts = !isInTheCracks(lvec.Eta());
         /////tau cuts
-        else if(cut == "DoDzCut") passCuts = passCuts && (_Tau->dz[i] <= stats["DzCutThreshold"]);
-        else if(cut == "DoDiscrByLeadTrack") passCuts = passCuts && (_Tau->leadTkPtOverTauPt[i]*_Tau->pt(i) >= stats["LeadTrackThreshold"]);
+        else if(cut == "DoDzCut") passCuts = (_Tau->dz[i] <= stats["DzCutThreshold"]);
+        else if(cut == "DoDiscrByLeadTrack") passCuts = (_Tau->leadTkPtOverTauPt[i]*_Tau->pt(i) >= stats["LeadTrackThreshold"]);
              // ----Electron and Muon vetos
-        else if (cut == "DoDiscrAgainstElectron") passCuts = passCuts && _Tau->pass_against_Elec(ePos, i);
-        else if (cut == "SelectTausThatAreElectrons") passCuts = passCuts && !_Tau->pass_against_Elec(ePos, i);
+        else if (cut == "DoDiscrAgainstElectron") passCuts = _Tau->pass_against_Elec(ePos, i);
+        else if (cut == "SelectTausThatAreElectrons") passCuts = !_Tau->pass_against_Elec(ePos, i);
 
-        else if (cut == "DoDiscrAgainstMuon") passCuts = passCuts && _Tau->pass_against_Muon(ePos, i);
-        else if (cut == "SelectTausThatAreMuons") passCuts = passCuts &&  !_Tau->pass_against_Muon(ePos, i);
+        else if (cut == "DoDiscrAgainstMuon") passCuts = _Tau->pass_against_Muon(ePos, i);
+        else if (cut == "SelectTausThatAreMuons") passCuts = !_Tau->pass_against_Muon(ePos, i);
 
         else if(cut == "DiscrByProngType") {
 	  std::string prongName = stats["ProngType"];
-          passCuts = passCuts && (prongName.find("hps") == std::string::npos || _Tau->DecayModeNewDMs[i] != 0);
-          passCuts = passCuts && passProng(stats["ProngType"], _Tau->decayMode[i]);
+          passCuts = (prongName.find("hps") == std::string::npos || _Tau->DecayModeNewDMs[i] != 0);
+          passCuts = passProng(stats["ProngType"], _Tau->decayMode[i]);
         }
-        else if(cut == "decayModeFindingNewDMs") passCuts = passCuts && _Tau->DecayModeNewDMs[i] != 0;
-        else if(cut == "decayModeFinding") passCuts = passCuts && _Tau->DecayMode[i] != 0;
+        else if(cut == "decayModeFindingNewDMs") passCuts = _Tau->DecayModeNewDMs[i] != 0;
+        else if(cut == "decayModeFinding") passCuts = _Tau->DecayMode[i] != 0;
               // ----anti-overlap requirements
-        else if(cut == "RemoveOverlapWithMuon1s") passCuts = passCuts && !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1MatchingDeltaR"]);
-        else if(cut == "RemoveOverlapWithMuon2s") passCuts = passCuts && !isOverlaping(lvec, *_Muon, CUTS::eRMuon2, stats["Muon2MatchingDeltaR"]);
-        else if(cut == "RemoveOverlapWithElectron1s") passCuts = passCuts && !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Electron1MatchingDeltaR"]);
-        else if(cut == "RemoveOverlapWithElectron2s") passCuts = passCuts && !isOverlaping(lvec, *_Electron, CUTS::eRElec2, stats["Electron2MatchingDeltaR"]);
+        else if(cut == "RemoveOverlapWithMuon1s") passCuts = !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1MatchingDeltaR"]);
+        else if(cut == "RemoveOverlapWithMuon2s") passCuts = !isOverlaping(lvec, *_Muon, CUTS::eRMuon2, stats["Muon2MatchingDeltaR"]);
+        else if(cut == "RemoveOverlapWithElectron1s") passCuts = !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Electron1MatchingDeltaR"]);
+        else if(cut == "RemoveOverlapWithElectron2s") passCuts = !isOverlaping(lvec, *_Electron, CUTS::eRElec2, stats["Electron2MatchingDeltaR"]);
       }
       else std::cout << "cut: " << cut << " not listed" << std::endl;
     }
@@ -1304,7 +1222,6 @@ void Analyzer::fill_histogram() {
     if(distats["Run"]["UsePileUpWeight"]) wgt*= pu_weight;
     if(distats["Run"]["ApplyGenWeight"]) wgt *= (gen_weight > 0) ? 1.0 : -1.0;
     //add weight here
-    if(distats["Run"]["ApplyTauIDSF"]) wgt *= getTauDataMCScaleFactor(0);
   }
   //backup current weight
   backup_wgt=wgt;
@@ -1324,19 +1241,9 @@ void Analyzer::fill_histogram() {
         fill_Tree();
       }
     }else{
+
       wgt=backup_wgt;
       if(syst_names[i].find("weight")!=std::string::npos){
-        if(syst_names[i]=="Tau_weight_Up"){
-          if(distats["Run"]["ApplyTauIDSF"]) {
-            wgt/=getTauDataMCScaleFactor(0);
-            wgt *= getTauDataMCScaleFactor(1);
-          }
-        }else if(syst_names[i]=="Tau_weight_Down"){
-          if(distats["Run"]["ApplyTauIDSF"]) {
-            wgt/=getTauDataMCScaleFactor(0);
-            wgt *= getTauDataMCScaleFactor(-1);
-          }
-        }
         if(syst_names[i]=="Pileup_weight_Up"){
           if(distats["Run"]["UsePileUpWeight"]) {
             wgt/=   pu_weight;

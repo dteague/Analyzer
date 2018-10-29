@@ -41,7 +41,6 @@ void SpechialAnalysis::analyze() {
   //just because it is convinient read in  the cuts:
   // const unordered_map<string,pair<int,int> >* cut_info = a->histo.get_cuts();
   // const vector<string>* cut_order = a->histo.get_cutorder();
-  std::cout << "special " << std::endl;
   if(a->active_part->at(a->cut_num.at("NRecoTriggers1"))->size()==0 )
     return;
 

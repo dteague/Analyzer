@@ -1,9 +1,10 @@
 #include "Systematics.h"
 
+using json = nlohmann::json;
 
 Systematics::Systematics(){}
 
-Systematics::Systematics(std::unordered_map<std::string, PartStats> const &distats){
+Systematics::Systematics(json const &distats){
 
 }
 Systematics::~Systematics(){}
@@ -24,6 +25,17 @@ void Systematics::shiftParticle(Particle& jet, TLorentzVector recJet, double con
    return;
 }
 
+TLorentzVector Systematics::shiftParticle(TLorentzVector recJet, double const& ratio, double& dPx, double& dPy){
+
+   //add the shifted part up
+   dPx+=recJet.Px()*(ratio-1);
+   dPy+=recJet.Py()*(ratio-1);
+   //WARNING change the particle content for the particle
+   recJet*=ratio;
+   return recJet;
+}
+
+
 void Systematics::shiftLepton(Lepton& lepton, TLorentzVector recoLep, TLorentzVector genLep, double& dPx, double& dPy, int syst){
   if (genLep == TLorentzVector(0,0,0,0)) {
     lepton.addP4Syst(recoLep, syst);
@@ -41,18 +53,38 @@ void Systematics::shiftLepton(Lepton& lepton, TLorentzVector recoLep, TLorentzVe
 }
 
 
-void Systematics::loadScaleRes(const PartStats& smear, const PartStats& syst, std::string syst_name) {
+TLorentzVector Systematics::shiftLepton(TLorentzVector recoLep, TLorentzVector genLep, double& dPx, double& dPy){
+  if (genLep == TLorentzVector(0,0,0,0)) {
+    return recoLep;
+  }
+  double ratio = ((genLep.Pt()*scale) + (recoLep.Pt() - genLep.Pt())*resolution)/recoLep.Pt();
+  //cout<<"ratio  "<<ratio<<"  "<<scale<<"  "<<resolution    <<std::endl;
+   //add the shifted part up
+   dPx+=recoLep.Px()*(ratio-1);
+   dPy+=recoLep.Py()*(ratio-1);
+   //WARNING change the particle content for the particle
+   recoLep*=ratio;
+   return recoLep;
+}
+
+
+
+
+
+void Systematics::loadScaleRes(const json& smear, const json& syst, std::string syst_name) {
   scale = 1;
   resolution = 1;
-  if(smear.bfind("SmearTheParticle")) {
-    scale = smear.dmap.at("PtScaleOffset");
-    resolution = smear.dmap.at("PtResolutionOffset");
+  if(!smear["SmearTheParticle"].empty()) {
+    scale = smear["PtScaleOffset"];
+    resolution = smear["PtResolutionOffset"];
   } 
   if(syst_name.find("_Res_")) {
-    resolution = syst_name.find("_Up") ? 1 + syst.dmap.at("res") : 1 - syst.dmap.at("res");
+    double res = syst["res"];
+    resolution = syst_name.find("_Up") ? 1 + res : 1 - res;
     scale=1;
   } else if(syst_name.find("_Scale_")) {
-    scale = syst_name.find("_Up") ? 1+syst.dmap.at("scale") : 1- syst.dmap.at("scale");
+    double sc = syst["scale"];
+    scale = syst_name.find("_Up") ? 1+sc : 1- sc;
     resolution=1;
   }
 }
