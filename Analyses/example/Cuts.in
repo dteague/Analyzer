@@ -8,8 +8,6 @@ NGenHiggs	0  -1
 
 NRecoVertex        1   -1
 NRecoTriggers1     0   -1           ///only 0 or 1
-NRecoTau1	      1   -1
-NRecoTau2	      2   -1
 METCut	      0   -1
 NRecoBJet	      0    0
 

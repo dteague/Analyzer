@@ -55,8 +55,8 @@ CXXFLAGS = -Og -g -pg -Wall $(ROOTCFLAGS) -I./ -isystem ./src/json/include
 LDFLAGS = -Og -g -Wall $(ROOTLIBS) -lGenVector
 endif
 
-CXXFLAGS+=$(EXTRA_CFLAGS) -Wno-deprecated
-LDFLAGS+=$(EXTRA_LDFLAGS)
+CXXFLAGS+=$(EXTRA_CFLAGS) -Wno-deprecated -Wunused-variable
+LDFLAGS+=$(EXTRA_LDFLAGS) -Wunused-variable
 LIBS=
 
 SRCDIR = src

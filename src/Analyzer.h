@@ -55,37 +55,18 @@ public:
   bool preprocess(int);
   bool fillCuts(bool);
   void printCuts();
-  void writeout();
   int nentries;
-  void fill_efficiency();
   void fill_histogram();
   void fill_Tree();
-  void setControlRegions() { histo.setControlRegions();}
 
-  std::vector<int>* getList(CUTS ePos) {return goodParts[ePos];}
-  double getMet() {return _MET->pt();}
-  double getHT() {return _MET->HT();}
-  double getMHT() {return _MET->MHT();}
-  double getMass(const TLorentzVector& Tobj1, const TLorentzVector& Tobj2, std::string partName) {
-    return diParticleMass(Tobj1, Tobj2, distats[partName]["HowCalculateMassReco"]);
-  }
-
-// private:
-//  void CRfillCuts();
   ///// Functions /////
-  //void fill_Folder(std::string, const int, std::string syst="");
+
   void fill_Folder(std::string, const int, Histogramer& ihisto, bool issyst);
 
-  void getInputs();
-  void setupJob(std::string);
   void initializePileupInfo(std::string, std::string, std::string, std::string);
-  void initializeMCSelection(std::vector<std::string> infiles);
-  void initializeWkfactor(std::vector<std::string> infiles);
-
   void read_info(std::string);
   void setupGeneral();
   void branchException(std::string);
-  void initializeTrigger();
   void setCutNeeds();
 
   void smearLepton(Lepton&, CUTS, const json&, const json&, int syst=0);
@@ -93,80 +74,55 @@ public:
 
   bool JetMatchesLepton(const Lepton&, const TLorentzVector&, double, CUTS);
   TLorentzVector matchLeptonToGen(const TLorentzVector&, const json&, CUTS);
-  TLorentzVector matchTauToGen(const TLorentzVector&, double);
   TLorentzVector matchJetToGen(const TLorentzVector&, const json&, CUTS);
 
   int matchToGenPdg(const TLorentzVector& lvec, double minDR);
 
 
   void getGoodParticles(int);
-  void getGoodTauNu();
   void getGoodGen(const json&);
   void getGoodRecoLeptons(const Lepton&, const CUTS, const CUTS, const json&, const int);
   void getGoodRecoJets(CUTS, const json&, const int);
   void getGoodRecoFatJets(CUTS, const json&, const int);
 
-  void getGoodLeptonCombos(Lepton&, Lepton&, CUTS, CUTS, CUTS, const json&, const int);
-  void getGoodLeptonJetCombos(Lepton&, Jet&, CUTS, CUTS, CUTS, const json&, const int);
-  void getGoodDiJets(const json&, const int);
-
-  void VBFTopologyCut(const json&, const int);
   void TriggerCuts(CUTS);
 
 
   double calculateLeptonMetMt(const TLorentzVector&);
-  double diParticleMass(const TLorentzVector&, const TLorentzVector&, std::string);
-  bool passDiParticleApprox(const TLorentzVector&, const TLorentzVector&, std::string);
   bool isZdecay(const TLorentzVector&, const Lepton&);
-
   bool isOverlaping(const TLorentzVector&, Lepton&, CUTS, double);
   bool passProng(std::string, int);
   bool isInTheCracks(float);
-  bool passedLooseJetID(int);
-  bool select_mc_background();
-  double getTauDataMCScaleFactor(int updown);
-  double getWkfactor();
-  double getZBoostWeight();
 
-  std::pair<double, double> getPZeta(const TLorentzVector&, const TLorentzVector&);
   void create_fillInfo();
 
   inline bool passCutRange(double, const json&);
-  //  bool passCutRange(double, const std::pair<double, double>&);
-  bool findCut(const std::vector<std::string>&, std::string);
 
   void updateMet(int syst=0);
-  //  void treatMuons_Met(std::string syst="orig");
-  double getPileupWeight(float);
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> getArray();
-
-  /* double getCRVal(std::string); */
-  /* void setupCR(std::string, double); */
-
+  void setup_Tree();
+  std::vector<std::string> bset(const json& j);
+  
   ///// values /////
 
   TChain* BOOM;
-  TTree* BAAM;
   TFile* infoFile;
   TFile* routfile;
   std::string filespace = "";
   double hPU[200];
   double hPU_up[200];
   double hPU_down[200];
-  int version=0;
-  std::map<std::string,TTree* > otherTrees;
-
   
-
   Generated* _Gen;
   Electron* _Electron;
   Muon* _Muon;
-  Taus* _Tau;
   Jet* _Jet;
   FatJet* _FatJet;
   Met* _MET;
+
   Histogramer histo;
   Histogramer syst_histo;
+
   std::unordered_map<CUTS, std::vector<int>*, EnumHash>* active_part;
   static const std::unordered_map<std::string, CUTS> cut_num;
 
@@ -176,41 +132,19 @@ public:
 
   json distats;
   std::unordered_map<std::string, FillVals*> fillInfo;
-  std::unordered_map<std::string, double> genMap;
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> goodParts;
   std::vector<std::unordered_map<CUTS, std::vector<int>*, EnumHash>> syst_parts;
-  std::unordered_map<CUTS, bool, EnumHash> need_cut;
-
-  std::unordered_map<std::string,bool> gen_selection;
-  std::regex genName_regex;
-
-  TH1D* k_ele_h;
-  TH1D* k_mu_h;
-  TH1D* k_tau_h;
-
-  bool isVSample;
-  bool isWSample;
-
 
   std::vector<Particle*> allParticles;
   std::vector<std::string> syst_names;
-  std::map<CUTS, Particle* >  particleCutMap;
   DepGraph neededCuts;
 
-  static const std::unordered_map<CUTS, std::vector<CUTS>, EnumHash> adjList;
-
-  std::vector<int>* trigPlace[nTrigReq];
-  bool setTrigger = false;
   std::vector<std::string> trigNames;
   std::vector<bool*> trig_decision;
   std::vector<int> cuts_per, cuts_cumul;
 
   std::unordered_map< std::string,float > zBoostTree;
 
-  std::vector<std::string> bset(const json& j);
-
-  
-  double maxIso, minIso;
   int leadIndex, maxCut, crbins=1;
   bool isData, CalculatePUSystematics, doSystematics;
 
@@ -223,20 +157,15 @@ public:
 
   double rho =20.;
 
-  const static std::vector<CUTS> genCuts;
   const static std::vector<CUTS> jetCuts;
   const static std::vector<CUTS> nonParticleCuts;
   double pu_weight, wgt, backup_wgt;
   std::unordered_map<int, GenFill*> genMaper;
 
-  /* std::vector<CRTester*> testVec; */
-  int SignalRegion = -1;
-  bool blinded = true;
   clock_t start_time;
   std::chrono::time_point<std::chrono::system_clock> start;
 
 };
-
 
 
 #endif

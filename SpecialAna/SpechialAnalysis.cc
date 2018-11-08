@@ -41,17 +41,18 @@ void SpechialAnalysis::analyze() {
   //just because it is convinient read in  the cuts:
   // const unordered_map<string,pair<int,int> >* cut_info = a->histo.get_cuts();
   // const vector<string>* cut_order = a->histo.get_cutorder();
+  return;
   if(a->active_part->at(a->cut_num.at("NRecoTriggers1"))->size()==0 )
     return;
 
   int p1 = -1;
   int p2 = -1;
-  if (a->active_part->at(CUTS::eDiTau)->size() == 1) {
-    p1 = a->active_part->at(CUTS::eDiTau)->at(0) / BIG_NUM;
-    p2 = a->active_part->at(CUTS::eDiTau)->at(0) % BIG_NUM;
-  } else {
-    return;
-  }
+  // if (a->active_part->at(CUTS::eDiTau)->size() == 1) {
+  //   p1 = a->active_part->at(CUTS::eDiTau)->at(0) / BIG_NUM;
+  //   p2 = a->active_part->at(CUTS::eDiTau)->at(0) % BIG_NUM;
+  // } else {
+  //   return;
+  // }
   int j1      = -1;
   int j2      = -1;
   double mass = 0;
@@ -67,7 +68,7 @@ void SpechialAnalysis::analyze() {
   if (p1 < 0 or p2 < 0 or j1 < 0 or j2 < 0)
     return;
     
-  HistClass::Fill("Tau_num",a->active_part->at(CUTS::eRTau1)->size(),a->wgt);
+  //  HistClass::Fill("Tau_num",a->active_part->at(CUTS::eRTau1)->size(),a->wgt);
 
 
 }

@@ -17,63 +17,6 @@ DepGraph::DepGraph() {
   add_edge(cutint(CUTS::eGHiggs), cutint(CUTS::eGen), g);
   add_edge(cutint(CUTS::eGJet), cutint(CUTS::eGen), g);
   
-  add_edge(cutint(CUTS::eMuon1Tau1), cutint(CUTS::eRMuon1), g);
-  add_edge(cutint(CUTS::eMuon1Tau1), cutint(CUTS::eRTau1), g);
-  add_edge(cutint(CUTS::eMuon1Tau2), cutint(CUTS::eRMuon1), g);
-  add_edge(cutint(CUTS::eMuon1Tau2), cutint(CUTS::eRTau2), g);
-  add_edge(cutint(CUTS::eMuon2Tau1), cutint(CUTS::eRMuon2), g);
-  add_edge(cutint(CUTS::eMuon2Tau1), cutint(CUTS::eRTau1), g);
-  add_edge(cutint(CUTS::eMuon2Tau2), cutint(CUTS::eRMuon2), g);
-  add_edge(cutint(CUTS::eMuon2Tau2), cutint(CUTS::eRTau2), g);
-
-  add_edge(cutint(CUTS::eElec1Tau1), cutint(CUTS::eRElec1), g);
-  add_edge(cutint(CUTS::eElec1Tau1), cutint(CUTS::eRTau1), g);
-  add_edge(cutint(CUTS::eElec1Tau2), cutint(CUTS::eRElec1), g);
-  add_edge(cutint(CUTS::eElec1Tau2), cutint(CUTS::eRTau2), g);
-  add_edge(cutint(CUTS::eElec2Tau1), cutint(CUTS::eRElec2), g);
-  add_edge(cutint(CUTS::eElec2Tau1), cutint(CUTS::eRTau1), g);
-  add_edge(cutint(CUTS::eElec2Tau2), cutint(CUTS::eRElec2), g);
-  add_edge(cutint(CUTS::eElec2Tau2), cutint(CUTS::eRTau2), g);
-
-  add_edge(cutint(CUTS::eMuon1Elec1), cutint(CUTS::eRMuon1), g);
-  add_edge(cutint(CUTS::eMuon1Elec1), cutint(CUTS::eRElec1), g);
-  add_edge(cutint(CUTS::eMuon1Elec2), cutint(CUTS::eRMuon1), g);
-  add_edge(cutint(CUTS::eMuon1Elec2), cutint(CUTS::eRElec2), g);
-  add_edge(cutint(CUTS::eMuon2Elec1), cutint(CUTS::eRMuon2), g);
-  add_edge(cutint(CUTS::eMuon2Elec1), cutint(CUTS::eRElec1), g);
-  add_edge(cutint(CUTS::eMuon2Elec2), cutint(CUTS::eRMuon2), g);
-  add_edge(cutint(CUTS::eMuon2Elec2), cutint(CUTS::eRElec2), g);
-
-  add_edge(cutint(CUTS::eDiElec), cutint(CUTS::eRElec1), g);
-  add_edge(cutint(CUTS::eDiElec), cutint(CUTS::eRElec2), g);
-  add_edge(cutint(CUTS::eDiElec), cutint(CUTS::eR1stJet), g);
-  add_edge(cutint(CUTS::eDiElec), cutint(CUTS::eR2ndJet), g);
-
-  add_edge(cutint(CUTS::eDiMuon), cutint(CUTS::eRMuon1), g);
-  add_edge(cutint(CUTS::eDiMuon), cutint(CUTS::eRMuon2), g);
-  add_edge(cutint(CUTS::eDiMuon), cutint(CUTS::eR1stJet), g);
-  add_edge(cutint(CUTS::eDiMuon), cutint(CUTS::eR2ndJet), g);
-
-  add_edge(cutint(CUTS::eDiTau), cutint(CUTS::eRTau1), g);
-  add_edge(cutint(CUTS::eDiTau), cutint(CUTS::eRTau2), g);
-  add_edge(cutint(CUTS::eDiTau), cutint(CUTS::eR1stJet), g);
-  add_edge(cutint(CUTS::eDiTau), cutint(CUTS::eR2ndJet), g);
-
-  add_edge(cutint(CUTS::eDiJet), cutint(CUTS::eRJet1), g);
-  add_edge(cutint(CUTS::eDiJet), cutint(CUTS::eRJet2), g);
-  
-  add_edge(cutint(CUTS::eElec1Jet1), cutint(CUTS::eRElec1), g);
-  add_edge(cutint(CUTS::eElec1Jet1), cutint(CUTS::eRJet1), g);
-  add_edge(cutint(CUTS::eElec1Jet2), cutint(CUTS::eRElec1), g);
-  add_edge(cutint(CUTS::eElec1Jet2), cutint(CUTS::eRJet2), g);
-  add_edge(cutint(CUTS::eElec2Jet1), cutint(CUTS::eRElec2), g);
-  add_edge(cutint(CUTS::eElec2Jet1), cutint(CUTS::eRJet1), g);
-  add_edge(cutint(CUTS::eElec2Jet2), cutint(CUTS::eRElec2), g);
-  add_edge(cutint(CUTS::eElec2Jet2), cutint(CUTS::eRJet2), g);
-  
-  add_edge(cutint(CUTS::eSusyCom), cutint(CUTS::eR1stJet), g);
-  add_edge(cutint(CUTS::eSusyCom), cutint(CUTS::eR2ndJet), g);
-
 }
 
     

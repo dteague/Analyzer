@@ -426,3 +426,180 @@ void Analyzer::initializeMCSelection(std::vector<std::string> infiles) {
     isVSample = true;
   }
 }
+///Function used to find the number of reco leptons that pass the various cuts.
+///Divided into if blocks for the different lepton requirements.
+void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS eGenPos, const json& stats, const int syst) {
+  if(! neededCuts.isPresent(ePos)) return;
+
+  std::string systname = syst_names.at(syst);
+  if(!lep.needSyst(syst)) {
+    active_part->at(ePos) = goodParts[ePos];
+    return;
+  }
+
+  int i = 0;
+  for(auto lvec: lep) {
+    bool passCuts = true;
+    if (passCuts) passCuts = fabs(lvec.Eta()) > stats["EtaCut"];
+    if (passCuts) passCuts = passCutRange(lvec.Pt(), stats["PtCut"]);
+
+    if((lep.pstats.at("Smear")["MatchToGen"]) && (!isData)) {   /////check
+      if(matchLeptonToGen(lvec, lep.pstats.at("Smear") ,eGenPos) == TLorentzVector(0,0,0,0)) continue;
+    }
+
+    for( auto cut: bset(stats)) {
+      if(!passCuts) break;
+    //   // else if(cut == "DoDiscrByIsolation") {
+    //   //   double firstIso = (! stats["IsoSumPtCutValue"].empty()) ? stats.pmap.at("IsoSumPtCutValue").first : ival(ePos) - ival(CUTS::eRTau1) + 1;
+    //   //   double secondIso = (stats.pmap.find("IsoSumPtCutValue") != stats.pmap.end()) ? stats.pmap.at("IsoSumPtCutValue").second : stats["FlipIsolationRequirement"];
+    //   //   passCuts = passCuts && lep.get_Iso(i, firstIso, secondIso);
+    //   // }
+    //   else if(cut == "DiscrIfIsZdecay" && lep.type != PType::Tau ) passCuts = isZdecay(lvec, lep);
+    //   else if(cut == "DiscrByMetDphi") passCuts = passCutRange(absnormPhi(lvec.Phi() - _MET->phi()), stats["MetDphiCut"]);
+    //   else if(cut == "DiscrByMetMt") passCuts = passCutRange(calculateLeptonMetMt(lvec), stats["MetMtCut"]);
+    //   /////muon cuts
+    //   else if(lep.type == PType::Muon){
+    //     if(cut == "DoDiscrByTightID") passCuts = _Muon->tight[i];
+    //     else if(cut == "DoDiscrBySoftID") passCuts = _Muon->soft[i];
+    //   }
+    //   ////electron cuts
+    //   else if(lep.type == PType::Electron){
+    //     if(cut == "DoDiscrByHLTID"){
+    //       std::bitset<8> idvariable(_Electron->cutBased_HLTPreSel[i]);
+    //       if(ival(ePos) - ival(CUTS::eRElec1)){
+    //         passCuts = (_Electron->cbHLTIDele1&idvariable).count();
+    //       }else{
+    //         passCuts = (_Electron->cbHLTIDele2&idvariable).count();
+    //       }
+    //     }
+    //     if(cut == "DoDiscrByCBID"){
+    //       std::bitset<8> idvariable(_Electron->cutBased[i]);
+    //       if(ival(ePos) - ival(CUTS::eRElec1)){
+    //         passCuts = (_Electron->cbIDele1&idvariable).count();
+    //       }else{
+    //         passCuts = (_Electron->cbIDele2&idvariable).count();
+    //       }
+    //     }
+    //     else if(cut == "DoDiscrByHEEPID")
+    //      passCuts = _Electron->isPassHEEPId[i];
+    //   }
+    //   else if(lep.type == PType::Tau){
+    //     if(cut == "DoDiscrByCrackCut") passCuts = !isInTheCracks(lvec.Eta());
+    //     /////tau cuts
+    //     else if(cut == "DoDzCut") passCuts = (_Tau->dz[i] <= stats["DzCutThreshold"]);
+    //     else if(cut == "DoDiscrByLeadTrack") passCuts = (_Tau->leadTkPtOverTauPt[i]*_Tau->pt(i) >= stats["LeadTrackThreshold"]);
+    //          // ----Electron and Muon vetos
+    //     else if (cut == "DoDiscrAgainstElectron") passCuts = _Tau->pass_against_Elec(ePos, i);
+    //     else if (cut == "SelectTausThatAreElectrons") passCuts = !_Tau->pass_against_Elec(ePos, i);
+
+    //     else if (cut == "DoDiscrAgainstMuon") passCuts = _Tau->pass_against_Muon(ePos, i);
+    //     else if (cut == "SelectTausThatAreMuons") passCuts = !_Tau->pass_against_Muon(ePos, i);
+
+    //     else if(cut == "DiscrByProngType") {
+    // 	  std::string prongName = stats["ProngType"];
+    //       passCuts = (prongName.find("hps") == std::string::npos || _Tau->DecayModeNewDMs[i] != 0);
+    //       passCuts = passProng(stats["ProngType"], _Tau->decayMode[i]);
+    //     }
+    //     else if(cut == "decayModeFindingNewDMs") passCuts = _Tau->DecayModeNewDMs[i] != 0;
+    //     else if(cut == "decayModeFinding") passCuts = _Tau->DecayMode[i] != 0;
+    //           // ----anti-overlap requirements
+    //     else if(cut == "RemoveOverlapWithMuon1s") passCuts = !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1MatchingDeltaR"]);
+    //     else if(cut == "RemoveOverlapWithMuon2s") passCuts = !isOverlaping(lvec, *_Muon, CUTS::eRMuon2, stats["Muon2MatchingDeltaR"]);
+    //     else if(cut == "RemoveOverlapWithElectron1s") passCuts = !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Electron1MatchingDeltaR"]);
+    //     else if(cut == "RemoveOverlapWithElectron2s") passCuts = !isOverlaping(lvec, *_Electron, CUTS::eRElec2, stats["Electron2MatchingDeltaR"]);
+    //   }
+    //   else std::cout << "cut: " << cut << " not listed" << std::endl;
+    // }
+    if(passCuts) active_part->at(ePos)->push_back(i);
+    i++;
+  }
+
+  return;
+}
+
+////Jet specific function for finding the number of jets that pass the cuts.
+//used to find the nubmer of good jet1, jet2, central jet, 1st and 2nd leading jets and bjet.
+void Analyzer::getGoodRecoJets(CUTS ePos, const json& stats, const int syst) {
+
+  if(! neededCuts.isPresent(ePos)) return;
+
+  std::string systname = syst_names.at(syst);
+  if(!_Jet->needSyst(syst)) {
+    active_part->at(ePos)=goodParts[ePos];
+    return;
+  }
+
+  int i=0;
+
+  for(auto lvec: *_Jet) {
+    bool passCuts = true;
+    passCuts = passCuts && passCutRange(fabs(lvec.Eta()), stats["EtaCut"]);
+    passCuts = passCuts && (lvec.Pt() > stats["PtCut"]) ;
+
+    for( auto cut: bset(stats)) {
+      if(!passCuts) break;
+
+    /// BJet specific
+      else if(cut == "ApplyJetBTagging") passCuts = passCuts && (_Jet->bDiscriminator[i] > stats["JetBTaggingCut"]);
+      //else if(cut == "MatchBToGen") passCuts = passCuts && (isData ||  abs(_Jet->partonFlavour->at(i)) == 5);
+      else if(cut == "ApplyLooseID") passCuts = passCuts && _Jet->passedLooseJetID(i);
+
+    // ----anti-overlap requirements
+      else if(cut == "RemoveOverlapWithMuon1s") passCuts = passCuts && !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1MatchingDeltaR"]);
+      else if (cut =="RemoveOverlapWithMuon2s") passCuts = passCuts && !isOverlaping(lvec, *_Muon, CUTS::eRMuon2, stats["Muon2MatchingDeltaR"]);
+      else if(cut == "RemoveOverlapWithElectron1s") passCuts = passCuts && !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Electron1MatchingDeltaR"]);
+      else if(cut == "RemoveOverlapWithElectron2s") passCuts = passCuts && !isOverlaping(lvec, *_Electron, CUTS::eRElec2, stats["Electron2MatchingDeltaR"]);
+      else if(cut == "RemoveOverlapWithTau1s") passCuts = passCuts && !isOverlaping(lvec, *_Tau, CUTS::eRTau1, stats["Tau1MatchingDeltaR"]);
+      else if (cut =="RemoveOverlapWithTau2s") passCuts = passCuts && !isOverlaping(lvec, *_Tau, CUTS::eRTau2, stats["Tau2MatchingDeltaR"]);
+
+      else if(cut == "UseBtagSF") {
+        //double bjet_SF = reader.eval_auto_bounds("central", BTagEntry::FLAV_B, lvec.Eta(), lvec.Pt());
+        //passCuts = passCuts && (isData || ((double) rand()/(RAND_MAX)) <  bjet_SF);
+      }
+    }
+    if(_Jet->pstats["BJet"]["RemoveBJetsFromJets"] and ePos!=CUTS::eRBJet){
+      passCuts = passCuts && find(active_part->at(CUTS::eRBJet)->begin(), active_part->at(CUTS::eRBJet)->end(), i) == active_part->at(CUTS::eRBJet)->end();
+    }
+    if(passCuts) active_part->at(ePos)->push_back(i);
+    i++;
+
+  }
+}
+
+
+////FatJet specific function for finding the number of V-jets that pass the cuts.
+void Analyzer::getGoodRecoFatJets(CUTS ePos, const json& stats, const int syst) {
+  if(! neededCuts.isPresent(ePos)) return;
+
+  std::string systname = syst_names.at(syst);
+  if(!_FatJet->needSyst(syst)) {
+    active_part->at(ePos)=goodParts[ePos];
+    return;
+  }
+
+  int i=0;
+
+  for(auto lvec: *_FatJet) {
+    bool passCuts = true;
+    passCuts = passCuts && passCutRange(fabs(lvec.Eta()), stats["EtaCut"]);
+    passCuts = passCuts && (lvec.Pt() > stats["PtCut"]) ;
+
+    ///if else loop for central jet requirements
+    for( auto cut: bset(stats)) {
+      if(!passCuts) break;
+
+      else if(cut == "ApplyJetWTagging") passCuts = passCuts && (passCutRange(_FatJet->tau2[i]/_FatJet->tau1[i], stats["JetTau2Tau1Ratio"]) &&
+								 passCutRange(_FatJet->PrunedMass[i], stats["JetWmassCut"]));
+    // ----anti-overlap requirements
+      else if(cut == "RemoveOverlapWithMuon1s") passCuts = passCuts && !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1MatchingDeltaR"]);
+      else if (cut =="RemoveOverlapWithMuon2s") passCuts = passCuts && !isOverlaping(lvec, *_Muon, CUTS::eRMuon2, stats["Muon2MatchingDeltaR"]);
+      else if(cut == "RemoveOverlapWithElectron1s") passCuts = passCuts && !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Electron1MatchingDeltaR"]);
+      else if(cut == "RemoveOverlapWithElectron2s") passCuts = passCuts && !isOverlaping(lvec, *_Electron, CUTS::eRElec2, stats["Electron2MatchingDeltaR"]);
+      else if(cut == "RemoveOverlapWithTau1s") passCuts = passCuts && !isOverlaping(lvec, *_Tau, CUTS::eRTau1, stats["Tau1MatchingDeltaR"]);
+      else if (cut =="RemoveOverlapWithTau2s") passCuts = passCuts && !isOverlaping(lvec, *_Tau, CUTS::eRTau2, stats["Tau2MatchingDeltaR"]);
+
+    }
+    if(passCuts) active_part->at(ePos)->push_back(i);
+    i++;
+  }
+}
