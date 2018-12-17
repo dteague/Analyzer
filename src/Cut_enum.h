@@ -58,7 +58,7 @@ enum class CUTS {
   eGTau,        eGTop,        eGElec,       eGMuon,       eGZ,        eGW,       eGHiggs, eGJet,
   eRVertex,     eRMuon1,      eRMuon2,      eRElec1,      eRElec2,    eRTau1,   eRTau2,
   eRJet1,       eRJet2,       eRCenJet,     eR1stJet,     eR2ndJet,   eRBJet,   eRWjet,
-    eLepPair,   eMuonPair,     eElecPair,   eDiJet,
+  eLepPair,     eMuonPair,    eElecPair,    eMixPair,     eDiJet,
   eSusyCom,     eMET,         eNuTau,       eRTrig1,      eRTrig2,
   First = eGen,
   Last = eRTrig2};

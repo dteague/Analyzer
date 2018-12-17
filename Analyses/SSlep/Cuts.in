@@ -12,9 +12,9 @@ METCut	           1   -1
 NRecoBJet	   2    -1
 
 
-NRecoMuon1	      1   -1
-NRecoElectron1	      1   -1
-NLeptonPair	      0   -1
+NRecoMuon1	      0    2
+NRecoElectron1	      0    2
+NLeptonPair	      1    1
 NRecoMuon2	      0   -1
 NRecoElectron2	      0   -1
 NRecoJet1	      0   -1

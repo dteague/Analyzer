@@ -75,7 +75,7 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, std::s
 
   nentries = (int) BOOM->GetEntries();
   BOOM->SetBranchStatus("*", 0);
-  std::cout << "TOTAL EVENTS: " << nentries << std::endl;
+  std::cout << std::endl << "TOTAL EVENTS: " << nentries << std::endl;
 
   srand(0);  // do i need to reseed this or?
   
@@ -84,7 +84,7 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, std::s
   setupGeneral();
 
   //isData = distats["Run"]["isData"];
-  std::cout<<"reader.load(calib, BTagEntry::FLAV_B, comb);"<<std::endl;
+  //  std::cout<<"reader.load(calib, BTagEntry::FLAV_B, comb);"<<std::endl;
   btagReader.load(btagCalib, BTagEntry::FLAV_B, "comb");
 
   
@@ -378,13 +378,15 @@ void Analyzer::getGoodParticles(int syst){
   // // MUST BE IN ORDER: Muon/Electron, Tau, Jet
   
   //  getGoodRecoLeptons(*_Electron, CUTS::eRElec2, CUTS::eGElec, _Electron->pstats["Elec2"],syst);
-  //  getGoodLeptonPair(CUTS::eMuonPair, *_Muon, CUTS::eRMuon1, distats["MuonPair"] , syst);
-  //  getGoodLeptonPair(CUTS::eElecPair, *_Elec, CUTS::eRElec1, distats["ElectronPair"] , syst);
   getGoodRecoLeptons(*_Electron, CUTS::eRElec1, CUTS::eGElec, _Electron->pstats["Elec1"],syst);
   getGoodRecoLeptons(*_Muon, CUTS::eRMuon1, CUTS::eGMuon, _Muon->pstats["Muon1"],syst);
 
   getGoodRecoJets(CUTS::eRBJet, _Jet->pstats["BJet"],syst);
   getGoodRecoJets(CUTS::eRJet1, _Jet->pstats["Jet1"],syst);
+
+  getGoodLeptonPair(CUTS::eMuonPair,  distats["GenericPair"] , syst, *_Muon, CUTS::eRMuon1, *_Muon, CUTS::eRMuon1);
+  getGoodLeptonPair(CUTS::eElecPair, distats["GenericPair"] , syst, *_Electron, CUTS::eRElec1, *_Electron, CUTS::eRElec1);
+  getGoodLeptonPair(CUTS::eMixPair, distats["GenericPair"] , syst, *_Electron, CUTS::eRElec1, *_Muon, CUTS::eRMuon1);
 }
 
 
@@ -583,7 +585,7 @@ void Analyzer::read_info(std::string filename) {
     }
     ss << line;
   }
-  std::cout << filename << std::endl;
+
   json jtemp;
   
   ss >> jtemp;
@@ -596,8 +598,6 @@ void Analyzer::read_info(std::string filename) {
 
 // This code works pretty much (at least in my tests), but dagnabit, its ugly.  They all can't be winners, at least now...
 void Analyzer::setCutNeeds() {
-
-
   for(auto it: *histo.get_groups()) {
     if(fillInfo[it]->type == FILLER::None) continue;
     neededCuts.loadCuts(fillInfo[it]->ePos);
@@ -655,6 +655,7 @@ void Analyzer::setCutNeeds() {
   // }
   std::cout << std::endl;
 }
+
 
 
 ///Smears lepton only if specified and not a data file.  Otherwise, just filles up lorentz std::vectors
@@ -959,35 +960,39 @@ void Analyzer::getGoodRecoFatJets(CUTS ePos, const json& stats, const int syst) 
   }
 }
 
-void Analyzer::getGoodLeptonPair(CUTS type, const Lepton& lep, CUTS goodlep, const json& stats, const int syst) {
+void Analyzer::getGoodLeptonPair(CUTS subtype, const json& stats, const int syst, const Lepton& lep1, CUTS goodlep1, const Lepton& lep2, CUTS goodlep2) {
   CUTS ePos = CUTS::eLepPair;
   std::string systname = syst_names.at(syst);
-  if(!lep.needSyst(syst)) {
-    active_part->at(ePos) = goodParts[ePos];
-    return;
-  }
 
+  ///// need to fix systematics....
+  
+  // if(!lep.needSyst(syst)) {
+  //   active_part->at(ePos) = goodParts[ePos];
+  //   return;
+  // }
+  bool samePart = (typeid(lep1) == typeid(lep2));
+  
 
-  for(auto nl1 : *active_part->at(goodlep)) {
-    for(auto nl2 : *active_part->at(goodlep)) {
-      if(nl1 >= nl2) continue;
+  for(auto nl1 : *active_part->at(goodlep1)) {
+    for(auto nl2 : *active_part->at(goodlep2)) {
+      if(samePart && nl1 >= nl2) continue;
       bool passCuts = true;
-      auto lep1 = lep.p4(nl1);
-      auto lep2 = lep.p4(nl2);
+      auto l1 = lep1.p4(nl1);
+      auto l2 = lep2.p4(nl2);
 
       for( auto cut: bset(stats)) {
 	if(!passCuts) break;
-	else if(cut == "DiscrPairSign")       passCuts = lep.charge(nl1)*lep.charge(nl2) == stats["PairSign"];
-	else if(cut == "DiscrPairPt")         passCuts = (lep1.Pt() > stats["PairPt"]) && (lep2.Pt() > stats["PairPt"]);
-	else if(cut == "DiscrLeadPt")         passCuts = lep1.Pt() > stats["LeadPt"];
+	else if(cut == "DiscrPairSign")       passCuts = lep1.charge(nl1)*lep2.charge(nl2) == stats["PairSign"];
+	else if(cut == "DiscrPairPt")         passCuts = (l1.Pt() > stats["PairPt"]) && (l2.Pt() > stats["PairPt"]);
+	else if(cut == "DiscrLeadPt")         passCuts = l1.Pt() > stats["LeadPt"];
 	//////Muons
 	else if(cut == "DiscrMuonTight")      passCuts = _Muon->tight[nl1] && _Muon->tight[nl2];
 	else if(cut == "DiscrLeadMuonTight")  passCuts = _Muon->tight[nl1];
-	else if(cut == "DiscrIfIsZDecay")     passCuts = isZdecay(lep1, lep2);
+	else if(cut == "DiscrIfIsZDecay")     passCuts = isZdecay(l1, l2);
       }
       if(passCuts) {
 	active_part->at(ePos)->push_back(DiNum(nl1, nl2));
-	active_part->at(type)->push_back(DiNum(nl1, nl2));
+	active_part->at(subtype)->push_back(DiNum(nl1, nl2));
       }
     }
   }

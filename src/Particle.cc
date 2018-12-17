@@ -142,7 +142,7 @@ void Particle::getPartStats(std::string filename) {
     }
     ss << line;
   }
-  std::cout << filename << std::endl;
+
   ss >>pstats;
 
   info_file.close();
@@ -323,11 +323,11 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
   tmp=static_cast<std::bitset<8>>(elec2["DiscrByHLTID"]);
   cbHLTIDele2=tmp;
 
-  if(_BOOM->FindBranch("Electron_mvaSpring16GP")!=0){
-    std::cout<<"Electron MVA ID: Electron_mvaSpring16"<<std::endl;
-  } else{
-    std::cout<<"Electron MVA ID: Electron_mvaFall17"<<std::endl;
-  }
+  // if(_BOOM->FindBranch("Electron_mvaSpring16GP")!=0){
+  //   std::cout<<"Electron MVA ID: Electron_mvaSpring16"<<std::endl;
+  // } else{
+  //   std::cout<<"Electron MVA ID: Electron_mvaFall17"<<std::endl;
+  // }
  
   if((elec1["DoDiscrByIsolation"]|| elec2["DoDiscrByIsolation"]) && _BOOM->FindBranch("Electron_mvaFall17Iso")!=0 ) {
    SetBranch("Electron_miniPFRelIso_all", miniPFRelIso_all);
@@ -370,7 +370,6 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
   //   SetBranch("Electron_mvaTTH", mvaTTH); 
   // }
 
-  std::cout <<   "if(elec1[DoDiscrByHEEPID]||" << std::endl;
   if(elec1["DoDiscrByHEEPID"]|| elec2["DoDiscrByHEEPID"]) {
     SetBranch("Electron_cutBased_HEEP", isPassHEEPId);
   }
