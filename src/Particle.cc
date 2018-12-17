@@ -142,6 +142,7 @@ void Particle::getPartStats(std::string filename) {
     }
     ss << line;
   }
+  std::cout << filename << std::endl;
   ss >>pstats;
 
   info_file.close();
@@ -375,8 +376,8 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
   }
 }
 
-bool Electron::get_Iso(int index, double min, double max) const {
-  return (pfRelIso03_all[index] >= min && pfRelIso03_all[index] < max);
+double Electron::get_Iso(int index) const {
+  return pfRelIso03_all[index];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -406,8 +407,8 @@ Muon::Muon(TTree* _BOOM, std::string filename, std::vector<std::string> syst_nam
   }
 }
 
-bool Muon::get_Iso(int index, double min, double max) const {
-  return (pfRelIso03_all[index] >= min && pfRelIso03_all[index] < max);
+double Muon::get_Iso(int index) const {
+  return pfRelIso03_all[index];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -473,6 +474,8 @@ std::vector<CUTS> Taus::findExtraCuts() {
 
   return return_vec;
 }
+
+double Taus::get_Iso(int index) const {return -1;}
 
 //onetwo is 1 for the first 0 for the second
 bool Taus::get_Iso(int index, double onetwo, double flipisolation) const {

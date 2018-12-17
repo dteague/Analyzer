@@ -77,7 +77,7 @@ void Met::init(){
 }
 
 
-void Met::update(PartStats& stats, Jet& jet, int syst=0){
+void Met::update(json& stats, Jet& jet, int syst=0){
   ///Calculates met from values from each file plus smearing and treating muons as neutrinos
   if(systVec.at(syst) == nullptr) return;
   double sumpxForMht=0;
@@ -87,10 +87,8 @@ void Met::update(PartStats& stats, Jet& jet, int syst=0){
   int i=0;
   for(auto jetVec: jet) {
     bool add = true;
-    if( (jetVec.Pt() < stats.dmap.at("JetPtForMhtAndHt")) ||
-        (abs(jetVec.Eta()) > stats.dmap.at("JetEtaForMhtAndHt")) ||
-        ( stats.bfind("ApplyJetLooseIDforMhtAndHt") &&
-          !jet.passedLooseJetID(i) ) ) add = false;
+    if( (jetVec.Pt() < stats["JetPtForMhtAndHt"]) || (abs(jetVec.Eta()) > stats["JetEtaForMhtAndHt"]) )
+      add = false;
     if(add) {
       sumpxForMht -= jetVec.Px();
       sumpyForMht -= jetVec.Py();

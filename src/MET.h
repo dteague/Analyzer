@@ -16,9 +16,9 @@
 #include <TLorentzVector.h>
 #include "Particle.h"
 #include "mt2/mt2_bisect.hh"
+#include "json/include/nlohmann/json.hpp"
 
-
-#include "tokenizer.hpp"
+//#include "tokenizer.hpp"
 #include "Cut_enum.h"
 
 //using namespace std;
@@ -54,7 +54,7 @@ public:
   void setMT2Mass(double);
   void setCurrentP(int);
   std::string getName() {return GenName;};
-  void update(PartStats&, Jet&, int);
+  void update(json&, Jet&, int);
 
   TLorentzVector Reco;
   TLorentzVector *cur_P;

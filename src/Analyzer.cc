@@ -5,11 +5,6 @@
 
 //// Used to convert Enums to integers
 #define ival(x) static_cast<int>(x)
-//// BIG_NUM = sqrt(sizeof(int)) so can use diparticle convention of
-//// index = BIG_NUM * i1 + i2
-//// This insures easy way to extract indices
-//// Needs to be changed if go to size_t instead (if want to play safe
-#define BIG_NUM 46340
 
 ///// Macros defined to shorten code.  Made since lines used A LOT and repeative.  May change to inlines
 ///// if tests show no loss in speed
@@ -52,7 +47,8 @@ const std::unordered_map<std::string, CUTS> Analyzer::cut_num = {
   {"NRecoJet1", CUTS::eRJet1},                          {"NRecoJet2", CUTS::eRJet2},
   {"NRecoBJet", CUTS::eRBJet},                          {"METCut", CUTS::eMET},
   {"NRecoTriggers1", CUTS::eRTrig1},                    {"NRecoTriggers2", CUTS::eRTrig2},
-  {"NRecoWJet", CUTS::eRWjet},                          {"NRecoVertex", CUTS::eRVertex}
+  {"NRecoWJet", CUTS::eRWjet},                          {"NRecoVertex", CUTS::eRVertex},
+  {"NLeptonPair", CUTS::eLepPair}
 };
 
 
@@ -61,7 +57,7 @@ const std::unordered_map<std::string, CUTS> Analyzer::cut_num = {
 //////////////////////////////////////////////////////
 
 ///Constructor
-Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool setCR, std::string configFolder) :
+Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, std::string configFolder) :
   /****************/ goodParts(getArray()) {
 
   std::cout << "setup start" << std::endl;
@@ -84,7 +80,7 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
   srand(0);  // do i need to reseed this or?
   
   filespace=configFolder + "/";
-  std::cout<<"setupGeneral();"<< std::endl;
+  //  std::cout<<"setupGeneral();"<< std::endl;
   setupGeneral();
 
   //isData = distats["Run"]["isData"];
@@ -92,17 +88,17 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
   btagReader.load(btagCalib, BTagEntry::FLAV_B, "comb");
 
   
-  std::cout<<"CalculatePUSystematics..."<<std::endl;
+  //  std::cout<<"CalculatePUSystematics..."<<std::endl;
   CalculatePUSystematics = distats["Run"]["CalculatePUSystematics"];
-  std::cout<<"initializePileupInfo..."<<std::endl;
+  //  std::cout<<"initializePileupInfo..."<<std::endl;
   initializePileupInfo(distats["Run"]["MCHistos"], distats["Run"]["DataHistos"],distats["Run"]["DataPUHistName"],distats["Run"]["MCPUHistName"]);
-  std::cout<<"syst_names.push_back(orig)"<<std::endl;
+  //  std::cout<<"syst_names.push_back(orig)"<<std::endl;
   syst_names.push_back("orig");
-  std::cout<<"unordered_map<CUTS tmp;"<<std::endl;
+  //  std::cout<<"unordered_map<CUTS tmp;"<<std::endl;
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> tmp;
-  std::cout<<"syst_parts.push_back(tmp)"<<std::endl;
+  //  std::cout<<"syst_parts.push_back(tmp)"<<std::endl;
   syst_parts.push_back(tmp);
-  std::cout<<"if isData Systematics useSystematics..."<<std::endl;
+  //  std::cout<<"if isData Systematics useSystematics..."<<std::endl;
   if(!isData && distats["Systematics"]["useSystematics"]) {
     for(auto systname : bset(distats["Systematics"])) {
       if( systname == "useSystematics")
@@ -115,7 +111,7 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
   }else {
     doSystematics=false;
   }
-  std::cout<<"end of that if.. now start with _Electron = new..."<<std::endl;
+  //  std::cout<<"end of that if.. now start with _Electron = new..."<<std::endl;
   _Electron = new Electron(BOOM, filespace + "Electron_info.json", syst_names);
   _Muon     = new Muon(BOOM, filespace + "Muon_info.json", syst_names);
   _Jet      = new Jet(BOOM, filespace + "Jet_info.json", syst_names);
@@ -134,9 +130,9 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
   }
 
   std::vector<std::string> cr_variables;
-  std::cout << "Histogramer" << std::endl;
+  //  std::cout << "Histogramer" << std::endl;
   histo = Histogramer(1, filespace+"Hist_entries.in", filespace+"Cuts.in", outfile, isData, cr_variables);
-  std::cout << "systematics" << std::endl;
+  //  std::cout << "systematics" << std::endl;
   if(doSystematics)
     syst_histo=Histogramer(1, filespace+"Hist_syst_entries.in", filespace+"Cuts.in", outfile, isData, cr_variables,syst_names);
   //  systematics = Systematics(distats);
@@ -147,11 +143,11 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, bool s
   cuts_per.resize(histo.get_cuts()->size());
   cuts_cumul.resize(histo.get_cuts()->size());
 
-  std::cout << "  create_fillInfo();" << std::endl;
+  //  std::cout << "  create_fillInfo();" << std::endl;
   create_fillInfo();
 
-  std::cout << "  setCutNeeds();" << std::endl;
-  setCutNeeds();
+  //  std::cout << "  setCutNeeds();" << std::endl;
+  //  setCutNeeds();
 
   std::cout << "setup complete" << std::endl << std::endl;
   start = std::chrono::system_clock::now();
@@ -175,7 +171,7 @@ void Analyzer::add_metadata(std::vector<std::string> infiles){
     routfile->cd();
     for(const auto&& k: *rfile->GetListOfKeys()){
       std::string kn(k->GetName());
-      std::cout<<kn<<std::endl;
+      //      std::cout<<kn<<std::endl;
       if (kn == "Events"){
         TTree* t= ((TTree*) rfile->Get(kn.c_str()));
         t->SetBranchStatus("*",0);
@@ -215,6 +211,7 @@ std::unordered_map<CUTS, std::vector<int>*, EnumHash> Analyzer::getArray() {
 void Analyzer::create_fillInfo() {
 
   fillInfo["FillLeadingJet"] = new FillVals(CUTS::eSusyCom, FILLER::Dipart, _Jet, _Jet);
+  fillInfo["FillLeptonPair"] = new FillVals(CUTS::eLepPair, FILLER::Dipart, _Muon, _Muon);
   fillInfo["FillGen"] =        new FillVals(CUTS::eGen, FILLER::Single, _Gen);
   fillInfo["FillMuon1"] =      new FillVals(CUTS::eRMuon1, FILLER::Single, _Muon);
   fillInfo["FillMuon2"] =      new FillVals(CUTS::eRMuon2, FILLER::Single, _Muon);
@@ -379,15 +376,15 @@ void Analyzer::getGoodParticles(int syst){
 
   // // SET NUMBER OF RECO PARTICLES
   // // MUST BE IN ORDER: Muon/Electron, Tau, Jet
+  
+  //  getGoodRecoLeptons(*_Electron, CUTS::eRElec2, CUTS::eGElec, _Electron->pstats["Elec2"],syst);
+  //  getGoodLeptonPair(CUTS::eMuonPair, *_Muon, CUTS::eRMuon1, distats["MuonPair"] , syst);
+  //  getGoodLeptonPair(CUTS::eElecPair, *_Elec, CUTS::eRElec1, distats["ElectronPair"] , syst);
   getGoodRecoLeptons(*_Electron, CUTS::eRElec1, CUTS::eGElec, _Electron->pstats["Elec1"],syst);
-  getGoodRecoLeptons(*_Electron, CUTS::eRElec2, CUTS::eGElec, _Electron->pstats["Elec2"],syst);
   getGoodRecoLeptons(*_Muon, CUTS::eRMuon1, CUTS::eGMuon, _Muon->pstats["Muon1"],syst);
-  getGoodRecoLeptons(*_Muon, CUTS::eRMuon2, CUTS::eGMuon, _Muon->pstats["Muon2"],syst);
+
   getGoodRecoJets(CUTS::eRBJet, _Jet->pstats["BJet"],syst);
   getGoodRecoJets(CUTS::eRJet1, _Jet->pstats["Jet1"],syst);
-  getGoodRecoJets(CUTS::eRJet2, _Jet->pstats["Jet2"],syst);
-  getGoodRecoFatJets(CUTS::eRWjet, _FatJet->pstats["WJet"],syst);
-
 }
 
 
@@ -410,6 +407,7 @@ bool Analyzer::fillCuts(bool fillCounter) {
     }
     int min= cut_info->at(cut).first;
     int max= cut_info->at(cut).second;
+
     int nparticles = active_part->at(cut_num.at(cut))->size();
     //if(!fillCounter) std::cout << cut << ": " << nparticles << " (" << min << ", " << max << ")" <<std::endl;
     if( (nparticles >= min) && (nparticles <= max || max == -1)) {
@@ -480,7 +478,7 @@ void Analyzer::printCuts() {
 
 ///Calculates met from values from each file plus smearing and treating muons as neutrinos
 void Analyzer::updateMet(int syst) {
-  // _MET->update(distats["Run"], *_Jet,  syst);
+  _MET->update(distats["Run"], *_Jet,  syst);
 
   /////MET CUTS
 
@@ -529,6 +527,7 @@ void Analyzer::setupGeneral() {
 
   read_info(filespace + "Run_info.json");
   read_info(filespace + "Systematics_info.json");
+  read_info(filespace + "LeptonPair_info.json");
   
   for(std::string trigger : trigNames){
     bool decison=false;
@@ -584,7 +583,7 @@ void Analyzer::read_info(std::string filename) {
     }
     ss << line;
   }
-
+  std::cout << filename << std::endl;
   json jtemp;
   
   ss >> jtemp;
@@ -651,9 +650,9 @@ void Analyzer::setCutNeeds() {
   }
 
   std::cout << "Cuts being filled: " << std::endl;
-  for(auto cut : neededCuts.getCuts()) {
-    std::cout << enumNames.at(static_cast<CUTS>(cut)) << "   ";
-  }
+  // for(auto cut : neededCuts.getCuts()) {
+  //   std::cout << enumNames.at(static_cast<CUTS>(cut)) << "   ";
+  // }
   std::cout << std::endl;
 }
 
@@ -808,7 +807,7 @@ std::vector<std::string> Analyzer::bset(const json& j) {
   std::vector<std::string> output;
 // for(auto& val: j) {
   for (auto it = j.cbegin(); it != j.cend(); ++it) {
-    if(it.value().is_boolean()) {
+    if(it.value().is_boolean() && it.value()) {
       output.push_back(it.key());
     }
   }
@@ -843,11 +842,30 @@ bool Analyzer::isZdecay(const TLorentzVector& theObject, const Lepton& lep) {
   return eventIsZdecay;
 }
 
+bool Analyzer::isZdecay(const TLorentzVector& vec1, const TLorentzVector& vec2) {
+  const float zMass = 90.1876;
+  const float zWidth = 2.4952;
+  float zmmPtAsymmetry = -10.;
+
+  // if mass is within 3 sigmas of z or pt asymmetry is small set to true.
+  if(vec1.DeltaR(vec2) < 0.3) return false;
+
+
+  TLorentzVector The_LorentzVect = vec1 + vec2;
+  zmmPtAsymmetry = (vec1.Pt() - vec2.Pt()) / (vec1.Pt() + vec2.Pt());
+
+  if( (abs(The_LorentzVect.M() - zMass) < 3.*zWidth) || (fabs(zmmPtAsymmetry) < 0.20) ) 
+    return true;
+  else
+    return false;
+
+}
+
 
 ///Function used to find the number of reco leptons that pass the various cuts.
 ///Divided into if blocks for the different lepton requirements.
 void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS eGenPos, const json& stats, const int syst) {
-  if(! neededCuts.isPresent(ePos)) return;
+  //  if(! neededCuts.isPresent(ePos)) return;
 
   std::string systname = syst_names.at(syst);
   if(!lep.needSyst(syst)) {
@@ -858,19 +876,20 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
   int i = 0;
   for(auto lvec: lep) {
     bool passCuts = true;
-    if (passCuts) passCuts = fabs(lvec.Eta()) > stats["EtaCut"];
+    if (passCuts) passCuts = fabs(lvec.Eta()) < stats["EtaCut"];
     if (passCuts) passCuts = passCutRange(lvec.Pt(), stats["PtCut"]);
 
-    if((lep.pstats.at("Smear")["MatchToGen"]) && (!isData)) {   /////check
-      if(matchLeptonToGen(lvec, lep.pstats.at("Smear") ,eGenPos) == TLorentzVector(0,0,0,0)) continue;
-    }
+    // if((lep.pstats.at("Smear")["MatchToGen"]) && (!isData)) {   /////check
+    //   if(matchLeptonToGen(lvec, lep.pstats.at("Smear") ,eGenPos) == TLorentzVector(0,0,0,0)) continue;
+    // }
 
     for( auto cut: bset(stats)) {
       if(!passCuts) break;
-
+      else if(cut == "DiscrIfIsZdecay")          passCuts = isZdecay(lvec, lep);
+      else if(cut == "DoDiscrByIsolation")       passCuts = passCutRange(lep.get_Iso(i),stats["IsoCut"]);
+      else if(cut == "DoDiscrByTightID")         passCuts = _Muon->tight[i];
       //      else std::cout << "'" << cut << "' not used in code " << std::endl;
     }
-      
     if(passCuts) active_part->at(ePos)->push_back(i);
     i++;
   }
@@ -882,7 +901,7 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
 //used to find the nubmer of good jet1, jet2, central jet, 1st and 2nd leading jets and bjet.
 void Analyzer::getGoodRecoJets(CUTS ePos, const json& stats, const int syst) {
 
-  if(! neededCuts.isPresent(ePos)) return;
+  //  if(! neededCuts.isPresent(ePos)) return;
 
   std::string systname = syst_names.at(syst);
   if(!_Jet->needSyst(syst)) {
@@ -899,7 +918,9 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const json& stats, const int syst) {
 
     for( auto cut: bset(stats)) {
       if(!passCuts) break;
-
+      else if(cut == "ApplyJetBTagging")            passCuts = (_Jet->bDiscriminator[i] > stats["JetBTaggingCut"]);
+      else if(cut == "RemoveOverlapElec1")          passCuts = !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Elec1OverlapDeltaR"]);
+      else if(cut == "RemoveOverlapMuon1")          passCuts = !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1OverlapDeltaR"]);
       //      else std::cout << "'" << cut << "' not used in code " << std::endl;
     }
     if(passCuts) active_part->at(ePos)->push_back(i);
@@ -911,7 +932,7 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const json& stats, const int syst) {
 
 ////FatJet specific function for finding the number of V-jets that pass the cuts.
 void Analyzer::getGoodRecoFatJets(CUTS ePos, const json& stats, const int syst) {
-  if(! neededCuts.isPresent(ePos)) return;
+  //  if(! neededCuts.isPresent(ePos)) return;
 
   std::string systname = syst_names.at(syst);
   if(!_FatJet->needSyst(syst)) {
@@ -937,6 +958,42 @@ void Analyzer::getGoodRecoFatJets(CUTS ePos, const json& stats, const int syst) 
     i++;
   }
 }
+
+void Analyzer::getGoodLeptonPair(CUTS type, const Lepton& lep, CUTS goodlep, const json& stats, const int syst) {
+  CUTS ePos = CUTS::eLepPair;
+  std::string systname = syst_names.at(syst);
+  if(!lep.needSyst(syst)) {
+    active_part->at(ePos) = goodParts[ePos];
+    return;
+  }
+
+
+  for(auto nl1 : *active_part->at(goodlep)) {
+    for(auto nl2 : *active_part->at(goodlep)) {
+      if(nl1 >= nl2) continue;
+      bool passCuts = true;
+      auto lep1 = lep.p4(nl1);
+      auto lep2 = lep.p4(nl2);
+
+      for( auto cut: bset(stats)) {
+	if(!passCuts) break;
+	else if(cut == "DiscrPairSign")       passCuts = lep.charge(nl1)*lep.charge(nl2) == stats["PairSign"];
+	else if(cut == "DiscrPairPt")         passCuts = (lep1.Pt() > stats["PairPt"]) && (lep2.Pt() > stats["PairPt"]);
+	else if(cut == "DiscrLeadPt")         passCuts = lep1.Pt() > stats["LeadPt"];
+	//////Muons
+	else if(cut == "DiscrMuonTight")      passCuts = _Muon->tight[nl1] && _Muon->tight[nl2];
+	else if(cut == "DiscrLeadMuonTight")  passCuts = _Muon->tight[nl1];
+	else if(cut == "DiscrIfIsZDecay")     passCuts = isZdecay(lep1, lep2);
+      }
+      if(passCuts) {
+	active_part->at(ePos)->push_back(DiNum(nl1, nl2));
+	active_part->at(type)->push_back(DiNum(nl1, nl2));
+      }
+    }
+  }
+
+}
+
 
 ///function to see if a lepton is overlapping with another particle.  Used to tell if jet or tau
 //came ro decayed into those leptons
@@ -967,7 +1024,7 @@ bool Analyzer::isInTheCracks(float etaValue){
 
 ///sees if the event passed one of the two cuts provided
 void Analyzer::TriggerCuts(CUTS ePos) {
-  if(! neededCuts.isPresent(ePos)) return;
+  //  if(! neededCuts.isPresent(ePos)) return;
   for(bool* trigger : trig_decision){
    //#std::cout<< "trig_decision: "<< *trigger << std::endl;
     if(*trigger){
@@ -1058,6 +1115,83 @@ void Analyzer::fill_histogram() {
 
 ///Function that fills up the histograms
 void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto, bool issyst) {
+  if(group == "FillRun" && (&ihisto==&histo)) {
+    ihisto.addVal(false, group,ihisto.get_maxfolder(), "Events", 1);
+    if(distats["Run"]["ApplyGenWeight"]) {
+      //put the weighted events in bin 3
+      ihisto.addVal(2, group,ihisto.get_maxfolder(), "Events", (gen_weight > 0) ? 1.0 : -1.0);
+    }
+    ihisto.addVal(wgt, group, ihisto.get_maxfolder(), "Weight", 1);
+    ihisto.addVal(nTruePU, group, ihisto.get_maxfolder(), "PUWeight", 1);
+
+    histAddVal(true, "Events");
+    histAddVal(bestVertices, "NVertices");
+
+
+  } else if(fillInfo[group]->type == FILLER::Single) {
+    Particle* part = fillInfo[group]->part;
+    CUTS ePos = fillInfo[group]->ePos;
+
+    for(auto it : *active_part->at(ePos)) {
+      histAddVal(part->p4(it).Energy(), "Energy");
+      histAddVal(part->p4(it).Pt(), "Pt");
+      histAddVal(part->p4(it).Eta(), "Eta");
+      histAddVal(part->p4(it).Phi(), "Phi");
+
+      ///// FatJet specific
+      if(part->type == PType::FatJet ) {
+        histAddVal(_FatJet->PrunedMass[it], "PrunedMass");
+        histAddVal(_FatJet->SoftDropMass[it], "SoftDropMass");
+        histAddVal(_FatJet->tau1[it], "tau1");
+        histAddVal(_FatJet->tau2[it], "tau2");
+        histAddVal(_FatJet->tau2[it]/_FatJet->tau1[it], "tau2Overtau1");
+      }
+    }
+
+    /// leading particle information
+    if((part->type != PType::Jet ) && active_part->at(ePos)->size() > 0) {
+      std::vector<std::pair<double, int> > ptIndexVector;
+      for(auto it : *active_part->at(ePos)) {
+        ptIndexVector.push_back(std::make_pair(part->pt(it),it));
+      }
+      sort(ptIndexVector.begin(),ptIndexVector.end());
+      if(ptIndexVector.size()>0){
+        histAddVal(part->pt(ptIndexVector.back().second), "FirstLeadingPt");
+        histAddVal(part->eta(ptIndexVector.back().second), "FirstLeadingEta");
+      }
+      if(ptIndexVector.size()>1){
+        histAddVal(part->pt(ptIndexVector.at(ptIndexVector.size()-2).second), "SecondLeadingPt");
+        histAddVal(part->eta(ptIndexVector.at(ptIndexVector.size()-2).second), "SecondLeadingEta");
+      }
+    }
+    histAddVal(active_part->at(ePos)->size(), "N");
+  }
+
+  else if(group == "FillMetCuts") {
+    histAddVal(_MET->MHT(), "MHT");
+    histAddVal(_MET->HT(), "HT");
+    histAddVal(_MET->HT() + _MET->MHT(), "Meff");
+    histAddVal(_MET->pt(), "Met");
+    histAddVal(_MET->phi(), "MetPhi");
+
+  }
+
+  else if(group == "FillLeptonPair") {
+
+    for(auto it : *active_part->at(CUTS::eLepPair)) {
+      int nl1 = poneNum(it);
+      int nl2 = ptwoNum(it);
+      auto lep1 = _Muon->p4(nl1);
+      auto lep2 = _Muon->p4(nl2);
+      histAddVal(lep1.DeltaR(lep2), "DeltaR");
+
+      histAddVal(lep1.Pt() - lep2.Pt(), "DeltaPt");
+      histAddVal(cos(absnormPhi(lep1.Phi() - lep2.Phi())),"CosDphi"  );
+      histAddVal((lep1 + lep2).M(), "Mass");
+      histAddVal(lep1.Pt(), "LeadPt");
+      histAddVal(lep2.Pt(), "SubLeadPt");
+    }
+  }
   return;
 
 }

@@ -1,6 +1,13 @@
 #ifndef Analyzer_h
 #define Analyzer_h
 
+//// BIG_NUM = sqrt(sizeof(int)) so can use diparticle convention of
+//// index = BIG_NUM * i1 + i2
+//// This insures easy way to extract indices
+//// Needs to be changed if go to size_t instead (if want to play safe
+#define BIG_NUM 46340
+
+
 // system include files
 #include <memory>
 
@@ -48,7 +55,7 @@ static const int nTrigReq = 2;
 class Analyzer {
   //  friend class CRTester;
 public:
-  Analyzer(std::vector<std::string>, std::string, bool setCR = false, std::string configFolder="PartDet");
+  Analyzer(std::vector<std::string>, std::string, std::string configFolder="PartDet");
   ~Analyzer();
   void add_metadata(std::vector<std::string> infiles);
   void clear_values();
@@ -85,6 +92,9 @@ public:
   void getGoodRecoJets(CUTS, const json&, const int);
   void getGoodRecoFatJets(CUTS, const json&, const int);
 
+  void getGoodLeptonPair(CUTS, const Lepton&, CUTS, const json&, const int);
+  bool isZdecay(const TLorentzVector&, const TLorentzVector&);
+  
   void TriggerCuts(CUTS);
 
 
@@ -102,6 +112,10 @@ public:
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> getArray();
   void setup_Tree();
   std::vector<std::string> bset(const json& j);
+
+  inline int DiNum(int one, int two) { return BIG_NUM * one + two;}
+  inline int poneNum(int big) { return big/BIG_NUM;}
+  inline int ptwoNum(int big) { return big%BIG_NUM;}
   
   ///// values /////
 

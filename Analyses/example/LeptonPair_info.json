@@ -1,0 +1,22 @@
+{
+  "ElectronPair": {
+    "DiscrIfiszdecay": false
+  },
+  "MuonPair": {
+    "DiscrPairSign": true,
+    "PairSign": -1,
+    "DiscrPairPt": true,
+    "PairPt": 15,
+    "DiscrLeadPt": true,
+    "LeadPt": 25,
+    "DiscrMuonTight": false,
+    "DiscrLeadMuonTight": true,
+    "DiscrIfIsZDecay": true
+  },
+  "GenericPair": {
+    "DiscrPairSign": true,
+    "PairSign": 1,
+    "DiscrPairPt": false,
+    "PairPt": 15
+  }
+}

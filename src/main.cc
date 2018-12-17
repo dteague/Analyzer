@@ -18,7 +18,6 @@ void usage() {
   std::cout << "or\n";
   std::cout << "./Analyzer -out outfile.root -in infile.root\n";
   std::cout << "Available options are:\n";
-  std::cout << "-CR: to run over the control regions (not the usual output)\n";
   std::cout << "-C: use a different config folder than the default 'PartDet'\n";
   std::cout << "-t: run over 100 events\n";
   std::cout << "\n";
@@ -26,7 +25,7 @@ void usage() {
   exit(EXIT_FAILURE);
 }
 
-void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnames, std::string &outputname, bool &setCR, bool &testRun, std::string &configFolder) {
+void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnames, std::string &outputname, bool &testRun, std::string &configFolder) {
   if(argc < 3) {
     std::cout << std::endl;
     std::cout << "You have entered too little arguments, please type:\n";
@@ -34,10 +33,7 @@ void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnam
   }
   for (int arg=1; arg<argc; arg++) {
     //// extra arg++ are there to move past flags
-    if (strcmp(argv[arg], "-CR") == 0) {
-      setCR = true;
-      continue;
-    }else if (strcmp(argv[arg], "-t") == 0) {
+    if (strcmp(argv[arg], "-t") == 0) {
       testRun = true;
       continue;
     }else if (strcmp(argv[arg], "-C") == 0) {
@@ -95,7 +91,6 @@ void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnam
 
 int main (int argc, char* argv[]) {
 
-  bool setCR = false;
   bool testRun = false;
   do_break =false;
 
@@ -105,11 +100,11 @@ int main (int argc, char* argv[]) {
 
 
   //get the command line options in a nice loop
-  parseCommandLine(argc, argv, inputnames, outputname, setCR, testRun, configFolder);
+  parseCommandLine(argc, argv, inputnames, outputname, testRun, configFolder);
 
 
   //setup the analyser
-  Analyzer testing(inputnames, outputname, setCR, configFolder);
+  Analyzer testing(inputnames, outputname, configFolder);
   SpechialAnalysis spechialAna = SpechialAnalysis(&testing);
   spechialAna.init();
 

@@ -25,11 +25,65 @@
 FillRun 1
 Events        3   0.    3.
 NVertices   100   0.  100.
-Weight      600.  -3.  3.
 
 //------------------------------------------------//
 
-FillElectron1 1
+FillGen 1
+
+NGenTau            20   0.       20.
+NGenHadTau         20   0.       20.
+GenTauEnergy      5000   0.     5000.
+GenTauPt          5000   0.     5000.
+GenTauEta          72  -3.6      +3.6
+GenTauPhi          36  -3.15     +3.15
+GenHadTauPt       5000   0.     5000.
+GenHadTauEta       72  -3.6      +3.6
+//NGenMuon           20   0.       20.
+//GenMuonEnergy     200   0.      500.
+//GenMuonPt         200   0.      500.
+//GenMuonEta         72  -3.6      +3.6
+//GenMuonPhi         36  -3.15     +3.15
+GenDiTauMass      10000   0.    10000.
+
+//////GenZprimeMass    100 0. 10000.      NOT IMPLIMENTED
+//////GenZprimeStatusCode     100 0. 100.
+//////GenTauStatusCode     100 0. 100.
+
+//------------------------------------------------//
+
+FillTau1 1
+
+NTau1                    20   0.      20.
+Tau1Energy             5000   0.    5000.
+Tau1Pt                 5000   0.    5000.
+Tau1Eta                 100  -5.0     +5.0
+FirstLeadingTau1Pt     5000   0.    5000.
+FirstLeadingTau1Eta     144  -7.2     +7.2
+SecondLeadingTau1Pt     5000   0.    5000.
+SecondLeadingTau1Eta     144  -7.2     +7.2
+Tau1Phi                  36  -3.15    +3.15
+Tau1NumSignalTracks      10   0       10
+Tau1SeedTrackPt        5000   0.    5000.
+Tau1Charge               10  -5.       5.
+
+FillTau2 1
+
+NTau2                    20   0.      20.
+Tau2Energy             5000   0.    5000.
+Tau2Pt                 5000   0.    5000.
+Tau2Eta                 100  -5.0     +5.0
+FirstLeadingTau2Pt     5000   0.    5000.
+FirstLeadingTau2Eta     144  -7.2     +7.2
+SecondLeadingTau2Pt     5000   0.    5000.
+SecondLeadingTau2Eta     144  -7.2     +7.2
+Tau2Phi                  36  -3.15    +3.15
+Tau2NumSignalTracks      10   0       10
+Tau2SeedTrackPt        5000   0.    5000.
+Tau2Charge               10  -5.       5.
+
+//------------------------------------------------//
+
+FillElectron1 0
 
 NElectron1                   20   0.      20.
 Electron1Energy            2000   0.    5000.
@@ -53,7 +107,7 @@ Electron2MetMt              100   0      500
 
 //------------------------------------------------//
 
-FillMuon1 1
+FillMuon1 0
 
 NMuon1                   20   0.      20.
 Muon1Energy            2000   0.    5000.
@@ -62,6 +116,7 @@ Muon1Eta                 72  -3.6     +3.6
 FirstLeadingMuon1Pt     400   0.    1000.
 FirstLeadingMuon1Eta    144  -7.2     +7.2
 Muon1Phi                 36  -3.15    +3.15
+Muon1MetMt              100   0      500
 
 FillMuon2 0
 
@@ -72,10 +127,11 @@ Muon2Eta                 72  -3.6     +3.6
 FirstLeadingMuon2Pt     400   0.    1000.
 FirstLeadingMuon2Eta    144  -7.2     +7.2
 Muon2Phi                 36  -3.15    +3.15
+Muon2MetMt              100   0      500
 
 //------------------------------------------------//
 
-FillJet1 0
+FillJet1 1
 
 NJet1         20   0.    20.
 Jet1Energy   200   0.   500.
@@ -91,7 +147,7 @@ Jet2Pt       200   0.   500.
 Jet2Eta      100  -5.0   +5.0
 Jet2Phi      144  -6.3   +6.3
 
-FillBJet 0
+FillBJet 1
 
 NBJet         20   0.     20.
 BJetEnergy   200   0.    500.
@@ -106,7 +162,7 @@ CentralJetPt    200   0.   500.
 CentralJetEta   100  -5.0   +5.0
 
 
-FillWJet 0
+FillWJet 1
 
 NWJet      20   0.    20.
 WJetPt    200   0.   500.
@@ -128,11 +184,28 @@ Meff               500  0  5000
 
 //------------------------------------------------//
 
-FillLeptonPair 0
+FillLeadingJet 0
 
-LeptonPairDeltaR                   100     0        5.
-LeptonPairDeltaPt                  100     0     1000
-LeptonPairCosDphi                  220    -1.1      1.1
-LeptonPairMass 		       100     0     200
-LeptonPairLeadPt		       600     0     1500
-LeptonPairSubLeadPt		       600     0     1500
+FirstLeadingJetPt     200   0.   1000.
+SecondLeadingJetPt    200   0.   1000.
+FirstLeadingJetEta    100  -5.      5.
+SecondLeadingJetEta   100  -5.      5.
+
+LeadingJetMass       1000   0    5000
+LeadSublDijetDphi      72   0      +3.15
+LeadingJetPt         1000   0    5000
+LeadingJetDeltaR      200   0      10.
+LeadingJetDeltaEta    200   0      10.
+R1                     60   0       6
+R2                     60   0       6
+Dphi1                  72  -6.3    +6.3
+Dphi2MHT               72  -6.3    +6.3
+Dphi1MHT               72  -6.3    +6.3
+Dphi2                  72  -6.3    +6.3
+Alpha                  50   0       2
+MetDiJetDeltaPhi       72   0      +3.15
+
+Dphi1VsDphi2                  72  -6.3    +6.3  72  -6.3  +6.3
+MetVsDiJetDeltaPhiLeadSubl   100   0    1000.   72   0    +3.15
+DeltaEtaVsDeltaPhiLeadSubl   200   0      10.   72   0    +3.15
+

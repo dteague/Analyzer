@@ -194,7 +194,7 @@ public:
   double charge(uint)const;
   int _charge[MAXINDEX];
 
-  virtual bool get_Iso(int, double, double) const {return false;}
+  virtual double get_Iso(int) const {return -1;}
 };
 
 class Electron : public Lepton {
@@ -202,7 +202,7 @@ class Electron : public Lepton {
 public:
   Electron(TTree*, std::string, std::vector<std::string>);
 
-  bool get_Iso(int, double, double) const;
+  double get_Iso(int) const;
   
   std::bitset<8> cbIDele1;
   std::bitset<8> cbIDele2;
@@ -243,7 +243,7 @@ class Muon : public Lepton {
 public:
   Muon(TTree*, std::string, std::vector<std::string>);
 
-  bool get_Iso(int, double, double) const;
+  double get_Iso(int) const;
 
   bool tight[MAXINDEX];
   bool soft[MAXINDEX];
@@ -261,7 +261,8 @@ public:
 
   //  void findExtraCuts();
   std::vector<CUTS> findExtraCuts();
-  bool get_Iso(int, double, double) const;
+  bool get_Iso(int index, double onetwo, double flipisolation) const;
+  double get_Iso(int) const;
   bool pass_against_Elec(CUTS, int);
   bool pass_against_Muon(CUTS, int);
   
