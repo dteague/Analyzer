@@ -13,4 +13,3 @@ work_svfit
 PartDet/*.in
 *.C
 
-src/json

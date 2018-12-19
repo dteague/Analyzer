@@ -598,62 +598,62 @@ void Analyzer::read_info(std::string filename) {
 
 // This code works pretty much (at least in my tests), but dagnabit, its ugly.  They all can't be winners, at least now...
 void Analyzer::setCutNeeds() {
-  for(auto it: *histo.get_groups()) {
-    if(fillInfo[it]->type == FILLER::None) continue;
-    neededCuts.loadCuts(fillInfo[it]->ePos);
-  }
-  for(auto it : *histo.get_cutorder()) {
-    try{
-      neededCuts.loadCuts(cut_num.at(it));
-    }catch(...){
-      std::cout<<"The following cut is strange: "<<it<<std::endl;
-      exit(2);
-    }
-  }
-
-  neededCuts.loadCuts(_Jet->findExtraCuts());
-  if(doSystematics) {
-    neededCuts.loadCuts(CUTS::eGen);
-  }
-
-  for(auto it: jetCuts) {
-    if(!neededCuts.isPresent(it)) continue;
-    neededCuts.loadCuts(_Jet->overlapCuts(it));
-  }
-
-  if(neededCuts.isPresent(CUTS::eRWjet)) {
-    neededCuts.loadCuts(_FatJet->findExtraCuts());
-    neededCuts.loadCuts(_FatJet->overlapCuts(CUTS::eRWjet));
-  } else {
-    std::cout<<"WJets not needed. They will be deactivated!"<<std::endl;
-    _FatJet->unBranch();
-  }
-
-  if( neededCuts.isPresent(CUTS::eRElec1) || neededCuts.isPresent(CUTS::eRElec2) ) {
-    neededCuts.loadCuts(_Electron->findExtraCuts());
-  } else {
-    std::cout<<"Electrons not needed. They will be deactivated!"<<std::endl;
-    _Electron->unBranch();
-  }
-
-  if( neededCuts.isPresent(CUTS::eRMuon1) || neededCuts.isPresent(CUTS::eRMuon2) ) {
-    neededCuts.loadCuts(_Muon->findExtraCuts());
-  } else {
-    std::cout<<"Muons not needed. They will be deactivated!"<<std::endl;
-    _Muon->unBranch();
-  }
-
-  if( !neededCuts.isPresent(CUTS::eGen) and !isData) {
-    std::cout<<"Gen not needed. They will be deactivated!"<<std::endl;
-    _Gen->unBranch();
-
-  }
-
-  std::cout << "Cuts being filled: " << std::endl;
-  // for(auto cut : neededCuts.getCuts()) {
-  //   std::cout << enumNames.at(static_cast<CUTS>(cut)) << "   ";
+  // for(auto it: *histo.get_groups()) {
+  //   if(fillInfo[it]->type == FILLER::None) continue;
+  //   neededCuts.loadCuts(fillInfo[it]->ePos);
   // }
-  std::cout << std::endl;
+  // for(auto it : *histo.get_cutorder()) {
+  //   try{
+  //     neededCuts.loadCuts(cut_num.at(it));
+  //   }catch(...){
+  //     std::cout<<"The following cut is strange: "<<it<<std::endl;
+  //     exit(2);
+  //   }
+  // }
+
+  // neededCuts.loadCuts(_Jet->findExtraCuts());
+  // if(doSystematics) {
+  //   neededCuts.loadCuts(CUTS::eGen);
+  // }
+
+  // for(auto it: jetCuts) {
+  //   if(!neededCuts.isPresent(it)) continue;
+  //   neededCuts.loadCuts(_Jet->overlapCuts(it));
+  // }
+
+  // if(neededCuts.isPresent(CUTS::eRWjet)) {
+  //   neededCuts.loadCuts(_FatJet->findExtraCuts());
+  //   neededCuts.loadCuts(_FatJet->overlapCuts(CUTS::eRWjet));
+  // } else {
+  //   std::cout<<"WJets not needed. They will be deactivated!"<<std::endl;
+  //   _FatJet->unBranch();
+  // }
+
+  // if( neededCuts.isPresent(CUTS::eRElec1) || neededCuts.isPresent(CUTS::eRElec2) ) {
+  //   neededCuts.loadCuts(_Electron->findExtraCuts());
+  // } else {
+  //   std::cout<<"Electrons not needed. They will be deactivated!"<<std::endl;
+  //   _Electron->unBranch();
+  // }
+
+  // if( neededCuts.isPresent(CUTS::eRMuon1) || neededCuts.isPresent(CUTS::eRMuon2) ) {
+  //   neededCuts.loadCuts(_Muon->findExtraCuts());
+  // } else {
+  //   std::cout<<"Muons not needed. They will be deactivated!"<<std::endl;
+  //   _Muon->unBranch();
+  // }
+
+  // if( !neededCuts.isPresent(CUTS::eGen) and !isData) {
+  //   std::cout<<"Gen not needed. They will be deactivated!"<<std::endl;
+  //   _Gen->unBranch();
+
+  // }
+
+  // std::cout << "Cuts being filled: " << std::endl;
+  // // for(auto cut : neededCuts.getCuts()) {
+  // //   std::cout << enumNames.at(static_cast<CUTS>(cut)) << "   ";
+  // // }
+  // std::cout << std::endl;
 }
 
 
@@ -886,9 +886,9 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
 
     for( auto cut: bset(stats)) {
       if(!passCuts) break;
-      else if(cut == "DiscrIfIsZdecay")          passCuts = isZdecay(lvec, lep);
-      else if(cut == "DoDiscrByIsolation")       passCuts = passCutRange(lep.get_Iso(i),stats["IsoCut"]);
-      else if(cut == "DoDiscrByTightID")         passCuts = _Muon->tight[i];
+      else if(cut == "DiscrByIsZdecay")     passCuts = isZdecay(lvec, lep);
+      else if(cut == "DiscrByIso")          passCuts = passCutRange(lep.get_Iso(i),stats["IsoCut"]);
+      else if(cut == "DiscrByTightID")      passCuts = _Muon->tight[i];
       //      else std::cout << "'" << cut << "' not used in code " << std::endl;
     }
     if(passCuts) active_part->at(ePos)->push_back(i);
@@ -919,9 +919,9 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const json& stats, const int syst) {
 
     for( auto cut: bset(stats)) {
       if(!passCuts) break;
-      else if(cut == "ApplyJetBTagging")            passCuts = (_Jet->bDiscriminator[i] > stats["JetBTaggingCut"]);
-      else if(cut == "RemoveOverlapElec1")          passCuts = !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Elec1OverlapDeltaR"]);
-      else if(cut == "RemoveOverlapMuon1")          passCuts = !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1OverlapDeltaR"]);
+      else if(cut == "DiscrByJetBTagging")            passCuts = (_Jet->bDiscriminator[i] > stats["JetBTaggingCut"]);
+      else if(cut == "DiscrByElec1DeltaR")          passCuts = !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Elec1DeltaRCut"]);
+      else if(cut == "DiscrByMuon1DeltaR")          passCuts = !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1DeltaRCut"]);
       //      else std::cout << "'" << cut << "' not used in code " << std::endl;
     }
     if(passCuts) active_part->at(ePos)->push_back(i);
@@ -983,7 +983,7 @@ void Analyzer::getGoodLeptonPair(CUTS subtype, const json& stats, const int syst
       for( auto cut: bset(stats)) {
 	if(!passCuts) break;
 	else if(cut == "DiscrByPairSign")       passCuts = lep1.charge(nl1)*lep2.charge(nl2) == stats["PairSignCut"];
-	else if(cut == "DiscrByPairPt")         passCuts = (l1.Pt() > stats["PairPtCut"]) && (l2.Pt() > stats["PairPt"]);
+	else if(cut == "DiscrByPairPt")         passCuts = (l1.Pt() > stats["PairPtCut"]) && (l2.Pt() > stats["PairPtCut"]);
 	else if(cut == "DiscrByLeadPt")         passCuts = l1.Pt() > stats["LeadPtCut"];
 	//////Muons
 	else if(cut == "DiscrByMuonTight")      passCuts = _Muon->tight[nl1] && _Muon->tight[nl2];

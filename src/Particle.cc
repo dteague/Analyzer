@@ -329,7 +329,7 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
   //   std::cout<<"Electron MVA ID: Electron_mvaFall17"<<std::endl;
   // }
  
-  if((elec1["DoDiscrByIsolation"]|| elec2["DoDiscrByIsolation"]) && _BOOM->FindBranch("Electron_mvaFall17Iso")!=0 ) {
+  if((elec1["DiscrByIso"]|| elec2["DiscrByIso"]) && _BOOM->FindBranch("Electron_mvaFall17Iso")!=0 ) {
    SetBranch("Electron_miniPFRelIso_all", miniPFRelIso_all);
    SetBranch("Electron_miniPFRelIso_chg", miniPFRelIso_chg);
    SetBranch("Electron_mvaFall17Iso", mvaFall17Iso);
@@ -338,7 +338,7 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
    SetBranch("Electron_pfRelIso03_chg", pfRelIso03_chg);
   }
 
-  if((elec1["DoDiscrByIsolation"]|| elec2["DoDiscrByIsolation"]) && _BOOM->FindBranch("Electron_mvaSpring16GP")!=0 ) {
+  if((elec1["DiscrByIso"]|| elec2["DiscrByIso"]) && _BOOM->FindBranch("Electron_mvaSpring16GP")!=0 ) {
    SetBranch("Electron_miniPFRelIso_all", miniPFRelIso_all);
    SetBranch("Electron_miniPFRelIso_chg", miniPFRelIso_chg);
    SetBranch("Electron_mvaSpring16GP", mvaSpring16GP);
@@ -370,7 +370,7 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
   //   SetBranch("Electron_mvaTTH", mvaTTH); 
   // }
 
-  if(elec1["DoDiscrByHEEPID"]|| elec2["DoDiscrByHEEPID"]) {
+  if(elec1["DiscrByHEEPID"]|| elec2["DiscrByHEEPID"]) {
     SetBranch("Electron_cutBased_HEEP", isPassHEEPId);
   }
 }
@@ -391,13 +391,13 @@ Muon::Muon(TTree* _BOOM, std::string filename, std::vector<std::string> syst_nam
   auto& mu1 = pstats["Muon1"];
   auto& mu2 = pstats["Muon2"];
 
-  if(mu1["DoDiscrByTightID"]|| mu2["DoDiscrByTightID"]) {
+  if(mu1["DiscrByTightID"]|| mu2["DiscrByTightID"]) {
     SetBranch("Muon_tightId", tight);
      }
-  if(mu1["DoDiscrBySoftID"]|| mu2["DoDiscrBySoftID"]) {
+  if(mu1["DiscrBySoftID"]|| mu2["DiscrBySoftID"]) {
     SetBranch("Muon_softId", soft);
   }
-  if(mu1["DoDiscrByIsolation"]|| mu2["DoDiscrByIsolation"]) {
+  if(mu1["DiscrByIso"]|| mu2["DiscrByIso"]) {
     SetBranch("Muon_miniPFRelIso_all", miniPFRelIso_all);
     SetBranch("Muon_miniPFRelIso_chg", miniPFRelIso_chg);
     SetBranch("Muon_pfRelIso03_all"  , pfRelIso03_all);
