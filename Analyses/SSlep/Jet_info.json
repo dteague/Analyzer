@@ -1,14 +1,13 @@
-//in 94x there is no loose jet ID anymore
 {
   "BJet": {
     "RemoveBJetsFromJets": false,
     "UseBtagSF": false,
     "JetBTaggingCut": 0.8484,
-    "ApplyJetBTagging": true,
-    "Elec1OverlapDeltaR": 0.3,
-    "RemoveOverlapElec1": true,
-    "Muon1OverlapDeltaR": 0.3,
-    "RemoveOverlapMuon1s": true,
+    "DiscrByJetBTagging": true,
+    "Elec1DeltaRCut": 0.3,
+    "DiscrByElec1DeltaR": true,
+    "Muon1DeltaRCut": 0.3,
+    "DiscrByMuon1DeltaR": true,
     "PtCut": 30.0,
     "EtaCut": [
       0.0,
@@ -16,11 +15,10 @@
     ]
   },
   "Jet1": {
-    "Elec1OverlapDeltaR": 0.3,
-    "RemoveOverlapElec1": true,
-    "Muon1OverlapDeltaR": 0.3,
-    "RemoveOverlapMuon1": true,
-    "ApplyLooseID": false,
+    "Elec1DeltaRCut": 0.3,
+    "DiscrByElec1DeltaR": true,
+    "Muon1DeltaRCut": 0.3,
+    "DiscrByMuon1DeltaR": true,
     "PtCut": 30.0,
     "EtaCut": [
       0,
@@ -28,11 +26,10 @@
     ]
   },
   "Jet2": {
-    "Electron1OverlapDeltaR": 0.3,
-    "RemoveOverlapElec1": true,
-    "Muon1OverlapDeltaR": 0.3,
-    "RemoveOverlapMuon1": true,
-    "ApplyLooseID": false,
+    "Electron1DeltaRCut": 0.3,
+    "DiscrByElec1DeltaR": true,
+    "Muon1DeltaRCut": 0.3,
+    "DiscrByMuon1DeltaR": true,
     "PtCut": 30.0,
     "EtaCut": [
       0,

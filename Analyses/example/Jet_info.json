@@ -1,4 +1,3 @@
-//in 94x there is no loose jet ID anymore
 {
   "BJet": {
     "RemoveBJetsFromJets": false,

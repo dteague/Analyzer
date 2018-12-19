@@ -1,14 +1,14 @@
 {
   "Muon1": {
-    "DiscrIfIsZdecay": false,
-    "DoDiscrByIsolation": true,
+    "DiscrByIsZdecay": false,
+    "DiscrByIso": true,
     "IsoCut": [
       0.0,
       0.15
     ],
 
-    "DoDiscrBySoftID": false,
-    "DoDiscrByTightID": false,
+    "DiscrBySoftID": false,
+    "DiscrByTightID": false,
     "PtCut": [
       15.0,
       9999.9
@@ -17,24 +17,14 @@
   },
 
   "Muon2": {
-    "MetMtCut": [
-      10,
-      100
-    ],
-    "DiscrByMetMt": false,
-    "MetDphiCut": [
-      1.3,
-      3.15
-    ],
-    "DiscrByMetDphi": false,
-    "DiscrIfIsZdecay": false,
+    "DiscrByIsZdecay": false,
     "IsoCut": [
       0.0,
       0.15
     ],
-    "DoDiscrByIsolation": false,
-    "DoDiscrBySoftID": false,
-    "DoDiscrByTightID": false,
+    "DiscrByIso": false,
+    "DiscrBySoftID": false,
+    "DiscrByTightID": false,
     "PtCut": [
       20.0,
       9999.9

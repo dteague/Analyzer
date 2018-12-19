@@ -1,18 +1,16 @@
-//"(0:fail:, 1:veto:, 2:loose:, 3:medium:, 4:tight:)":1
-
 {
   "Elec1": {
-    "DiscrIfIsZdecay": false,
-    "DoDiscrByHEEPID": false,
+    "DiscrByIsZdecay": false,
+    "DiscrByHEEPID": false,
     "DiscrByHLTID": 4,
-    "DoDiscrByHLTID": false,
+    "DiscrByHLTID": false,
     "DiscrByCBID": 4,
-    "DoDiscrByCBID": false,
+    "DiscrByCBID": false,
     "IsoCut": [
       0.0,
       0.4
     ],
-    "DoDiscrByIsolation": true,
+    "DiscrByIso": true,
     "PtCut": [
       15.0,
       9999.9
@@ -20,18 +18,17 @@
     "EtaCut": 2.4
   },
   "Elec2": {
-
-    "DiscrIfIsZdecay": false,
-    "DoDiscrByHEEPID": false,
-    "DiscrByHLTID": 4,
-    "DoDiscrByHLTID": false,
-    "DiscrByCBID": 4,
-    "DoDiscrByCBID": true,
+    "DiscrByIsZdecay": false,
+    "DiscrByHEEPID": false,
+    "HLTIDCut": 4,
+    "DiscrByHLTID": false,
+    "CBIDCut": 4,
+    "DiscrByCBID": true,
     "IsoCut": [
       0.0,
       0.4
     ],
-    "DoDiscrByIsolation": true,
+    "DiscrByIso": true,
     "PtCut": [
       10.0,
       9999.9

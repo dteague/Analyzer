@@ -3,20 +3,20 @@
     "DiscrIfiszdecay": false
   },
   "MuonPair": {
-    "DiscrPairSign": true,
+    "DiscrByPairSign": true,
     "PairSign": -1,
-    "DiscrPairPt": true,
+    "DiscrByPairPt": true,
     "PairPt": 15,
-    "DiscrLeadPt": true,
+    "DiscrByLeadPt": true,
     "LeadPt": 25,
-    "DiscrMuonTight": false,
-    "DiscrLeadMuonTight": true,
-    "DiscrIfIsZDecay": true
+    "DiscrByMuonTight": false,
+    "DiscrByLeadMuonTight": true,
+    "DiscrByIsZDecay": true
   },
   "GenericPair": {
-    "DiscrPairSign": true,
-    "PairSign": 1,
-    "DiscrPairPt": false,
-    "PairPt": 15
+    "DiscrByPairSign": true,
+    "PairSignCut": 1,
+    "DiscrByPairPt": false,
+    "PairPtCut": 15
   }
 }

@@ -485,7 +485,7 @@ void Analyzer::updateMet(int syst) {
   /////MET CUTS
 
   if(!passCutRange(_MET->pt(), distats["Run"]["MetCut"])) return;
-  if(distats["Run"]["DiscrByHT"] && _MET->HT() < distats["Run"]["HtCut"]) return;
+  if(distats["Run"]["DiscrByHT"] && _MET->HT() < distats["Run"]["HTCut"]) return;
 
   if(syst==0){
     active_part->at(CUTS::eMET)->push_back(1);
@@ -982,13 +982,13 @@ void Analyzer::getGoodLeptonPair(CUTS subtype, const json& stats, const int syst
 
       for( auto cut: bset(stats)) {
 	if(!passCuts) break;
-	else if(cut == "DiscrPairSign")       passCuts = lep1.charge(nl1)*lep2.charge(nl2) == stats["PairSign"];
-	else if(cut == "DiscrPairPt")         passCuts = (l1.Pt() > stats["PairPt"]) && (l2.Pt() > stats["PairPt"]);
-	else if(cut == "DiscrLeadPt")         passCuts = l1.Pt() > stats["LeadPt"];
+	else if(cut == "DiscrByPairSign")       passCuts = lep1.charge(nl1)*lep2.charge(nl2) == stats["PairSignCut"];
+	else if(cut == "DiscrByPairPt")         passCuts = (l1.Pt() > stats["PairPtCut"]) && (l2.Pt() > stats["PairPt"]);
+	else if(cut == "DiscrByLeadPt")         passCuts = l1.Pt() > stats["LeadPtCut"];
 	//////Muons
-	else if(cut == "DiscrMuonTight")      passCuts = _Muon->tight[nl1] && _Muon->tight[nl2];
-	else if(cut == "DiscrLeadMuonTight")  passCuts = _Muon->tight[nl1];
-	else if(cut == "DiscrIfIsZDecay")     passCuts = isZdecay(l1, l2);
+	else if(cut == "DiscrByMuonTight")      passCuts = _Muon->tight[nl1] && _Muon->tight[nl2];
+	else if(cut == "DiscrByLeadMuonTight")  passCuts = _Muon->tight[nl1];
+	else if(cut == "DiscrByIsZDecay")     passCuts = isZdecay(l1, l2);
       }
       if(passCuts) {
 	active_part->at(ePos)->push_back(DiNum(nl1, nl2));
