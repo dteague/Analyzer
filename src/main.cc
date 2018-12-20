@@ -105,8 +105,8 @@ int main (int argc, char* argv[]) {
 
   //setup the analyser
   Analyzer testing(inputnames, outputname, configFolder);
-  SpechialAnalysis spechialAna = SpechialAnalysis(&testing);
-  spechialAna.init();
+  // SpechialAnalysis spechialAna = SpechialAnalysis(&testing);
+  // spechialAna.init();
 
   //catch ctrl+c and just exit the loop
   //this way we still have the output
@@ -119,9 +119,9 @@ int main (int argc, char* argv[]) {
   }
   //main event loop
   for(size_t i=0; i < Nentries; i++) {
-    if(i==0){
-      spechialAna.begin_run();
-    }
+    // if(i==0){
+    //   spechialAna.begin_run();
+    // }
     testing.clear_values();
     //    std::cout << "    testing.preprocess(i);" << std::endl;
     bool valid = testing.preprocess(i);
@@ -129,7 +129,7 @@ int main (int argc, char* argv[]) {
     //    std::cout << "    testing.fill_histogram();" << std::endl;
     testing.fill_histogram();
     //    std::cout << "    spechialAna.analyze();" << std::endl;
-    spechialAna.analyze();
+    // spechialAna.analyze();
     //this will be set if ctrl+c is pressed
     if(do_break){
       testing.nentries=i+1;
@@ -137,6 +137,6 @@ int main (int argc, char* argv[]) {
     }
   }
   testing.printCuts();
-  spechialAna.end_run();
+  // spechialAna.end_run();
   return 0;
 }

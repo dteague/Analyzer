@@ -92,7 +92,7 @@ public:
   void getGoodRecoJets(CUTS, const json&, const int);
   void getGoodRecoFatJets(CUTS, const json&, const int);
 
-  void getGoodLeptonPair(CUTS, const json&, const int, const Lepton&, CUTS, const Lepton&, CUTS);
+  void getGoodLeptonPair(CUTS, const json&, const int, const Lepton&, int, const Lepton&, int);
   bool isZdecay(const TLorentzVector&, const TLorentzVector&);
   
   void TriggerCuts(CUTS);

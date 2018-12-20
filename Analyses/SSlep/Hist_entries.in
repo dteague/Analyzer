@@ -75,7 +75,7 @@ Muon2Phi                 36  -3.15    +3.15
 
 //------------------------------------------------//
 
-FillJet1 0
+FillJet1 1
 
 NJet1         20   0.    20.
 Jet1Energy   200   0.   500.
@@ -91,7 +91,7 @@ Jet2Pt       200   0.   500.
 Jet2Eta      100  -5.0   +5.0
 Jet2Phi      144  -6.3   +6.3
 
-FillBJet 0
+FillBJet 1
 
 NBJet         20   0.     20.
 BJetEnergy   200   0.    500.

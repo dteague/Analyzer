@@ -161,38 +161,44 @@ Analyzer::Analyzer(std::vector<std::string> infiles, std::string outfile, std::s
 void Analyzer::add_metadata(std::vector<std::string> infiles){
 
   std::cout<<"Start copying the essentials."<<std::endl;
+  std::map<std::string,TList*> otherTrees;
+  
   for( std::string infile: infiles){
     std::cout<<infile<<std::endl;
 
     TFile* rfile = TFile::Open(infile.c_str());
-    std::map<std::string,TTree* > otherTrees;
-
 
     routfile->cd();
     for(const auto&& k: *rfile->GetListOfKeys()){
       std::string kn(k->GetName());
-      //      std::cout<<kn<<std::endl;
+
+      if(otherTrees[kn] == nullptr) otherTrees[kn] = new TList();
       if (kn == "Events"){
         TTree* t= ((TTree*) rfile->Get(kn.c_str()));
         t->SetBranchStatus("*",0);
         t->SetBranchStatus("run",1);
-        otherTrees[kn] = t->CopyTree("1","",1);
+	otherTrees[kn]->Add(t->CopyTree("1"));
       }else if(kn == "MetaData" or kn== "ParameterSets"){
-        otherTrees[kn] = ((TTree*) rfile->Get(kn.c_str()))->CopyTree("1");
+        otherTrees[kn]->Add(((TTree*) rfile->Get(kn.c_str()))->CopyTree("1"));
       }else if(kn == "LuminosityBlocks" or kn == "Runs"){
-        otherTrees[kn] = ((TTree*) rfile->Get(kn.c_str()))->CopyTree("1");
+        otherTrees[kn]->Add(((TTree*) rfile->Get(kn.c_str()))->CopyTree("1"));
       }else if( std::string(k->ClassName()) == "TTree"){
-        std::cout<<"Not copying unknown tree kn"<<std::endl;
+        std::cout<<"Not copying unknown tree " << kn <<std::endl;
+	continue;
       }else{
+	continue;
         //otherObjects[kn] = rfile.Get(kn)
       }
     }
-    routfile->cd();
-    for(auto t : otherTrees){
-      t.second->Write();
-    }
     rfile->Close();
     delete rfile;
+  }
+  routfile->cd();
+  for(auto t : otherTrees){
+    if(!t.second->First()) continue;
+    TTree* newtree = TTree::MergeTrees(t.second);
+    newtree->SetName((t.first).c_str());
+    newtree->Write();
   }
   
   std::cout<<"Finished copying the essentials."<<std::endl;
@@ -321,7 +327,6 @@ bool Analyzer::preprocess(int event) {
 
   if(nTruePU > 199) return false;
   pu_weight = (!isData && CalculatePUSystematics) ? hPU[(int)(nTruePU+1)] : 1.0;
-
   
   // SET NUMBER OF GEN PARTICLES
   if(!isData){
@@ -384,9 +389,23 @@ void Analyzer::getGoodParticles(int syst){
   getGoodRecoJets(CUTS::eRBJet, _Jet->pstats["BJet"],syst);
   getGoodRecoJets(CUTS::eRJet1, _Jet->pstats["Jet1"],syst);
 
-  getGoodLeptonPair(CUTS::eMuonPair,  distats["GenericPair"] , syst, *_Muon, CUTS::eRMuon1, *_Muon, CUTS::eRMuon1);
-  getGoodLeptonPair(CUTS::eElecPair, distats["GenericPair"] , syst, *_Electron, CUTS::eRElec1, *_Electron, CUTS::eRElec1);
-  getGoodLeptonPair(CUTS::eMixPair, distats["GenericPair"] , syst, *_Electron, CUTS::eRElec1, *_Muon, CUTS::eRMuon1);
+  if(active_part->at(CUTS::eRMuon1)->size() + active_part->at(CUTS::eRElec1)->size() == 2) {
+    int l1, l2;
+    if(active_part->at(CUTS::eRMuon1)->size() == 2) {
+      l1 = active_part->at(CUTS::eRMuon1)->at(0);
+      l2 = active_part->at(CUTS::eRMuon1)->at(1);
+      getGoodLeptonPair(CUTS::eMuonPair, distats["GenericPair"] , syst, *_Muon, l1, *_Muon, l2);
+    } else if(active_part->at(CUTS::eRElec1)->size() == 2) {
+      l1 = active_part->at(CUTS::eRElec1)->at(0);
+      l2 = active_part->at(CUTS::eRElec1)->at(1);
+      getGoodLeptonPair(CUTS::eElecPair, distats["GenericPair"] , syst, *_Electron, l1, *_Electron, l2);
+    } else {
+      l1 = active_part->at(CUTS::eRMuon1)->at(0);
+      l2 = active_part->at(CUTS::eRElec1)->at(0);
+      getGoodLeptonPair(CUTS::eMixPair, distats["GenericPair"] , syst, *_Muon, l1, *_Electron, l2);
+    }
+  }
+
 }
 
 
@@ -960,41 +979,32 @@ void Analyzer::getGoodRecoFatJets(CUTS ePos, const json& stats, const int syst) 
   }
 }
 
-void Analyzer::getGoodLeptonPair(CUTS subtype, const json& stats, const int syst, const Lepton& lep1, CUTS goodlep1, const Lepton& lep2, CUTS goodlep2) {
+void Analyzer::getGoodLeptonPair(CUTS subtype, const json& stats, const int syst, const Lepton& lep1, int nl1, const Lepton& lep2, int nl2) {
   CUTS ePos = CUTS::eLepPair;
   std::string systname = syst_names.at(syst);
 
   ///// need to fix systematics....
   
-  // if(!lep.needSyst(syst)) {
-  //   active_part->at(ePos) = goodParts[ePos];
-  //   return;
-  // }
-  bool samePart = (typeid(lep1) == typeid(lep2));
-  
+  if(!lep1.needSyst(syst) || !lep2.needSyst(syst)) {
+    active_part->at(ePos) = goodParts[ePos];
+    return;
+  }
 
-  for(auto nl1 : *active_part->at(goodlep1)) {
-    for(auto nl2 : *active_part->at(goodlep2)) {
-      if(samePart && nl1 >= nl2) continue;
-      bool passCuts = true;
-      auto l1 = lep1.p4(nl1);
-      auto l2 = lep2.p4(nl2);
+  TLorentzVector l1 = lep1.p4(nl1);
+  TLorentzVector l2 = lep2.p4(nl2);
 
-      for( auto cut: bset(stats)) {
-	if(!passCuts) break;
-	else if(cut == "DiscrByPairSign")       passCuts = lep1.charge(nl1)*lep2.charge(nl2) == stats["PairSignCut"];
-	else if(cut == "DiscrByPairPt")         passCuts = (l1.Pt() > stats["PairPtCut"]) && (l2.Pt() > stats["PairPtCut"]);
-	else if(cut == "DiscrByLeadPt")         passCuts = l1.Pt() > stats["LeadPtCut"];
-	//////Muons
-	else if(cut == "DiscrByMuonTight")      passCuts = _Muon->tight[nl1] && _Muon->tight[nl2];
-	else if(cut == "DiscrByLeadMuonTight")  passCuts = _Muon->tight[nl1];
-	else if(cut == "DiscrByIsZDecay")     passCuts = isZdecay(l1, l2);
-      }
-      if(passCuts) {
-	active_part->at(ePos)->push_back(DiNum(nl1, nl2));
-	active_part->at(subtype)->push_back(DiNum(nl1, nl2));
-      }
-    }
+  bool passCuts = true;
+  for( auto cut: bset(stats)) {
+    if(!passCuts) break;
+    else if(cut == "DiscrByPairSign")       passCuts = lep1.charge(nl1)*lep2.charge(nl2) == stats["PairSignCut"];
+    else if(cut == "DiscrByPairPt")         passCuts = (l1.Pt() > stats["PairPtCut"]) && (l2.Pt() > stats["PairPtCut"]);
+    else if(cut == "DiscrByLeadPt")         passCuts = l1.Pt() > stats["LeadPtCut"];
+    //////Muons
+    else if(cut == "DiscrByIsZDecay")       passCuts = isZdecay(l1, l2);
+  }
+  if(passCuts) {
+    active_part->at(ePos)->push_back(DiNum(nl1, nl2));
+    active_part->at(subtype)->push_back(DiNum(nl1, nl2));
   }
 
 }
@@ -1071,6 +1081,7 @@ void Analyzer::fill_histogram() {
   }
   //backup current weight
   backup_wgt=wgt;
+  if(wgt != wgt) std::cout << "HEHEHEHEHE" << std::endl;
 
   for(size_t i = 0; i < syst_names.size(); i++) {
     for(Particle* ipart: allParticles) ipart->setCurrentP(i);
@@ -1265,13 +1276,13 @@ void Analyzer::initializePileupInfo(std::string MCHisto, std::string DataHisto, 
         valueDown = histdata->GetBinContent(ibin) / histmc->GetBinContent(ibin);
       }
     }
-    hPU[bin]      = value;
+    hPU[ibin]      = value;
     if(histdata_up){
-      hPU_up[bin]   = valueUp;
-      hPU_down[bin] = valueDown;
+      hPU_up[ibin]   = valueUp;
+      hPU_down[ibin] = valueDown;
     }else{
-      hPU_up[bin]   = value;
-      hPU_down[bin] = value;
+      hPU_up[ibin]   = value;
+      hPU_down[ibin] = value;
     }
 
   }

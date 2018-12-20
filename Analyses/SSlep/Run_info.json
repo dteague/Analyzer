@@ -4,7 +4,7 @@
     "JetPtForMhtAndHt": 30.0,
     "ApplyJetLooseIDforMhtAndHt": false,
     "DiscrByHT": true,
-    "HtCut": 300.0,
+    "HTCut": 300.0,
     "DiscrByMHT": false,
     "MhtCut": 30.0,
     "DiscrByMet": true,
@@ -22,7 +22,7 @@
     "DataPUHistName": "pileup",
     "MCHistos": "MC_75bins.root",
     "DataHistos": "data_75bins_69200.root",
-    "UsePileUpWeight": true,
-    "CalculatePUSystematics": true
+    "UsePileUpWeight": false,
+    "CalculatePUSystematics": false
   }
 }
