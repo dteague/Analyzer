@@ -617,62 +617,7 @@ void Analyzer::read_info(std::string filename) {
 
 // This code works pretty much (at least in my tests), but dagnabit, its ugly.  They all can't be winners, at least now...
 void Analyzer::setCutNeeds() {
-  // for(auto it: *histo.get_groups()) {
-  //   if(fillInfo[it]->type == FILLER::None) continue;
-  //   neededCuts.loadCuts(fillInfo[it]->ePos);
-  // }
-  // for(auto it : *histo.get_cutorder()) {
-  //   try{
-  //     neededCuts.loadCuts(cut_num.at(it));
-  //   }catch(...){
-  //     std::cout<<"The following cut is strange: "<<it<<std::endl;
-  //     exit(2);
-  //   }
-  // }
-
-  // neededCuts.loadCuts(_Jet->findExtraCuts());
-  // if(doSystematics) {
-  //   neededCuts.loadCuts(CUTS::eGen);
-  // }
-
-  // for(auto it: jetCuts) {
-  //   if(!neededCuts.isPresent(it)) continue;
-  //   neededCuts.loadCuts(_Jet->overlapCuts(it));
-  // }
-
-  // if(neededCuts.isPresent(CUTS::eRWjet)) {
-  //   neededCuts.loadCuts(_FatJet->findExtraCuts());
-  //   neededCuts.loadCuts(_FatJet->overlapCuts(CUTS::eRWjet));
-  // } else {
-  //   std::cout<<"WJets not needed. They will be deactivated!"<<std::endl;
-  //   _FatJet->unBranch();
-  // }
-
-  // if( neededCuts.isPresent(CUTS::eRElec1) || neededCuts.isPresent(CUTS::eRElec2) ) {
-  //   neededCuts.loadCuts(_Electron->findExtraCuts());
-  // } else {
-  //   std::cout<<"Electrons not needed. They will be deactivated!"<<std::endl;
-  //   _Electron->unBranch();
-  // }
-
-  // if( neededCuts.isPresent(CUTS::eRMuon1) || neededCuts.isPresent(CUTS::eRMuon2) ) {
-  //   neededCuts.loadCuts(_Muon->findExtraCuts());
-  // } else {
-  //   std::cout<<"Muons not needed. They will be deactivated!"<<std::endl;
-  //   _Muon->unBranch();
-  // }
-
-  // if( !neededCuts.isPresent(CUTS::eGen) and !isData) {
-  //   std::cout<<"Gen not needed. They will be deactivated!"<<std::endl;
-  //   _Gen->unBranch();
-
-  // }
-
-  // std::cout << "Cuts being filled: " << std::endl;
-  // // for(auto cut : neededCuts.getCuts()) {
-  // //   std::cout << enumNames.at(static_cast<CUTS>(cut)) << "   ";
-  // // }
-  // std::cout << std::endl;
+  return;
 }
 
 
@@ -908,8 +853,10 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
       else if(cut == "DiscrByIsZdecay")     passCuts = isZdecay(lvec, lep);
       else if(cut == "DiscrByIso")          passCuts = passCutRange(lep.get_Iso(i),stats["IsoCut"]);
       else if(cut == "DiscrByTightID")      passCuts = _Muon->tight[i];
+      else if(cut == "DiscrByCutBasedID")   passCuts = _Electron->cutBased[i] == stats["CutBasedIDCut"];
       //      else std::cout << "'" << cut << "' not used in code " << std::endl;
     }
+    
     if(passCuts) active_part->at(ePos)->push_back(i);
     i++;
   }
@@ -1193,20 +1140,39 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
   }
 
   else if(group == "FillLeptonPair") {
+    int nl1, nl2;
+    TLorentzVector lep1, lep2;
+    if(active_part->at(CUTS::eMuonPair)->size() == 1) {
+      int pairNum = active_part->at(CUTS::eMuonPair)->at(0);
+      nl1 = poneNum(pairNum);
+      nl2 = ptwoNum(pairNum);
+      lep1 = _Muon->p4(nl1);
+      lep2 = _Muon->p4(nl2);
+    } else if(active_part->at(CUTS::eElecPair)->size() == 1) {
+      int pairNum = active_part->at(CUTS::eElecPair)->at(0);
+      nl1 = poneNum(pairNum);
+      nl2 = ptwoNum(pairNum);
+      lep1 = _Electron->p4(nl1);
+      lep2 = _Electron->p4(nl2);
+    } else if(active_part->at(CUTS::eMixPair)->size() == 1) {
+      int pairNum = active_part->at(CUTS::eMixPair)->at(0);
+      nl1 = poneNum(pairNum);
+      nl2 = ptwoNum(pairNum);
+      lep1 = _Muon->p4(nl1);
+      lep2 = _Electron->p4(nl2);      
+    } else
+      return;
+  
+    if(lep1.Pt() < lep2.Pt())
+      std::swap(lep1, lep2);
+    
+    histAddVal(lep1.DeltaR(lep2), "DeltaR");
+    histAddVal(lep1.Pt() - lep2.Pt(), "DeltaPt");
+    histAddVal(cos(absnormPhi(lep1.Phi() - lep2.Phi())),"CosDphi"  );
+    histAddVal((lep1 + lep2).M(), "Mass");
+    histAddVal(lep1.Pt(), "LeadPt");
+    histAddVal(lep2.Pt(), "SubLeadPt");
 
-    for(auto it : *active_part->at(CUTS::eLepPair)) {
-      int nl1 = poneNum(it);
-      int nl2 = ptwoNum(it);
-      auto lep1 = _Muon->p4(nl1);
-      auto lep2 = _Muon->p4(nl2);
-      histAddVal(lep1.DeltaR(lep2), "DeltaR");
-
-      histAddVal(lep1.Pt() - lep2.Pt(), "DeltaPt");
-      histAddVal(cos(absnormPhi(lep1.Phi() - lep2.Phi())),"CosDphi"  );
-      histAddVal((lep1 + lep2).M(), "Mass");
-      histAddVal(lep1.Pt(), "LeadPt");
-      histAddVal(lep2.Pt(), "SubLeadPt");
-    }
   }
   return;
 

@@ -40,17 +40,6 @@ FirstLeadingElectron1Eta    144  -7.2     +7.2
 Electron1Phi                 36  -3.15    +3.15
 Electron1MetMt              100   0      500
 
-FillElectron2 0
-
-NElectron2                   20   0.      20.
-Electron2Energy            2000   0.    5000.
-Electron2Pt                2000   0.    5000.
-Electron2Eta                 72  -3.6     +3.6
-FirstLeadingElectron2Pt     400   0.    1000.
-FirstLeadingElectron2Eta    144  -7.2     +7.2
-Electron2Phi                 36  -3.15    +3.15
-Electron2MetMt              100   0      500
-
 //------------------------------------------------//
 
 FillMuon1 1
@@ -63,15 +52,6 @@ FirstLeadingMuon1Pt     400   0.    1000.
 FirstLeadingMuon1Eta    144  -7.2     +7.2
 Muon1Phi                 36  -3.15    +3.15
 
-FillMuon2 0
-
-NMuon2                   20   0.      20.
-Muon2Energy            2000   0.    5000.
-Muon2Pt                2000   0.    5000.
-Muon2Eta                 72  -3.6     +3.6
-FirstLeadingMuon2Pt     400   0.    1000.
-FirstLeadingMuon2Eta    144  -7.2     +7.2
-Muon2Phi                 36  -3.15    +3.15
 
 //------------------------------------------------//
 
@@ -83,14 +63,6 @@ Jet1Pt       200   0.   500.
 Jet1Eta      100  -5.0   +5.0
 Jet1Phi      144  -6.3   +6.3
 
-FillJet2 0
-
-NJet2         20   0.    20.
-Jet2Energy   200   0.   500.
-Jet2Pt       200   0.   500.
-Jet2Eta      100  -5.0   +5.0
-Jet2Phi      144  -6.3   +6.3
-
 FillBJet 1
 
 NBJet         20   0.     20.
@@ -98,13 +70,6 @@ BJetEnergy   200   0.    500.
 BJetPt       200   0.    500.
 BJetEta       72  -3.6    +3.6
 BJetPhi       36  -3.15   +3.15
-
-FillCentralJet 0
-
-NCentralJet      20   0.    20.
-CentralJetPt    200   0.   500.
-CentralJetEta   100  -5.0   +5.0
-
 
 FillWJet 0
 
@@ -128,7 +93,7 @@ Meff               500  0  5000
 
 //------------------------------------------------//
 
-FillLeptonPair 0
+FillLeptonPair 1
 
 LeptonPairDeltaR                   100     0        5.
 LeptonPairDeltaPt                  100     0     1000

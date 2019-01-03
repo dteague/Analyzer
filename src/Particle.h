@@ -217,6 +217,7 @@ public:
   float pfRelIso03_all[MAXINDEX];
   float pfRelIso03_chg[MAXINDEX];
   int cutBased[MAXINDEX];
+  int cutBased_fall17[MAXINDEX];
   bool cutBased_HLTPreSel[MAXINDEX];
   bool mvaIso_90[MAXINDEX];
   bool mvanoIso_WP90[MAXINDEX];

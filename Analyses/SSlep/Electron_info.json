@@ -1,18 +1,24 @@
 {
   "Elec1": {
-    "DiscrByIsZdecay": false,
+      "DiscrByIsZdecay": false,
+      "HEEPIDCut": false,
     "DiscrByHEEPID": false,
-    "DiscrByHLTID": 4,
+    "HLTIDCut": 4,
     "DiscrByHLTID": false,
-    "DiscrByCBID": 4,
-    "DiscrByCBID": false,
+    "CBIDCut": 4,
+    "DiscrByCBID": true,
+    "DiscrByCutBasedID": true,
+    "CutBasedIDCut": 4,
+    "DiscrByIso": false,
     "IsoCut": [
       0.0,
-      0.4
+      0.08
     ],
-    "DiscrByIso": true,
+
+      "DiscrByVeto": true,
+      
     "PtCut": [
-      15.0,
+      30.0,
       9999.9
     ],
     "EtaCut": 2.4
@@ -35,7 +41,7 @@
     ],
     "EtaCut": 2.1
   },
-
+    
   "Smear": {
     "doEfficiencyPlots": true,
     "MotherID": 23,

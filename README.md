@@ -1,64 +1,120 @@
 # Setting Up
 
-If you are setting up the Analyzer, click on the link for respective version
+For the current version, it works in CMSSW_9_1_0_pre1. It probably works in other version as well, but this is what I've gotten it working with. Since this is made to work with nanoAOD files, this probably doesn't have to change for each CMSSW version since constant n-tuple type.
 
-- [CMSSW_7_4_x](https://github.com/dteague/Analyzer/tree/TNT74x)
-- [CMSSW_8_0_x](https://github.com/dteague/Analyzer/tree/TNT80x)
+```sh
+cmsrel CMSSW_9_1_0_pre3
+cd CMSSW_9_1_0_pre1/src
+cmsenv
+git clone https://github.com/dteague/Analyzer
+cd Analyzer
+make -j 10
+```
 
 # Changes
 
-## Version 1: Initial version, same as old BSM3G code
++ First version, updates will be written here
 
-## Version 2: _COMING SOON_ Make MET its own cut and add SVFit
-MET cuts are now in the file PartDet/Run_info.in.  SVFit cuts are not necessary for it to run.
+# How to Use Code
 
+## Particle Definitions:
+
+### PartDet
+
+All information about the particles is derived from the PartDet (Particle Details) files. An example of these files is found in src_sh{Analyses/example}, and the Analyses folder is made to put future analyses so it is easy to run over them. 
+
+The code natively will run the analysis in the PartDet folder. To change this, run with the -C option and the location of these files.
+
+### Info files
+
+All of the files are in json format. Json has very particular formatting restrictions, so errors may come up because of this. It is suggested to put each json file through a json file checker if a json error crops up (may be added in future editions).
+
+Types are infered by the contents, so it should be smart enough to figure out what you need. The basic particles are read in by the Particle class while the other files must be read in by the analyzer code.
+
+| Filename              | file contents                           |
+|-----------------------|:---------------------------------------:|
+| Muon_info.json        | Muon cuts                               |
+| Electron_info.json    | Electron cuts                           |
+| FatJet_info.json      | Fat Jet (W jet) cuts                    |
+| Gen_info.json         | Gen level info (don't change)           |
+| Jet_info.json         | Jet Cuts                                |
+| Tau_info.json         | Tau Cuts (no implimented)               |
+|-----------------------|-----------------------------------------|
+| Hist_entries.in       | Histograms in each folder               |
+| Hist_syst_entries.in  | Histograms in each systematic folder    |
+| Cuts.in               | Multiplicity cuts, also defines folders |
+| Run_info.json         | Generic Run cuts (e.g. MET cuts)        |
+| Systematics_info.json | systematics set up here                 |
+
+Some files haven't been changed over to the json format and require a specific configuration.
+
+The basic idea is particles read in their json files which have a "subparticle" name, eg, Muon1, Muon2 in the Muon_info.json file. In each subparticle set are the different cuts which can be defined. The cut structure first asks if a cut is going to be used, then the cut values are used. In the function src_C++{bset}, each cut that is used is put in a list; this is done to speed up implimentation/avoid redundances.
+
+## Histograms Implimentations
+
+Histgrams are defined in the Hist_entries.in file (as well as the syst version of this). The way histograms are read in is similar to how the actual ROOT objects take arguments, ie:
+
+```
+<NAME>  <BINS>  <MIN>  <MAX>   // OR
+<NAME 2D>  <XBINS> <XMIN>  <XMAX>  <YBINS>  <YMIN>  <YMAX>
+```
+
+Each histgram made is put into each folder created. This may lead to redunances, but that's all we've got right now...
+
+Many of the histograms can be grouped together, so to facilitate the removal process, blocks of similar histograms are grouped under a heading that starts with the keywork "Fill."  To remove the block, set the Fill heading to `false`.  Since the heading won't be seen by the program, the calculates done by the block won't be done either, so marginal speed gains will be made by program (less 100th of total time, so not signicant)
+
+### Making a new Histogram
+
+Adding a new histogram is fairly easy since the program is dynamic enough to hold most changes.  Two main things need to be done.
+
+1. The histogram and information needs to be put into PartDet/Hist_info.in.  This includes name, bins, min, max as well as which heading the histogram will be stored under.  This can follow the template of the other histograms, so this is relatively easy
+2. The histogram needs to be filled with the right values.  The filling of the histograms is done in the method `fillFolder`.  In this method, there are several if blocks for the different headings.  Go to the appropriate heading (or make one if a new one was made in the Hist_info.in file), and use the fill command, ie
+
+```C++
+histAddVal(<Value>, <Short name>)
+```
+
+The "Short name" is a genericized name to facilitate filling similar histograms. Its made by removing the Particle name, eg Muon1_Pt -> Pt. For multiparticle where you want a specific particle info, the generized name is turned into Part1 or Part2, eg for DiMuon pair, you want the leading muon's Pt, the generized name is Part1_Pt (note: the first particle is alwasy the leading particle).
+
+## Folder Structure
+
+Folders in the program are made when reading PartDet/Cuts.in.  By default, the program will always make the last significant cut (range is not [0,-1]) into a folder.  To add folders, simply put `***` before the cut without any space.
+
+e.g.
+```
+NRecoMuon1               0  -1
+NRecoTau1                2   2
+***NDiTauCombinations    1   0
+NSusyCombinations        1  -1
+NDiJetCombinations       0  -1
+```
+In this example, there is a cut on Tau1, DiTaus, and a VBF cut.  The folders created are NDiTauCominations and NSusyCombinations (last significant cut).
+
+The order of the cuts can also be rearranged if one wants to see cut flow in a different way.
 
 # FAQ
 
-- Q: [The program crashes with a SegFault](https://github.com/dteague/Analyzer#a-segfault)
-- Q: [The program crashes with SegFault and Error in TTree::SetBranchStatus](https://github.com/dteague/Analyzer#segfault-with-tbranch-error)
-- Q: [Why isn't my MET cut working?](#met-cut)
-- Q: [How do I set up folders?](https://github.com/dteague/Analyzer#folders)
-- Q: [How do I control which histograms make it into my root file?](https://github.com/dteague/Analyzer#histogram-management)
-- Q: [How do I add a new histogram?](https://github.com/dteague/Analyzer#new-histograms)
-- Q: [What is SVFit?  How do I use it?](https://github.com/dteague/Analyzer#svfit)
-
-### A: SegFault
++ Q: [What happens when program crashes?]
++ Q: [How Do I Add new "Selections?"]
++ Q: [How Do I Run the dang code?]
+## What happens when program crashes?
 
 Try to get more info:
 
+```sh
 make clean; DEBUG=1 make -j8
-
-and then run the Analyzer again e.g.:
-
+# Now run in gdb
+gdb --args ./Analyzer -in <inputfile> -out output.root
+run
+# when it crashes
+where
 ```
-gdb --args ./Analyzer -in /uscms_data/d3/cfgonzal/ZprimeAnalysis/2017_BSG3G/CMSSW_8_0_10/src/LIST_SAMPLES/ZprimeSamples/OutTree_Zprime3000.root -out test_2.root
-```
 
-then say ```run``` and when it crashes say ```where```
+The where command should give you the function and inputs to the function where something went wrong. This may take more investigation, but this can save a lot of time identifying where the issue is taking place, and thus how to diagnose it
 
+Here is an example of the gdb output:
 
-If you get a setfault, it can mean one of two things.  If the error looks like:
-
-```
-$ ./Analyzer OutTree.root test.root
-setup start
-TOTAL EVENTS: ###
-setup complete
-
- *** Break *** segmentation violation
-
-===========================================================
-There was a crash.
-This is the entire stack trace of all threads:
-===========================================================
-...
-...
-###  0x00007fc6e0d9d3f7 in std::__throw_out_of_range (__s=__s entry=0x47dd90 "_Map_base::at") at ../../../../../libstdc++-v3/src/c++11/functexcept.cc:90
-...
-```
-This is a map out of bound error.  This means one of your values is not named correctly or is being parsed as the wrong values.  To check which values, look at the top of the stack.  I should look something like this:
-```
+```sh
 The lines below might hint at the cause of the crash.
 If they do not help you then please submit a bug report at
 http://root.cern.ch/bugs. Please post the ENTIRE stack trace
@@ -75,75 +131,66 @@ entry=CUTS::eGTau, stats=...) at src/Analyzer.cc:561
 #14 0x000000000041d4ac in main ()
 ===========================================================
 ```
-In this example, we can see in line #12, the function called getGoodRecoLeptons, and based on the CUTS value sent in (eRTau1), we can see that the RecoTau1 has a value that is wrong.  Now we have to just go into PartDet/Tau_info.in and look under Tau1 to find the error.  To Help with this, one can look through the function in src/Analyzer.cc or look at a template info file such at in [this repository](https://github.com/dteague/Analyzer/tree/master/PartDet)
 
-### SegFault with TBranch Error
+As we can see, this error happened in src_sh{getGoodRecoLeptons}, specifically for the Tau1. While this isn't telling what the error is, it certainly can narrow down where the problem is happening (e.g. a tau related cut is set wrong)
 
-If the Error looks like:
+## How Do I Add new "Selections?"
+
+The code is set up in the following way:
+
++ FillCuts goes through the multiplicity cuts defined in the Cuts.in file. It checks the numbers from the file and if this event has particles within the range specified
++ getGoodParticles is run with run each respective getGood function and has an associated CUTS object. The getGood functions find the good Particles and put them into an array of the good particles.
++ fillFolder runs through all of the Fill groups to put the data into the histograms.
+
+There are a few distinct parts that need to be addressed to get a new selection created.
+
+### CUTS must be created
+
+The actual cut is done on a value specified in the `Cuts.in` file. The naming convention is to call it "N<Cut Name>", but this doesn't have to be followed. Once a variable is created in the `Cuts.in` file, it needs to be linked to the code. This is done is the CUTS enum objects.
+
+In the Cut_enum.h file, one just needs to put their enum into the list, before the value labelled Last. To link the CUTS variable with the `Cuts.in` variable, in `Analyzer.cc`, in the variable `cut_num`, you must create a map value in the vane of the others.
+
+### getGood function must be created
+
+Most likely, the new selection will require a unique way of applying cuts, so a new function must be created to accommodate this. One can use one the existing getGood functions as a template. The necessary part is simply that the function includes
+```c
+if(passCuts) active_part->at(ePos)->push_back(i);
 ```
-$ ./Analyzer TNT.root test.root
-setup start
-TOTAL EVENTS: 493
-Error in <TTree::SetBranchStatus>: unknown branch -> Tau_byTightIsolationMVArun2v1DBnewDMwLT
-Error in <TTree::SetBranchAddress>: unknown branch -> Tau_byTightIsolationMVArun2v1DBnewDMwLT
-setup complete
+or some variant. This line meaning the active_part (list of good parts being considered then), specifically the particles labelled by the CUTS tag of `ePos` is saying particle i is a good one, or it passed all of the cuts.
 
- *** Break *** segmentation violation
-
-===========================================================
-There was a crash.
-This is the entire stack trace of all threads:
-===========================================================
-...
-...
-...
+One will probably need to deal with the systematics which can be checked with the usual `needSyst(int)` function for Particle objects. If this doesn't make sense to you/you don't need systematics right now, just put at the top of the function:
+```c
+if(syst != 0) return;
 ```
-The error is being thrown by ROOT because some of the Branches haven't been set correctly.  This can happen because the nTuples for 74x and 80x have different names, or because the name is simply mispelled.  ROOT tells you which branch has been set wrong so just go into PartDet/Tau_info.in and change the name there.  To find the names of the branches, simply list them by typing
+So systematics aren't considered.
+
+### A fillGroup must be created
+
+After the above steps, the cut is made and applied. If one wants to plot specific variables connected to the cuts, one will have to create a fillGroup to handle this. 
+
+First, histogram info is read from the PartDet file `Hist_entries.in`. It blocks related cuts into groups called filled groups, and to facilitate looking at these groups, groups of variables can be added or removed from the final root file by turning on or off the flag in front of the fillGroup name (e.g. "FillElectron1")
+
+All of the histogram variables are put in the `fill_Folder` function in `Analyzer.cc`. There is a specific object for handling the different filling called FillVals which are structs in the `FillInfo.h` file (naming convention??). 
+
+With this in mind, to get the histograms to work, one needs to create the cuts in the `Hist_entries.in` file. Then, a new mapped value needs to be created in `create_fillInfo()` in `Analyzer.cc`. The values put into the FillVals are used to make some things more generic (e.g. if you have `FILLER::Single`, it will all run through single particle filling). If more things needs to be added, change this `FillInfo.h`.
+
+Last, in `fill_Folder`, there is a chain of if else blocks based on group name. Now, put filling into this if else and it should fill up the root file with the usual `histAddVal` function.
+
+### In Summary
+
++ Put new cut name in `Cuts.in`
++ Create CUTS variable in `Cut_enum.h`
++ Link cut name and CUTS variable in `Analyzer.cc` in variable `cut_num`
++ create getGood function to fill up particle array at the right CUTS point
++ FillGroup created in `Hist_entries.in`
++ FillGroup linked to FillVals variable in `Analyzer.cc` in function `create_fillInfo()`
++ filling code put into if/else block in `Analyzer.cc` in function `fill_Folder`
+
+## Q: How Do I Run the dang code?
+The code works with options, so it should help you out if you need something done. Here is an example
+```sh
+./Analyzer -C Analyses/SSlep/ -in in_files/ -out test.root
 ```
-cat NOTES
-```
-### Met Cut
-
-The MET has been changed how it's implimented in the old code.  To make sure your MET is working properly, make sure you MET cut information is in the file ```PartDet/Run_info.in```.  The python script ```moveMET.py``` should do this for you if you have any doubts.
-
-You must also tell the program to cut on the MET if required.  This is implimented in much the same was the multiplicity cuts in the file ```PartDet/Cuts.in```.  Simply put
-```
-METCut          1   -1
-```
-in the Cuts.in file to make sure the file removes events that don't pass MET cuts (or MHT and HT cuts for that matter).  Because of the change, the MET cut can be put in any order in relation to the other cuts so you can see how MET effects cut flow efficiency
-
-### Folders
-
-Folders in the program are made when reading PartDet/Cuts.in.  By default, the program will always make the last significant cut (range is not [0,-1]) into a folder.  To add folders, simply put ```***``` before the cut without any space.
-
-e.g.
-```
-NRecoMuon1               0  -1
-NRecoTau1                2   2
-***NDiTauCombinations    1   0
-NSusyCombinations        1  -1
-NDiJetCombinations       0  -1
-```
-In this example, there is a cut on Tau1, DiTaus, and a VBF cut.  The folders created are NDiTauCominations and NSusyCombinations (last significant cut).
-
-The order of the cuts can also be rearranged if one wants to see cut flow in a different way.
-
-### Histogram Management
-
-All of the Histograms are stored in PartDet/Hist_info.in.  On each line, the details of the histogram are:
-```
-<NAME>  <BINS>  <MIN>  <MAX>   // OR
-<NAME 2D>  <XBINS> <XMIN>  <XMAX>  <YBINS>  <YMIN>  <YMAX>
-```
-Since the histogram information is read at the beginning of each run, the binning and domain of the histogram can be changed to fit the analysis.
-
-As with all of the info files, the file supports C and python style line commenting (// and #).  This means, to remove a specific histogram, simply comment it out
-
-Many of the histograms can be grouped together, so to facilitate the removal process, blocks of similar histograms are grouped under a heading that starts with the keywork "Fill."  To remove the block, set the Fill heading to 0 or false.  Since the heading won't be seen by the program, the calculates done by the block won't be done either, so marginal speed gains will be made by program (less 100th of total time, so not signicant)
-
-### New Histograms
-
-Adding a new histogram is fairly easy since the program is dynamic enough to hold most changes.  Two main things need to be done.
-
-1. The histogram and information needs to be put into PartDet/Hist_info.in.  This includes name, bins, min, max as well as which heading the histogram will be stored under.  This can follow the template of the other histograms, so this is relatively easy
-2. The histogram needs to be filled with the right values.  The filling of the histograms is done in the method ```fillFolder```.  In this method, there are several if blocks for the different headings.  Go to the appropriate heading (or make one if a new one was made in the Hist_info.in file), and write the following command to write to the histogram:
++ The -C flag changes the directory where the particle information files are found. Normally, it defaults to ```PartDet```
++ The -in flag will read in a list of root files or read root files from a folder. In this example, a folder called `in_files/` was used
++ -out specifies the name of the outputted root file of the function.

@@ -8,9 +8,9 @@
     ],
 
     "DiscrBySoftID": false,
-    "DiscrByTightID": false,
+    "DiscrByTightID": true,
     "PtCut": [
-      15.0,
+      30.0,
       9999.9
     ],
     "EtaCut": 2.5

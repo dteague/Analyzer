@@ -4,61 +4,13 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
-template< typename T >
-class Enum {
-public:
-  class Iterator {
-
-  public:
-    Iterator( int value ) :  m_value( value ) { }
-
-    T operator*( void ) const {
-      return (T)m_value;
-    }
-
-    void operator++( void ) {
-      ++m_value;
-    }
-
-    bool operator!=( Iterator rhs ) {
-      return m_value != rhs.m_value;
-    }
-
-  private:
-    int m_value;
-  };
-
-};
-
-template< typename T >
-typename Enum<T>::Iterator begin( Enum<T> ) {
-  return typename Enum<T>::Iterator( (int)T::First );
-}
-
-template< typename T >
-typename Enum<T>::Iterator end( Enum<T> ) {
-  return typename Enum<T>::Iterator( ((int)T::Last) + 1 );
-}
-
-
-struct EnumHash {
-  template<typename T> inline typename std::enable_if<std::is_enum<T>::value, std::size_t>::type
-
-  operator()(const T&t) const  {
-    return static_cast<std::size_t>(t);
-  }
-
-};
-
-
-
 
 enum class CUTS {
   eGen,
   eGTau,        eGTop,        eGElec,       eGMuon,       eGZ,        eGW,       eGHiggs, eGJet,
   eRVertex,     eRMuon1,      eRMuon2,      eRElec1,      eRElec2,    eRTau1,   eRTau2,
   eRJet1,       eRJet2,       eRCenJet,     eR1stJet,     eR2ndJet,   eRBJet,   eRWjet,
-  eLepPair,     eMuonPair,    eElecPair,    eMixPair,     eDiJet,
+    eLepPair,     eMuonPair,    eElecPair,    eMixPair,     eDiJet,     eTripVeto,
   eSusyCom,     eMET,         eNuTau,       eRTrig1,      eRTrig2,
   First = eGen,
   Last = eRTrig2};
@@ -74,6 +26,37 @@ enum class CUTS {
 /*   {CUTS::eSusyCom, "eSusyCom"}, {CUTS::eMET, "eMET"}, {CUTS::eNuTau, "eNuTau"}, {CUTS::eRTrig1, "eRTrig1"}, {CUTS::eRTrig2, "eRTrig2"} */
 /*   }; */
 
+
+
+template< typename T >
+class Enum {
+public:
+  class Iterator {
+  public:
+    Iterator( int value ) :  m_value( value ) { }
+    T operator*( void ) const {return (T)m_value; }
+    void operator++( void ) {++m_value;}
+    bool operator!=( Iterator rhs ) {return m_value != rhs.m_value;}
+  private:
+    int m_value;
+  };
+};
+
+template< typename T >
+typename Enum<T>::Iterator begin( Enum<T> ) {
+  return typename Enum<T>::Iterator( (int)T::First );
+}
+
+template< typename T >
+typename Enum<T>::Iterator end( Enum<T> ) {
+  return typename Enum<T>::Iterator( ((int)T::Last) + 1 );
+}
+struct EnumHash {
+  template<typename T> inline typename std::enable_if<std::is_enum<T>::value, std::size_t>::type
+  operator()(const T&t) const  {
+    return static_cast<std::size_t>(t);
+  }
+};
 
 
   #endif
