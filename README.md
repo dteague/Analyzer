@@ -4,10 +4,12 @@ For the current version, it works in CMSSW_9_1_0_pre1. It probably works in othe
 
 ```sh
 cmsrel CMSSW_9_1_0_pre3
-cd CMSSW_9_1_0_pre1/src
+cd CMSSW_9_1_0_pre3/src
 cmsenv
 git clone https://github.com/dteague/Analyzer
 cd Analyzer
+git submodule init
+git submodule update
 make -j 10
 ```
 
