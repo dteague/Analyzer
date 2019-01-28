@@ -1,9 +1,12 @@
 #include "Analyzer.h"
 #include <csignal>
+#include <sys/stat.h>
 #define Q(x) #x
 #define QUOTE(x) Q(x)
 #include QUOTE(MYANA)
-
+#include <sys/types.h>
+#include <dirent.h>
+ 
 
 
 bool do_break;
@@ -19,13 +22,14 @@ void usage() {
   std::cout << "./Analyzer -out outfile.root -in infile.root\n";
   std::cout << "Available options are:\n";
   std::cout << "-C: use a different config folder than the default 'PartDet'\n";
+  std::cout << "-meta: add metadata to file\n";
   std::cout << "-t: run over 100 events\n";
   std::cout << "\n";
 
   exit(EXIT_FAILURE);
 }
 
-void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnames, std::string &outputname, bool &testRun, std::string &configFolder) {
+void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnames, std::string &outputname, bool &testRun, std::string &configFolder, bool& useMeta) {
   if(argc < 3) {
     std::cout << std::endl;
     std::cout << "You have entered too little arguments, please type:\n";
@@ -55,6 +59,9 @@ void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnam
       std::cout << "Analyser: Outputfile " << outputname << std::endl;
       arg++;
       continue;
+    } else if(strcmp(argv[arg], "-meta") == 0) {
+      useMeta = true;
+      arg++;
     } else if(argv[arg][0] == '-') {
       std::cout << std::endl;
       std::cout << "You entered an option that doesn't exist.  Please use one of the options:" << std::endl;
@@ -79,6 +86,7 @@ void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnam
   }
 
 
+  
   //for( auto file: inputnames) {
     //ifstream ifile(file);
     //if ( !ifile && file.find("root://") == std::string::npos && file.find("root\\://") == std::string::npos) {
@@ -89,6 +97,39 @@ void parseCommandLine(int argc, char *argv[], std::vector<std::string> &inputnam
   return;
 }
 
+bool is_dir(const char* path) {
+    struct stat buf;
+    stat(path, &buf);
+    return S_ISDIR(buf.st_mode);
+}
+
+std::vector<std::string> read_directory(const std::string& name) {
+  std::vector<std::string> v;
+  DIR* dirp = opendir(name.c_str());
+  struct dirent * dp;
+  while ((dp = readdir(dirp)) != NULL) {
+    v.push_back(dp->d_name);
+  }
+  closedir(dirp);
+  return v;
+}
+
+std::vector<std::string> inputDirectory(std::vector<std::string> oldInput) {
+  std::vector<std::string> newInput;
+  for(auto filename: oldInput) {
+    if (is_dir(filename.c_str())) {
+      for(auto insideName : read_directory(filename)) {
+	if(insideName.find(".root") != std::string::npos) 
+	  newInput.push_back(filename+ "/" + insideName);
+      }
+    } else if(filename.find(".root") != std::string::npos) 
+      newInput.push_back(filename);
+  }
+  return newInput;
+}
+
+
+
 int main (int argc, char* argv[]) {
 
   bool testRun = false;
@@ -97,11 +138,11 @@ int main (int argc, char* argv[]) {
   std::string outputname;
   std::string configFolder="PartDet";
   std::vector<std::string> inputnames;
-
+  bool useMeta = false;
 
   //get the command line options in a nice loop
-  parseCommandLine(argc, argv, inputnames, outputname, testRun, configFolder);
-
+  parseCommandLine(argc, argv, inputnames, outputname, testRun, configFolder, useMeta);
+  inputnames = inputDirectory(inputnames);
 
   //setup the analyser
   Analyzer testing(inputnames, outputname, configFolder);

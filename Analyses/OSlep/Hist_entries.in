@@ -38,7 +38,7 @@ Electron1Eta                 72  -3.6     +3.6
 FirstLeadingElectron1Pt     400   0.    1000.
 FirstLeadingElectron1Eta    144  -7.2     +7.2
 Electron1Phi                 36  -3.15    +3.15
-Electron1Charge		      3  -1        2
+Electron1MetMt              100   0      500
 
 //------------------------------------------------//
 
@@ -51,7 +51,7 @@ Muon1Eta                 72  -3.6     +3.6
 FirstLeadingMuon1Pt     400   0.    1000.
 FirstLeadingMuon1Eta    144  -7.2     +7.2
 Muon1Phi                 36  -3.15    +3.15
-Muon1Charge	          3  -1        2
+
 
 //------------------------------------------------//
 
@@ -101,4 +101,3 @@ LeptonPairCosDphi                  220    -1.1      1.1
 LeptonPairMass 		       100     0     200
 LeptonPairLeadPt		       600     0     1500
 LeptonPairSubLeadPt		       600     0     1500
-LeptonPairCharge		       3       -1     2

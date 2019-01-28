@@ -55,7 +55,7 @@ static const int nTrigReq = 2;
 class Analyzer {
   //  friend class CRTester;
 public:
-  Analyzer(std::vector<std::string>, std::string, std::string configFolder="PartDet");
+  Analyzer(std::vector<std::string>, std::string, std::string configFolder="PartDet", bool useMeta = false);
   ~Analyzer();
   void add_metadata(std::vector<std::string> infiles);
   void clear_values();
@@ -91,6 +91,7 @@ public:
   void getGoodRecoLeptons(const Lepton&, const CUTS, const CUTS, const json&, const int);
   void getGoodRecoJets(CUTS, const json&, const int);
   void getGoodRecoFatJets(CUTS, const json&, const int);
+  int getLooseLepton(const Lepton&);
 
   void getGoodLeptonPair(CUTS, const json&, const int, const Lepton&, int, const Lepton&, int);
   bool isZdecay(const TLorentzVector&, const TLorentzVector&);

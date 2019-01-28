@@ -15,7 +15,7 @@ NRecoBJet	      2    -1
 NRecoJet1	      2   -1
 NRecoMuon1	      0    2
 NRecoElectron1        0    2
-***VetoFlag	      0    0
+VetoFlag	      0    0
 NLeptonPair	      1    1
 ***Final		      0    -1
 

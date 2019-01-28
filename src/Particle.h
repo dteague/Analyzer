@@ -64,6 +64,7 @@ public:
   TLorentzVector RecoP4(uint) const;
   TLorentzVector& RecoP4(uint);
 
+  
   uint size() const;
   std::vector<TLorentzVector>::iterator begin();
   std::vector<TLorentzVector>::iterator end();
@@ -193,7 +194,8 @@ public:
 
   double charge(uint)const;
   int _charge[MAXINDEX];
-
+  virtual bool PassCutID(int, int) const;
+  
   virtual double get_Iso(int) const {return -1;}
 };
 
@@ -203,6 +205,7 @@ public:
   Electron(TTree*, std::string, std::vector<std::string>);
 
   double get_Iso(int) const;
+  bool PassCutID(int, int) const;
   
   std::bitset<8> cbIDele1;
   std::bitset<8> cbIDele2;
@@ -245,7 +248,7 @@ public:
   Muon(TTree*, std::string, std::vector<std::string>);
 
   double get_Iso(int) const;
-
+  bool PassCutID(int, int) const;
   bool tight[MAXINDEX];
   bool soft[MAXINDEX];
   float miniPFRelIso_all[MAXINDEX];

@@ -1,0 +1,50 @@
+{
+    ////:" from https://github.com/cms-jet/JRDatabase",
+  "Jet_systematics": {
+    "jetResolutionSFFile": "Pileup/Spring16_25nsV6_MC_SF_AK4PFchs.txt",
+    "jetResolutionFileUnmatched": "Pileup/Spring16_25nsV6_MC_PtResolution_AK4PFchs.txt",
+    "res": 0.032,
+    "scale": 0.05,
+    "eta_max": 2.8,
+    "pt_min": 30
+  },
+  "Tau_systematics": {
+    "res": 0.0,
+    "scale": 0.03,
+    "eta_max": 2.4,
+    "pt_min": 30
+  },
+  "Electron_systematics": {
+    "res": 0.0,
+    "scale": 0.003,
+    "eta_max": 2.8,
+    "pt_min": 30
+  },
+  "Muon_systematics": {
+//:"Based "on 2015 "JINST 10 "P06005,
+    "res": 0.032,
+    "scale": 0.05,
+    "eta_max": 2.8,
+    "pt_min": 30
+  },
+  "Systematics": {
+    "Muon_Scale_Down": false,
+    "Muon_Scale_Up": false,
+    "Muon_Res_Down": false,
+    "Muon_Res_Up": false,
+    "Electron_Scale_Down": false,
+    "Electron_Scale_Up": false,
+    "Electron_Res_Down": false,
+    "Electron_Res_Up": false,
+    "Jet_Scale_Down": false,
+    "Jet_Scale_Up": false,
+    "Jet_Res_Down": false,
+    "Jet_Res_Up": false,
+    "MetUncl_Down": false,
+    "MetUncl_Up": false,
+    "Tau_weight_Down": false,
+    "Tau_weight_Up": false,
+    "Tau_weight_Normal": false,
+    "useSystematics": false
+  }
+}

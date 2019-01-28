@@ -301,6 +301,8 @@ std::vector<CUTS> Lepton::findExtraCuts() {
 
 double Lepton::charge(uint index)const     {return _charge[index];}
 
+bool Lepton::PassCutID(int i, int cut) const {return true;}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////    ELECTRON   ////////////////////////////////////////
@@ -347,7 +349,7 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
    SetBranch("Electron_pfRelIso03_chg", pfRelIso03_chg);
   }
 
-  if(elec1["DiscrByCutBasedID"]) {
+  if(elec1["DiscrByCBID"]) {
     SetBranch("Electron_cutBased", cutBased);
     //    SetBranch("Electron_cutBased_HLTPreSel", cutBased_HLTPreSel);
   }
@@ -377,6 +379,16 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
 
 double Electron::get_Iso(int index) const {
   return pfRelIso03_all[index];
+}
+
+/*
+veto = 1
+loose = 2
+medium = 3
+tight = 4
+ */
+bool Electron::PassCutID(int i, int cut) const {
+ return cutBased[i] <= cut;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -409,6 +421,21 @@ Muon::Muon(TTree* _BOOM, std::string filename, std::vector<std::string> syst_nam
 double Muon::get_Iso(int index) const {
   return pfRelIso03_all[index];
 }
+
+/*
+veto = 1
+loose = 2
+medium = 3
+tight = 4
+ */
+bool Muon::PassCutID(int i, int cut) const {
+  if(cut == 2) return soft[i];
+  else if(cut == 3) return tight[i];
+  else if(cut == 4) return tight[i];
+  return false;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////

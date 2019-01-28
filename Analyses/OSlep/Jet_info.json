@@ -15,7 +15,6 @@
     ]
   },
   "Jet1": {
-    "RemoveBJets": true,
     "Elec1DeltaRCut": 0.3,
     "DiscrByElec1DeltaR": true,
     "Muon1DeltaRCut": 0.3,
