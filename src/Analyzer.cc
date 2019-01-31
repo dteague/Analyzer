@@ -867,9 +867,9 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
     if(passCuts) active_part->at(ePos)->push_back(i);
     i++;
   }
-  if(find(cut_list.begin(), cut_list.end(), "DiscrByVeto") != cut_list.end())
-    if(getLooseLepton(lep) != active_part->at(ePos)->size()) active_part->at(CUTS::eTripVeto);
-  
+  if(find(cut_list.begin(), cut_list.end(), "DiscrByVeto") != cut_list.end()) {
+    if(getLooseLepton(lep) != active_part->at(ePos)->size()) active_part->at(CUTS::eTripVeto)->push_back(1);
+  }
   return;
 }
 

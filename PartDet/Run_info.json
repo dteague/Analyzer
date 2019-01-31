@@ -1,0 +1,28 @@
+{
+  "Run": {
+    "JetEtaForMhtAndHt": 5.0,
+    "JetPtForMhtAndHt": 30.0,
+    "ApplyJetLooseIDforMhtAndHt": false,
+    "DiscrByHT": true,
+    "HTCut": 300.0,
+    "DiscrByMHT": false,
+    "MhtCut": 50.0,
+    "DiscrByMet": true,
+    "MetCut": [
+      50.0,
+      10000.0
+    ],
+    "MT2Mass": 0,
+    "Triggers": [
+      "HLT_DoubleLooseChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg"
+    ],
+    "ApplyGenWeight": true,
+    "isData": false,
+    "MCPUHistName": "pileup",
+    "DataPUHistName": "pileup",
+    "MCHistos": "MC_75bins.root",
+    "DataHistos": "data_75bins_69200.root",
+    "UsePileUpWeight": false,
+    "CalculatePUSystematics": false
+  }
+}

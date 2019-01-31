@@ -403,12 +403,9 @@ Muon::Muon(TTree* _BOOM, std::string filename, std::vector<std::string> syst_nam
   auto& mu1 = pstats["Muon1"];
   auto& mu2 = pstats["Muon2"];
 
-  if(mu1["DiscrByTightID"]|| mu2["DiscrByTightID"]) {
-    SetBranch("Muon_tightId", tight);
-     }
-  if(mu1["DiscrBySoftID"]|| mu2["DiscrBySoftID"]) {
-    SetBranch("Muon_softId", soft);
-  }
+  SetBranch("Muon_tightId", tight);
+  SetBranch("Muon_softId", soft);
+
   if(mu1["DiscrByIso"]|| mu2["DiscrByIso"]) {
     SetBranch("Muon_miniPFRelIso_all", miniPFRelIso_all);
     SetBranch("Muon_miniPFRelIso_chg", miniPFRelIso_chg);

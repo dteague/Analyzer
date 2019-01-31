@@ -1,0 +1,23 @@
+{
+  "Gen": {
+    "HiggsStatus": 2,
+    "HiggsID": 25,
+    "WStatus": 2,
+    "WID": 24,
+    "ZStatus": 2,
+    "ZID": 23,
+    "MuonStatus": 1,
+    "MuonID": 13,
+    "ElectronStatus": 1,
+    "ElectronID": 11,
+    "TopStatus": 2,
+    "TopID": 6,
+    "TauStatus": 2,
+    "TauID": 15,
+    "TauEtaCut": 10.0,
+    "TauPtCut": [
+      -10.0,
+      10000.0
+    ]
+  }
+}

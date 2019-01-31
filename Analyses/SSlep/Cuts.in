@@ -10,13 +10,13 @@ NGenHiggs	0  -1
 NRecoTriggers1     0   -1           ///only 0 or 1
 
 NRecoVertex           1   -1
-METCut	              1   -1
-NRecoBJet	      2    -1
-NRecoJet1	      2   -1
-NRecoMuon1	      0    2
-NRecoElectron1        0    2
-***VetoFlag	      0    0
-NLeptonPair	      1    1
+// METCut	              1   -1
+// NRecoBJet	      2    -1
+// NRecoJet1	      4   -1
+NRecoMuon1	      2    2
+NRecoElectron1        0    0
+// ***VetoFlag	      0    0
+// NLeptonPair	      1    1
 ***Final		      0    -1
 
 

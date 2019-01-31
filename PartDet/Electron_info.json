@@ -5,7 +5,7 @@
     "DiscrByHEEPID": false,
     "HLTIDCut": 4,
     "DiscrByHLTID": false,
-    "DiscrByCBID": false,
+    "DiscrByCBID": true,
     "CBIDCut": 4,
     "DiscrByIso": false,
     "IsoCut": [

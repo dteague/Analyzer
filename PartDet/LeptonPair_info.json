@@ -14,13 +14,13 @@
     "DiscrByIsZDecay": true
   },
   "GenericPair": {
-    "DiscrByPairSign": false,
-    "PairSignCut": 1,
-    "DiscrByPairPt": false,
+    "DiscrByPairSign": true,
+    "PairSignCut": -1,
+    "DiscrByPairPt": true,
       "PairPtCut": 20,
-      "DiscrByLeadPt": false,
+    "DiscrByLeadPt": true,
       "LeadPtCut": 25,
-      "DiscrByMinMass": false,
+      "DiscrByMinMass": true,
       "MinMassCut": 12
   }
 }

@@ -8,13 +8,12 @@
     ],
 
     "DiscrBySoftID": false,
-    "DiscrByTightID": false,
+    "DiscrByTightID": true,
     "PtCut": [
       10.0,
       9999.9
     ],
-    "EtaCut": 2.5,
-    "DiscrByVeto": true
+    "EtaCut": 2.5
   },
 
   "Muon2": {
