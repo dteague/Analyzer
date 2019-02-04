@@ -2,25 +2,25 @@
   "BJet": {
     "RemoveBJetsFromJets": false,
     "UseBtagSF": false,
-    "JetBTaggingCut": 0.8484,
     "DiscrByJetBTagging": true,
-    "Elec1DeltaRCut": 0.3,
+    "JetBTaggingCut": 0.8484,
     "DiscrByElec1DeltaR": true,
-    "Muon1DeltaRCut": 0.3,
+    "Elec1DeltaRCut": 0.3,    
     "DiscrByMuon1DeltaR": true,
-    "PtCut": 30.0,
+    "Muon1DeltaRCut": 0.3,
+    "PtCut": 25.0,
     "EtaCut": [
       0.0,
       2.4
     ]
   },
   "Jet1": {
-    "RemoveBJets": false,
+    "RemoveBJets": true,
     "Elec1DeltaRCut": 0.3,
     "DiscrByElec1DeltaR": true,
     "Muon1DeltaRCut": 0.3,
     "DiscrByMuon1DeltaR": true,
-    "PtCut": 30.0,
+    "PtCut": 40.0,
     "EtaCut": [
       0,
       2.4

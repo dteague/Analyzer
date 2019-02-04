@@ -1,20 +1,13 @@
 {
   "Muon1": {
     "DiscrByIsZdecay": false,
-    "DiscrByIso": false,
-    "IsoCut": [
-      0.0,
-      0.15
-    ],
-
+    "DiscrByIso": true,
+    "IsoCut": 0.15,
     "DiscrBySoftID": false,
-    "DiscrByTightID": false,
-    "PtCut": [
-      10.0,
-      9999.9
-    ],
+    "DiscrByTightID": true,
+    "PtCut": 10.0,
     "EtaCut": 2.5,
-    "DiscrByVeto": true
+    "DiscrByVeto": false
   },
 
   "Muon2": {

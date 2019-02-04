@@ -330,13 +330,13 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
   // } else{
   //   std::cout<<"Electron MVA ID: Electron_mvaFall17"<<std::endl;
   // }
+  SetBranch("Electron_pfRelIso03_all", pfRelIso03_all);
  
   if((elec1["DiscrByIso"]) && _BOOM->FindBranch("Electron_mvaFall17Iso")!=0 ) {
    SetBranch("Electron_miniPFRelIso_all", miniPFRelIso_all);
    SetBranch("Electron_miniPFRelIso_chg", miniPFRelIso_chg);
    SetBranch("Electron_mvaFall17Iso", mvaFall17Iso);
    SetBranch("Electron_mvaFall17noIso", mvaFall17noIso);
-   SetBranch("Electron_pfRelIso03_all", pfRelIso03_all);
    SetBranch("Electron_pfRelIso03_chg", pfRelIso03_chg);
   }
 
@@ -378,7 +378,7 @@ Electron::Electron(TTree* _BOOM, std::string filename, std::vector<std::string> 
 }
 
 double Electron::get_Iso(int index) const {
-  return pfRelIso03_all[index];
+  return (double)pfRelIso03_all[index];
 }
 
 /*
@@ -388,7 +388,7 @@ medium = 3
 tight = 4
  */
 bool Electron::PassCutID(int i, int cut) const {
- return cutBased[i] <= cut;
+ return cutBased[i] >= cut;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -416,7 +416,7 @@ Muon::Muon(TTree* _BOOM, std::string filename, std::vector<std::string> syst_nam
 }
 
 double Muon::get_Iso(int index) const {
-  return pfRelIso03_all[index];
+  return (double) pfRelIso03_all[index];
 }
 
 /*

@@ -1,24 +1,17 @@
 {
   "Elec1": {
-      "DiscrByIsZdecay": false,
-      "HEEPIDCut": false,
+    "DiscrByIsZdecay": false,
+    "HEEPIDCut": false,
     "DiscrByHEEPID": false,
     "HLTIDCut": 4,
     "DiscrByHLTID": false,
-    "DiscrByCBID": false,
+    "DiscrByCBID": true,
     "CBIDCut": 4,
-    "DiscrByIso": false,
-    "IsoCut": [
-      0.0,
-      0.08
-    ],
-
+    "DiscrByIso": true,
+    "IsoCut": 0.08,
     "DiscrByVeto": true,
-      
-    "PtCut": [
-      10.0,
-      9999.9
-    ],
+
+    "PtCut": 10.0,
     "EtaCut": 2.4
   },
   "Elec2": {

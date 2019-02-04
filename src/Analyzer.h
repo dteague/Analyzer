@@ -43,6 +43,8 @@
 #include "Systematics.h"
 #include "JetScaleResolution.h"
 #include "DepGraph.h"
+#include "LeptonPair.h"
+
 
 double normPhi(double phi);
 double absnormPhi(double phi);
@@ -93,7 +95,7 @@ public:
   void getGoodRecoFatJets(CUTS, const json&, const int);
   int getLooseLepton(const Lepton&);
 
-  void getGoodLeptonPair(CUTS, const json&, const int, const Lepton&, int, const Lepton&, int);
+  void getGoodLeptonPair(const json&, const int, const LepPair&);
   bool isZdecay(const TLorentzVector&, const TLorentzVector&);
   
   void TriggerCuts(CUTS);
@@ -180,6 +182,10 @@ public:
   clock_t start_time;
   std::chrono::time_point<std::chrono::system_clock> start;
 
+  /* double plus = 0; */
+  /* double minus =0; */
+
+  
 };
 
 

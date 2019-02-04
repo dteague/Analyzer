@@ -278,7 +278,6 @@ void Analyzer::clear_values() {
     std::cout<<"New file!"<<std::endl;
     infoFile=BOOM->GetFile();
   }
-
   leadIndex=-1;
   maxCut = 0;
 }
@@ -391,24 +390,11 @@ void Analyzer::getGoodParticles(int syst){
 
   getGoodRecoJets(CUTS::eRBJet, _Jet->pstats["BJet"],syst);
   getGoodRecoJets(CUTS::eRJet1, _Jet->pstats["Jet1"],syst);
-  
-  if(active_part->at(CUTS::eRMuon1)->size() + active_part->at(CUTS::eRElec1)->size() == 2) {
-    int l1, l2;
-    if(active_part->at(CUTS::eRMuon1)->size() == 2) {
-      l1 = active_part->at(CUTS::eRMuon1)->at(0);
-      l2 = active_part->at(CUTS::eRMuon1)->at(1);
-      getGoodLeptonPair(CUTS::eMuonPair, distats["GenericPair"] , syst, *_Muon, l1, *_Muon, l2);
-    } else if(active_part->at(CUTS::eRElec1)->size() == 2) {
-      l1 = active_part->at(CUTS::eRElec1)->at(0);
-      l2 = active_part->at(CUTS::eRElec1)->at(1);
-      getGoodLeptonPair(CUTS::eElecPair, distats["GenericPair"] , syst, *_Electron, l1, *_Electron, l2);
-    } else {
-      l1 = active_part->at(CUTS::eRMuon1)->at(0);
-      l2 = active_part->at(CUTS::eRElec1)->at(0);
-      getGoodLeptonPair(CUTS::eMixPair, distats["GenericPair"] , syst, *_Muon, l1, *_Electron, l2);
-    }
-  }
 
+  if(active_part->at(CUTS::eRMuon1)->size() + active_part->at(CUTS::eRElec1)->size() == 2) {
+    LepPair leppair(*_Muon, *active_part->at(CUTS::eRMuon1), *_Electron, *active_part->at(CUTS::eRElec1));
+    getGoodLeptonPair(distats["GenericPair"], syst, leppair);
+  }
 }
 
 
@@ -848,7 +834,7 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
   for(auto lvec: lep) {
     bool passCuts = true;
     if (passCuts) passCuts = fabs(lvec.Eta()) < stats["EtaCut"];
-    if (passCuts) passCuts = passCutRange(lvec.Pt(), stats["PtCut"]);
+    if (passCuts) passCuts = lvec.Pt() > stats["PtCut"];
 
     // if((lep.pstats.at("Smear")["MatchToGen"]) && (!isData)) {   /////check
     //   if(matchLeptonToGen(lvec, lep.pstats.at("Smear") ,eGenPos) == TLorentzVector(0,0,0,0)) continue;
@@ -857,13 +843,13 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
     for( auto cut: cut_list) {
       if(!passCuts) break;
       else if(cut == "DiscrByIsZdecay")     passCuts = isZdecay(lvec, lep);
-      else if(cut == "DiscrByIso")          passCuts = passCutRange(lep.get_Iso(i),stats["IsoCut"]);
+      else if(cut == "DiscrByIso")          passCuts = lep.get_Iso(i) < stats["IsoCut"];
       else if(cut == "DiscrByTightID")      passCuts = _Muon->tight[i];
-      else if(cut == "DiscrByCutBasedID")   passCuts = _Electron->cutBased[i] == stats["CBIDCut"];
+      else if(cut == "DiscrByCutBasedID")   passCuts = _Electron->cutBased[i] >= stats["CBIDCut"];
 
       //      else std::cout << "'" << cut << "' not used in code " << std::endl;
     }
-    
+
     if(passCuts) active_part->at(ePos)->push_back(i);
     i++;
   }
@@ -946,37 +932,54 @@ void Analyzer::getGoodRecoFatJets(CUTS ePos, const json& stats, const int syst) 
   }
 }
 
-void Analyzer::getGoodLeptonPair(CUTS subtype, const json& stats, const int syst, const Lepton& lep1, int nl1, const Lepton& lep2, int nl2) {
+void Analyzer::getGoodLeptonPair(const json& stats, const int syst, const LepPair& lepPair) {
   CUTS ePos = CUTS::eLepPair;
   std::string systname = syst_names.at(syst);
 
   ///// need to fix systematics....
-  
-  if(!lep1.needSyst(syst) || !lep2.needSyst(syst)) {
-    active_part->at(ePos) = goodParts[ePos];
-    return;
-  }
 
-  TLorentzVector l1 = lep1.p4(nl1);
-  TLorentzVector l2 = lep2.p4(nl2);
-  if(l1.Pt() < l2.Pt())
-    std::swap(l1, l2);
-    
-  
   bool passCuts = true;
   for( auto cut: bset(stats)) {
     if(!passCuts) break;
-    else if(cut == "DiscrByPairSign")       passCuts = lep1.charge(nl1)*lep2.charge(nl2) == stats["PairSignCut"];
-    else if(cut == "DiscrByPairPt")         passCuts = (l1.Pt() > stats["PairPtCut"]) && (l2.Pt() > stats["PairPtCut"]);
-    else if(cut == "DiscrByLeadPt")         passCuts = l1.Pt() > stats["LeadPtCut"];
+    else if(cut == "DiscrByPairSign")       passCuts = lepPair.charge1*lepPair.charge2 == stats["PairSignCut"];
+    else if(cut == "DiscrByPairPt")         passCuts = (lepPair.lep1.Pt() > stats["PairPtCut"]) && (lepPair.lep2.Pt() > stats["PairPtCut"]);
+    else if(cut == "DiscrByLeadPt")         passCuts = lepPair.lep1.Pt() > stats["LeadPtCut"];
     //////Muons
-    else if(cut == "DiscrByIsZDecay")       passCuts = isZdecay(l1, l2);
-    else if(cut == "DiscrByMinMass")       passCuts = (l1+l2).M() > stats["MinMassCut"];
+    else if(cut == "DiscrByIsZDecay")       passCuts = isZdecay(lepPair.lep1, lepPair.lep2);
+    else if(cut == "DiscrByMinMass")       passCuts = (lepPair.lep1+lepPair.lep2).M() > stats["MinMassCut"];
   }
   if(passCuts) {
-    active_part->at(ePos)->push_back(DiNum(nl1, nl2));
-    active_part->at(subtype)->push_back(DiNum(nl1, nl2));
+    active_part->at(ePos)->push_back(DiNum(lepPair.nl1, lepPair.nl2));
+    //    active_part->at(subtype)->push_back(DiNum(nl1, nl2));
   }
+  
+
+  
+  // if(!lep1.needSyst(syst) || !lep2.needSyst(syst)) {
+  //   active_part->at(ePos) = goodParts[ePos];
+  //   return;
+  // }
+
+  // TLorentzVector l1 = lep1.p4(nl1);
+  // TLorentzVector l2 = lep2.p4(nl2);
+  // if(l1.Pt() < l2.Pt())
+  //   std::swap(l1, l2);
+    
+  
+  // bool passCuts = true;
+  // for( auto cut: bset(stats)) {
+  //   if(!passCuts) break;
+  //   else if(cut == "DiscrByPairSign")       passCuts = lep1.charge(nl1)*lep2.charge(nl2) == stats["PairSignCut"];
+  //   else if(cut == "DiscrByPairPt")         passCuts = (l1.Pt() > stats["PairPtCut"]) && (l2.Pt() > stats["PairPtCut"]);
+  //   else if(cut == "DiscrByLeadPt")         passCuts = l1.Pt() > stats["LeadPtCut"];
+  //   //////Muons
+  //   else if(cut == "DiscrByIsZDecay")       passCuts = isZdecay(l1, l2);
+  //   else if(cut == "DiscrByMinMass")       passCuts = (l1+l2).M() > stats["MinMassCut"];
+  // }
+  // if(passCuts) {
+  //   active_part->at(ePos)->push_back(DiNum(nl1, nl2));
+  //   active_part->at(subtype)->push_back(DiNum(nl1, nl2));
+  // }
 
 }
 
@@ -1119,6 +1122,7 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
     Particle* part = fillInfo[group]->part;
     CUTS ePos = fillInfo[group]->ePos;
 
+
     for(auto it : *active_part->at(ePos)) {
       histAddVal(part->p4(it).Energy(), "Energy");
       histAddVal(part->p4(it).Pt(), "Pt");
@@ -1126,6 +1130,10 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
       histAddVal(part->p4(it).Phi(), "Phi");
       histAddVal(part->charge(it), "Charge");
 
+      if(part->type != PType::Jet) {
+	histAddVal(((Lepton*)part)->get_Iso(it), "Iso");
+      }
+      
       ///// FatJet specific
       if(part->type == PType::FatJet ) {
         histAddVal(_FatJet->PrunedMass[it], "PrunedMass");
@@ -1165,43 +1173,23 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
   }
 
   else if(group == "FillLeptonPair") {
-    int nl1, nl2;
-    TLorentzVector lep1, lep2;
-    double charge = 0;
-    if(active_part->at(CUTS::eMuonPair)->size() == 1) {
-      int pairNum = active_part->at(CUTS::eMuonPair)->at(0);
-      nl1 = poneNum(pairNum);
-      nl2 = ptwoNum(pairNum);
-      lep1 = _Muon->p4(nl1);
-      lep2 = _Muon->p4(nl2);
-      charge = _Muon->charge(nl1)*_Muon->charge(nl2);
-    } else if(active_part->at(CUTS::eElecPair)->size() == 1) {
-      int pairNum = active_part->at(CUTS::eElecPair)->at(0);
-      nl1 = poneNum(pairNum);
-      nl2 = ptwoNum(pairNum);
-      lep1 = _Electron->p4(nl1);
-      lep2 = _Electron->p4(nl2);
-      charge = _Electron->charge(nl1)*_Electron->charge(nl2);
-    } else if(active_part->at(CUTS::eMixPair)->size() == 1) {
-      int pairNum = active_part->at(CUTS::eMixPair)->at(0);
-      nl1 = poneNum(pairNum);
-      nl2 = ptwoNum(pairNum);
-      lep1 = _Muon->p4(nl1);
-      lep2 = _Electron->p4(nl2);
-      charge = _Muon->charge(nl1)*_Electron->charge(nl2);
-    } else
-      return;
-  
-    if(lep1.Pt() < lep2.Pt())
-      std::swap(lep1, lep2);
+    if(active_part->at(CUTS::eLepPair)->size() == 0) return;
     
-    histAddVal(lep1.DeltaR(lep2), "DeltaR");
-    histAddVal(lep1.Pt() - lep2.Pt(), "DeltaPt");
-    histAddVal(cos(lep1.Phi() - lep2.Phi()),"CosDphi"  );
-    histAddVal((lep1 + lep2).M(), "Mass");
-    histAddVal(lep1.Pt(), "LeadPt");
-    histAddVal(lep2.Pt(), "SubLeadPt");
-    histAddVal(charge, "Charge");
+    LepPair leppair(*_Muon, *active_part->at(CUTS::eRMuon1), *_Electron, *active_part->at(CUTS::eRElec1));
+    histAddVal(leppair.lep1.DeltaR(leppair.lep2), "DeltaR");
+    histAddVal(leppair.lep1.Pt() - leppair.lep2.Pt(), "DeltaPt");
+    histAddVal(cos(leppair.lep1.Phi() - leppair.lep2.Phi()),"CosDphi"  );
+    histAddVal((leppair.lep1 + leppair.lep2).M(), "Mass");
+    histAddVal(leppair.lep1.Pt(), "LeadPt");
+    histAddVal(leppair.lep2.Pt(), "SubLeadPt");
+    histAddVal(leppair.charge1*leppair.charge2, "Charge");
+
+    // if(ihisto.get_maxfolder() == max) {
+    //   if(leppair.charge1*leppair.charge2 < 0) minus++;
+    //   else plus++;
+    //   std::cout << plus/minus << std::endl;
+    // }
+
   }
   return;
 
