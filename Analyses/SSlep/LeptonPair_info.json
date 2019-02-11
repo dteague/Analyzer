@@ -1,26 +1,27 @@
 {
-  "ElectronPair": {
-    "DiscrIfiszdecay": false
-  },
-  "MuonPair": {
-    "DiscrByPairSign": true,
-    "PairSign": -1,
-    "DiscrByPairPt": true,
-    "PairPt": 15,
-    "DiscrByLeadPt": true,
-    "LeadPt": 25,
-    "DiscrByMuonTight": false,
-    "DiscrByLeadMuonTight": true,
-    "DiscrByIsZDecay": true
-  },
-  "GenericPair": {
-    "DiscrByPairSign": true,
-    "PairSignCut": 1,
-    "DiscrByPairPt": true,
-    "PairPtCut": 20,
-    "DiscrByLeadPt": true,
-    "LeadPtCut": 25,
-    "DiscrByMinMass": true,
-    "MinMassCut": 12
-  }
+    "ElectronPair": {
+	"DiscrIfiszdecay": false
+    },
+    "MuonPair": {
+	"DiscrByPairSign": true,
+	"PairSign": -1,
+	"DiscrByPairPt": true,
+	"PairPt": 15,
+	"DiscrByLeadPt": true,
+	"LeadPt": 25,
+	"DiscrByMuonTight": false,
+	"DiscrByLeadMuonTight": true,
+	"DiscrByIsZDecay": true
+    },
+    "GenericPair": {    // currently what's used in code
+	"DiscrByPairSign": true,
+	"PairSignCut": 1,
+	
+	"DiscrByPairPt": true,
+	"PairPtCut": 20,
+	"DiscrByLeadPt": true,
+	"LeadPtCut": 25,
+	"DiscrByMinMass": true,
+	"MinMassCut": 12
+    }
 }

@@ -13,11 +13,11 @@ NRecoTriggers1     0   -1           ///only 0 or 1
 NRecoMuon1	      0    2
 NRecoElectron1        0    2
 ***VetoFlag	      0    0
-NLeptonPair	      1    1
+NLeptonPair	      1    1   // apply requirement of exactly 2 leptons and pair cuts
 NRecoJet1	      4   -1
 NRecoBJet	      2   -1
-METCut		      1   -1
-***Final	      0   -1
+METCut		      1   -1  // HT, MHT, MET cut applied (in Run_info). only 0 or 1
+***Final	      0   -1  // added to have histograms after all cuts applied.
 
 
 

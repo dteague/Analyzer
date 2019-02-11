@@ -1,44 +1,48 @@
 {
-  "Muon1": {
-    "DiscrByIsZdecay": false,
-    "DiscrByIso": true,
-    "IsoCut": 0.15,
-    "DiscrBySoftID": false,
-    "DiscrByTightID": true,
-    "PtCut": 10.0,
-    "EtaCut": 2.5,
-    "DiscrByVeto": false
-  },
+    "Muon1": {
+	"DiscrByIsZdecay": false, //checks against other electrons if mass is +-15 of zpeak
+	
+	"DiscrByIso": true,
+	"IsoCut": 0.15,
+	
+	"DiscrBySoftID": false,
+	"DiscrByTightID": true,
 
-  "Muon2": {
-    "DiscrByIsZdecay": false,
-    "IsoCut": [
-      0.0,
-      0.15
-    ],
-    "DiscrByIso": false,
-    "DiscrBySoftID": false,
-    "DiscrByTightID": false,
-    "PtCut": [
-      20.0,
-      9999.9
-    ],
-    "EtaCut": 2.1
-  },
-  "Smear": {
-    "doEfficiencyPlots": false,
-    "MotherID": 23.0,
-    "UseMotherID": false,
-    "GenMatchingDeltaR": 0.3,
-    "MatchToGen": false,
-    "EnergySigmaOffset": 1,
-    "EnergyScaleOffset": 1,
-    "PhiSigmaOffset": 1,
-    "PhiScaleOffset": 1,
-    "EtaSigmaOffset": 1,
-    "EtaScaleOffset": 1,
-    "PtResolutionOffset": 1,
-    "PtScaleOffset": 1,
-    "SmearTheParticle": false
-  }
+	"PtCut": 10.0,
+	"EtaCut": 2.5,
+
+	"DiscrByVeto": false //ignore events that have muon that pass soft id, but not tight
+    },
+
+    "Muon2": {
+	"DiscrByIsZdecay": false,
+	"IsoCut": [
+	    0.0,
+	    0.15
+	],
+	"DiscrByIso": false,
+	"DiscrBySoftID": false,
+	"DiscrByTightID": false,
+	"PtCut": [
+	    20.0,
+	    9999.9
+	],
+	"EtaCut": 2.1
+    },
+    "Smear": {
+	"doEfficiencyPlots": false,
+	"MotherID": 23.0,
+	"UseMotherID": false,
+	"GenMatchingDeltaR": 0.3,
+	"MatchToGen": false,
+	"EnergySigmaOffset": 1,
+	"EnergyScaleOffset": 1,
+	"PhiSigmaOffset": 1,
+	"PhiScaleOffset": 1,
+	"EtaSigmaOffset": 1,
+	"EtaScaleOffset": 1,
+	"PtResolutionOffset": 1,
+	"PtScaleOffset": 1,
+	"SmearTheParticle": false
+    }
 }

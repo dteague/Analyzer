@@ -1,14 +1,18 @@
 {
     "BJet": {
-	"UseBtagSF": false,
-	"DiscrByJetBTagging": true,
-	//    "JetBTaggingCut": 0.8484,
-	"JetBTaggingCut": 0.6324,
+	"UseBtagSF": false,   //Not implimented right now, would use csv file values (in ./Pileup)
+	
+	"DiscrByJetBTagging": true,  
+	//    "JetBTaggingCut": 0.8484,  //value for csvv1
+	"JetBTaggingCut": 0.6324,  // value for DeepCSV
+
 	"DiscrByElec1DeltaR": true,
 	"Elec1DeltaRCut": 0.3,    
+
 	"DiscrByMuon1DeltaR": true,
 	"Muon1DeltaRCut": 0.3,
-	"DiscrByLooseID": true,
+
+	"DiscrByLooseID": true,  //implimented based on charge/neutral fractions (not implimented in 2017)
 	"PtCut": 20.0,
 	"EtaCut": [
 	    0.0,
@@ -16,12 +20,16 @@
 	]
     },
     "Jet1": {
-	"RemoveBJets": false,
-	"Elec1DeltaRCut": 0.3,
+	"RemoveBJets": false,  // skip jets that pass bjet cuts
+
 	"DiscrByElec1DeltaR": true,
-	"Muon1DeltaRCut": 0.3,
+	"Elec1DeltaRCut": 0.3,
+
 	"DiscrByMuon1DeltaR": true,
+	"Muon1DeltaRCut": 0.3,
+	
 	"DiscrByLooseID": true,
+	
 	"PtCut": 45.0,
 	"EtaCut": [
 	    0,

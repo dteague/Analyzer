@@ -1,52 +1,54 @@
+////For IDS, 1 = veto, 2 = loose, 3 = medium, 4 = tight unless noted
 {
-  "Elec1": {
-    "DiscrByIsZdecay": false,
-    "HEEPIDCut": false,
-    "DiscrByHEEPID": false,
-    "HLTIDCut": 4,
-    "DiscrByHLTID": false,
-    "DiscrByCBID": true,
-    "CBIDCut": 4,
-    "DiscrByIso": true,
-    "IsoCut": 0.08,
-    "DiscrByVeto": true,
+    "Elec1": {
+	"DiscrByIsZdecay": false,   //checks against other electrons if mass is +-15 of zpeak
 
-    "PtCut": 10.0,
-    "EtaCut": 2.4
-  },
-  "Elec2": {
-    "DiscrByIsZdecay": false,
-    "DiscrByHEEPID": false,
-    "HLTIDCut": 4,
-    "DiscrByHLTID": false,
-    "CBIDCut": 4,
-    "DiscrByCBID": true,
-    "IsoCut": [
-      0.0,
-      0.4
-    ],
-    "DiscrByIso": true,
-    "PtCut": [
-      10.0,
-      9999.9
-    ],
-    "EtaCut": 2.1
-  },
-    
-  "Smear": {
-    "doEfficiencyPlots": true,
-    "MotherID": 23,
-    "UseMotherID": true,
-    "GenMatchingDeltaR": 0.1,
-    "MatchToGen": false,
-    "EnergySigmaOffset": 1,
-    "EnergyScaleOffset": 1,
-    "PhiSigmaOffset": 1,
-    "PhiScaleOffset": 1,
-    "EtaSigmaOffset": 1,
-    "EtaScaleOffset": 1,
-    "PtResolutionOffset": 1,
-    "PtScaleOffset": 1,
-    "SmearTheParticle": false
-  }
+	"DiscrByHEEPID": false,  //HEEP id cut
+	"HEEPIDCut": 4,
+
+	"DiscrByHLTID": false, //HLT id cut
+	"HLTIDCut": 4,
+
+	"DiscrByCBID": true,   //cut based id cut
+	"CBIDCut": 4,
+
+	"DiscrByIso": true,  
+	"IsoCut": 0.08,
+
+	"DiscrByVeto": true,  //ignore events that have electrons that pass loose id, but not tight
+
+	"PtCut": 10.0,
+	"EtaCut": 2.4
+    },
+
+    "Elec2": {
+	"DiscrByIsZdecay": false,
+	"DiscrByHEEPID": false,
+	"HLTIDCut": 4,
+	"DiscrByHLTID": false,
+	"CBIDCut": 4,
+	"DiscrByCBID": true,
+	"IsoCut": 0.4,
+
+	"DiscrByIso": true,
+	"PtCut": 10.0,
+
+	"EtaCut": 2.1
+    },
+    "Smear": {
+	"doEfficiencyPlots": true,
+	"MotherID": 23,
+	"UseMotherID": true,
+	"GenMatchingDeltaR": 0.1,
+	"MatchToGen": false,
+	"EnergySigmaOffset": 1,
+	"EnergyScaleOffset": 1,
+	"PhiSigmaOffset": 1,
+	"PhiScaleOffset": 1,
+	"EtaSigmaOffset": 1,
+	"EtaScaleOffset": 1,
+	"PtResolutionOffset": 1,
+	"PtScaleOffset": 1,
+	"SmearTheParticle": false
+    }
 }

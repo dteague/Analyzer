@@ -140,6 +140,7 @@ void Particle::getPartStats(std::string filename) {
     if(found != std::string::npos) {
       line = line.substr(0, found);
     }
+    //    if(line.length() ==0) continue;
     ss << line;
   }
 
