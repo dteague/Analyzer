@@ -55,7 +55,8 @@ public:
   void setCurrentP(int);
   std::string getName() {return GenName;};
   void update(json&, Jet&, int);
-
+  void updateHT(Jet& jet, std::vector<int> goodJets, int syst);
+  
   TLorentzVector Reco;
   TLorentzVector *cur_P;
 

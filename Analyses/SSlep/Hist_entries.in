@@ -105,3 +105,5 @@ LeptonPairMass 		       100     0     200
 LeptonPairLeadPt		       600     0     1500
 LeptonPairSubLeadPt		       600     0     1500
 LeptonPairCharge		       3       -1     2
+
+LeptonPair_BJetvsJets		       3  2 5  8 4 12

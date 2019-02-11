@@ -1,7 +1,7 @@
 {
   "Run": {
-    "JetEtaForMhtAndHt": 5.0,
-    "JetPtForMhtAndHt": 30.0,
+    "JetEtaForMhtAndHt": 2.4,
+    "JetPtForMhtAndHt": 40.0,
     "ApplyJetLooseIDforMhtAndHt": false,
     "DiscrByHT": true,
     "HTCut": 300.0,

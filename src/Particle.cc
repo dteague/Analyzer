@@ -199,7 +199,7 @@ Jet::Jet(TTree* _BOOM, std::string filename, std::vector<std::string> syst_names
   SetBranch("Jet_nMuons", nMuons);
   SetBranch("Jet_chHEF", chargedHadronEnergyFraction);
   SetBranch("Jet_chEmEF", chargedEmEnergyFraction);
-  SetBranch("Jet_btagCSVV2", bDiscriminator);
+  SetBranch("Jet_btagDeepB", bDiscriminator);
   SetBranch("Jet_puId", puID);
   SetBranch("Jet_area", area);
   if(_BOOM->FindBranch("Jet_partonFlavour")!=0){
@@ -231,8 +231,10 @@ std::vector<CUTS> Jet::overlapCuts(CUTS ePos) {
 }
 
 bool Jet::passedLooseJetID(int nobj) {
-  std::bitset<8> bit_jet(jetId[nobj]);
-  return bit_jet[0];
+  return ((neutralEmEmEnergyFraction[nobj] < 0.99) && (neutralHadEnergyFraction[nobj] < 0.99) &&
+	  (chargedEmEnergyFraction[nobj] < 0.99) && (chargedHadronEnergyFraction[nobj] > 0.0) &&
+	  (numberOfConstituents[nobj] > 1));
+
 }
 
 

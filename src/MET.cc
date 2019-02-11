@@ -80,25 +80,25 @@ void Met::init(){
 void Met::update(json& stats, Jet& jet, int syst=0){
   ///Calculates met from values from each file plus smearing and treating muons as neutrinos
   if(systVec.at(syst) == nullptr) return;
-  double sumpxForMht=0;
-  double sumpyForMht=0;
-  double sumptForHt=0;
+  // double sumpxForMht=0;
+  // double sumpyForMht=0;
+  // double sumptForHt=0;
 
-  int i=0;
-  for(auto jetVec: jet) {
-    bool add = true;
-    if( (jetVec.Pt() < stats["JetPtForMhtAndHt"]) || (abs(jetVec.Eta()) > stats["JetEtaForMhtAndHt"]) )
-      add = false;
-    if(add) {
-      sumpxForMht -= jetVec.Px();
-      sumpyForMht -= jetVec.Py();
-      sumptForHt  += jetVec.Pt();
-    }
-    i++;
-  }
-  syst_HT.at(syst)=sumptForHt;
-  syst_MHT.at(syst)= sqrt( pow(sumpxForMht,2.0) + pow(sumpyForMht,2.0) );
-  syst_MHTphi.at(syst)=atan2(sumpyForMht,sumpxForMht);
+  // int i=0;
+  // for(auto jetVec: jet) {
+  //   bool add = true;
+  //   if( (jetVec.Pt() < stats["JetPtForMhtAndHt"]) || (abs(jetVec.Eta()) > stats["JetEtaForMhtAndHt"]) )
+  //     add = false;
+  //   if(add) {
+  //     sumpxForMht -= jetVec.Px();
+  //     sumpyForMht -= jetVec.Py();
+  //     sumptForHt  += jetVec.Pt();
+  //   }
+  //   i++;
+  // }
+  // syst_HT.at(syst)=sumptForHt;
+  // syst_MHT.at(syst)= sqrt( pow(sumpxForMht,2.0) + pow(sumpyForMht,2.0) );
+  // syst_MHTphi.at(syst)=atan2(sumpyForMht,sumpxForMht);
 
   systVec.at(syst)->SetPxPyPzE(systVec.at(syst)->Px()+systdeltaMEx[syst], 
                                systVec.at(syst)->Py()+systdeltaMEy[syst], 
@@ -106,6 +106,25 @@ void Met::update(json& stats, Jet& jet, int syst=0){
                                TMath::Sqrt(pow(systVec.at(syst)->Px()+systdeltaMEx[syst],2) + pow(systVec.at(syst)->Py()+systdeltaMEy[syst],2)));
 
 }
+
+void Met::updateHT(Jet& jet, std::vector<int> goodJets, int syst) {
+  if(systVec.at(syst) == nullptr) return;
+
+  double sumpxForMht=0;
+  double sumpyForMht=0;
+  double sumptForHt=0;
+
+  for(auto i: goodJets) {
+    TLorentzVector jetVec = jet.p4(i);
+    sumpxForMht -= jetVec.Px();
+    sumpyForMht -= jetVec.Py();
+    sumptForHt  += jetVec.Pt();
+  }
+  syst_HT.at(syst)=sumptForHt;
+  syst_MHT.at(syst)= sqrt( pow(sumpxForMht,2.0) + pow(sumpyForMht,2.0) );
+  syst_MHTphi.at(syst)=atan2(sumpyForMht,sumpxForMht);
+}
+
 
 double Met::pt()const         {return cur_P->Pt();}
 double Met::px()const         {return cur_P->Px();}

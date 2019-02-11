@@ -111,7 +111,7 @@ public:
 
   inline bool passCutRange(double, const json&);
 
-  void updateMet(int syst=0);
+  void metCuts(int syst=0);
   std::unordered_map<CUTS, std::vector<int>*, EnumHash> getArray();
   void setup_Tree();
   std::vector<std::string> bset(const json& j);

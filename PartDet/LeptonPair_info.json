@@ -15,12 +15,12 @@
   },
   "GenericPair": {
     "DiscrByPairSign": true,
-    "PairSignCut": -1,
+    "PairSignCut": 1,
     "DiscrByPairPt": true,
-      "PairPtCut": 20,
+    "PairPtCut": 20,
     "DiscrByLeadPt": true,
-      "LeadPtCut": 25,
-      "DiscrByMinMass": true,
-      "MinMassCut": 12
+    "LeadPtCut": 25,
+    "DiscrByMinMass": true,
+    "MinMassCut": 12
   }
 }

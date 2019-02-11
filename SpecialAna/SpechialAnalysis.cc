@@ -45,28 +45,28 @@ void SpechialAnalysis::analyze() {
   if(a->active_part->at(a->cut_num.at("NRecoTriggers1"))->size()==0 )
     return;
 
-  int p1 = -1;
-  int p2 = -1;
+  // int p1 = -1;
+  // int p2 = -1;
   // if (a->active_part->at(CUTS::eDiTau)->size() == 1) {
   //   p1 = a->active_part->at(CUTS::eDiTau)->at(0) / BIG_NUM;
   //   p2 = a->active_part->at(CUTS::eDiTau)->at(0) % BIG_NUM;
   // } else {
   //   return;
   // }
-  int j1      = -1;
-  int j2      = -1;
-  double mass = 0;
-  for (auto it : *a->active_part->at(CUTS::eDiJet)) {
-    int j1tmp = (it) / a->_Jet->size();
-    int j2tmp = (it) % a->_Jet->size();
+  // int j1      = -1;
+  // int j2      = -1;
+  // double mass = 0;
+  // for (auto it : *a->active_part->at(CUTS::eDiJet)) {
+  //   int j1tmp = (it) / a->_Jet->size();
+  //   int j2tmp = (it) % a->_Jet->size();
     // if (a->diParticleMass(a->_Jet->p4(j1tmp), a->_Jet->p4(j2tmp), "") > mass) {
     //   j1   = j1tmp;
     //   j2   = j2tmp;
     //   mass = a->diParticleMass(a->_Jet->p4(j1tmp), a->_Jet->p4(j2tmp), "");
     // }
-  }
-  if (p1 < 0 or p2 < 0 or j1 < 0 or j2 < 0)
-    return;
+  // }
+  // if (p1 < 0 or p2 < 0 or j1 < 0 or j2 < 0)
+  //   return;
     
   //  HistClass::Fill("Tau_num",a->active_part->at(CUTS::eRTau1)->size(),a->wgt);
 

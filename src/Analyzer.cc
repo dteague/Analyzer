@@ -11,7 +11,7 @@
 #define histAddVal2(val1, val2, name) ihisto.addVal(val1, val2, group, max, name, wgt);
 #define histAddVal(val, name) ihisto.addVal(val, group, max, name, wgt);
 #define SetBranch(name, variable) BOOM->SetBranchStatus(name, 1);  BOOM->SetBranchAddress(name, &variable);
-
+#define NGoodCut(ePos) active_part->at(ePos)->size()
 typedef std::vector<int>::iterator vec_iter;
 
 
@@ -348,14 +348,14 @@ bool Analyzer::preprocess(int event) {
 
     smearJet(*_Jet,CUTS::eGJet,_Jet->pstats["Smear"], i);
     smearJet(*_FatJet,CUTS::eGJet,_FatJet->pstats["Smear"], i);
-    updateMet(i);
-
+    _MET->update(distats["Run"], *_Jet, i);
   }
   for(size_t i=0; i < syst_names.size(); i++) {
     std::string systname = syst_names.at(i);
     for( auto part: allParticles) part->setCurrentP(i);
     _MET->setCurrentP(i);
     getGoodParticles(i);
+    metCuts(i);
   }
   active_part = &goodParts;
 
@@ -391,7 +391,9 @@ void Analyzer::getGoodParticles(int syst){
   getGoodRecoJets(CUTS::eRBJet, _Jet->pstats["BJet"],syst);
   getGoodRecoJets(CUTS::eRJet1, _Jet->pstats["Jet1"],syst);
 
-  if(active_part->at(CUTS::eRMuon1)->size() + active_part->at(CUTS::eRElec1)->size() == 2) {
+  _MET->updateHT(*_Jet, *active_part->at(CUTS::eRJet1), syst);
+  
+  if(NGoodCut(CUTS::eRMuon1) + NGoodCut(CUTS::eRElec1) == 2) {
     LepPair leppair(*_Muon, *active_part->at(CUTS::eRMuon1), *_Electron, *active_part->at(CUTS::eRElec1));
     getGoodLeptonPair(distats["GenericPair"], syst, leppair);
   }
@@ -418,7 +420,7 @@ bool Analyzer::fillCuts(bool fillCounter) {
     int min= cut_info->at(cut).first;
     int max= cut_info->at(cut).second;
 
-    int nparticles = active_part->at(cut_num.at(cut))->size();
+    int nparticles = NGoodCut(cut_num.at(cut));
     //if(!fillCounter) std::cout << cut << ": " << nparticles << " (" << min << ", " << max << ")" <<std::endl;
     if( (nparticles >= min) && (nparticles <= max || max == -1)) {
       if(fillCounter && crbins == 1) {
@@ -487,11 +489,8 @@ void Analyzer::printCuts() {
 
 
 ///Calculates met from values from each file plus smearing and treating muons as neutrinos
-void Analyzer::updateMet(int syst) {
-  _MET->update(distats["Run"], *_Jet,  syst);
-
+void Analyzer::metCuts(int syst) {
   /////MET CUTS
-
   if(!passCutRange(_MET->pt(), distats["Run"]["MetCut"])) return;
   if(distats["Run"]["DiscrByHT"] && _MET->HT() < distats["Run"]["HTCut"]) return;
 
@@ -854,14 +853,14 @@ void Analyzer::getGoodRecoLeptons(const Lepton& lep, const CUTS ePos, const CUTS
     i++;
   }
   if(find(cut_list.begin(), cut_list.end(), "DiscrByVeto") != cut_list.end()) {
-    if(getLooseLepton(lep) != active_part->at(ePos)->size()) active_part->at(CUTS::eTripVeto)->push_back(1);
+    if(getLooseLepton(lep) != (int)NGoodCut(ePos)) active_part->at(CUTS::eTripVeto)->push_back(1);
   }
   return;
 }
 
 int Analyzer::getLooseLepton(const Lepton& lep) {
   int num = 0;
-  for(int i=0; i < lep.size(); i++) {
+  for(size_t i=0; i < lep.size(); i++) {
     if(lep.PassCutID(i, 2)) num++;
   }
   return num;
@@ -891,9 +890,10 @@ void Analyzer::getGoodRecoJets(CUTS ePos, const json& stats, const int syst) {
     for( auto cut: cut_list) {
       if(!passCuts) break;
       else if(cut == "RemoveBJets")                 passCuts = (std::find(bjets->begin(), bjets->end(), i) == bjets->end());
-      else if(cut == "DiscrByJetBTagging")            passCuts = (_Jet->bDiscriminator[i] > stats["JetBTaggingCut"]);
+      else if(cut == "DiscrByJetBTagging")          passCuts = (_Jet->bDiscriminator[i] > stats["JetBTaggingCut"]);
       else if(cut == "DiscrByElec1DeltaR")          passCuts = !isOverlaping(lvec, *_Electron, CUTS::eRElec1, stats["Elec1DeltaRCut"]);
       else if(cut == "DiscrByMuon1DeltaR")          passCuts = !isOverlaping(lvec, *_Muon, CUTS::eRMuon1, stats["Muon1DeltaRCut"]);
+      else if(cut == "DiscrByLooseID")              passCuts = _Jet->passedLooseJetID(i);
       //      else std::cout << "'" << cut << "' not used in code " << std::endl;
     }
     if(passCuts) active_part->at(ePos)->push_back(i);
@@ -1145,7 +1145,7 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
     }
 
     /// leading particle information
-    if((part->type != PType::Jet ) && active_part->at(ePos)->size() > 0) {
+    if((part->type != PType::Jet ) && NGoodCut(ePos) > 0) {
       std::vector<std::pair<double, int> > ptIndexVector;
       for(auto it : *active_part->at(ePos)) {
         ptIndexVector.push_back(std::make_pair(part->pt(it),it));
@@ -1160,7 +1160,7 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
         histAddVal(part->eta(ptIndexVector.at(ptIndexVector.size()-2).second), "SecondLeadingEta");
       }
     }
-    histAddVal(active_part->at(ePos)->size(), "N");
+    histAddVal(NGoodCut(ePos), "N");
   }
 
   else if(group == "FillMetCuts") {
@@ -1173,7 +1173,7 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
   }
 
   else if(group == "FillLeptonPair") {
-    if(active_part->at(CUTS::eLepPair)->size() == 0) return;
+    if(NGoodCut(CUTS::eLepPair) == 0) return;
     
     LepPair leppair(*_Muon, *active_part->at(CUTS::eRMuon1), *_Electron, *active_part->at(CUTS::eRElec1));
     histAddVal(leppair.lep1.DeltaR(leppair.lep2), "DeltaR");
@@ -1183,7 +1183,7 @@ void Analyzer::fill_Folder(std::string group, const int max, Histogramer &ihisto
     histAddVal(leppair.lep1.Pt(), "LeadPt");
     histAddVal(leppair.lep2.Pt(), "SubLeadPt");
     histAddVal(leppair.charge1*leppair.charge2, "Charge");
-
+    histAddVal2(NGoodCut(CUTS::eRBJet), NGoodCut(CUTS::eRJet1), "BJetvsJets");
     // if(ihisto.get_maxfolder() == max) {
     //   if(leppair.charge1*leppair.charge2 < 0) minus++;
     //   else plus++;
