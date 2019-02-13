@@ -12,7 +12,7 @@
 	"DiscrByCBID": true,   //cut based id cut
 	"CBIDCut": 4,
 
-	"DiscrByIso": true,  
+	"DiscrByIso": false,  
 	"IsoCut": 0.08,
 
 	"DiscrByVeto": true,  //ignore events that have electrons that pass loose id, but not tight

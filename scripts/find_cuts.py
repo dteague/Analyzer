@@ -49,7 +49,14 @@ for line in cutfile:
     partfile = "%s%s" % (configdir, filemap[cuts[0]][0])
     
     with open(partfile, 'r') as f2:
-        data = json.loads(f2.read())
+        clean_file=''
+        for f2line in f2:
+            f2line = f2line.strip()
+            slash_loc = f2line.find('//')
+            if slash_loc != -1:
+                f2line = f2line[0:slash_loc].strip()
+            clean_file += f2line
+        data = json.loads(clean_file)
         f2.close()
         subdata = data[filemap[cuts[0]][1]]
     for item in subdata:
